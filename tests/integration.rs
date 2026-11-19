@@ -822,6 +822,47 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_seed_root_transposes_the_generated_piece() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-root-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let mut sources = Vec::new();
+    for (name, extra) in [
+        ("c.coda", vec!["--root", "C4"]),
+        ("d.coda", vec!["--root", "D4"]),
+    ] {
+        let path = root.join(name);
+        let mut args = vec!["seed", "42", "--bars", "2"];
+        args.extend(extra);
+        args.push("-o");
+        let out = Command::new(exe).args(args).arg(&path).output().unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        sources.push(std::fs::read_to_string(&path).unwrap());
+    }
+    assert_ne!(sources[0], sources[1], "D4 should shift the key");
+
+    let no_root = root.join("none.coda");
+    let out = Command::new(exe)
+        .args(["seed", "42", "--bars", "2", "-o"])
+        .arg(&no_root)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(sources[0], std::fs::read_to_string(&no_root).unwrap());
+
+    let bad = Command::new(exe)
+        .args(["seed", "42", "--root", "H9"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_bitdepth_writes_8bit_pcm() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-bitdepth-{}", std::process::id()));

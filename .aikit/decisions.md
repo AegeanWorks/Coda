@@ -305,3 +305,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Retro and embedded targets need 8-bit audio; Coda only wrote 16-bit.
 - **Decision**: Convert decoded frames to unsigned 8-bit PCM with a rebuilt header and exact -1/0/1 mapping, while --bits 16 returns the original bytes unchanged.
 - **Consequences**: Header fields, sample bytes and length are pinned by byte tests; analyze remains 16-bit-only by design.
+
+### ADR-043: Seed root key reuses chromatic transposition
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Generated arrangements were fixed to C; a root option lets the same seed be heard in another key without changing the generator.
+- **Decision**: Parse --root as a note name and transpose the generated score by its semitone offset from C4, reusing the existing transpose function.
+- **Consequences**: C4 is an identity, other roots shift uniformly, invalid names fail clearly, and no-root output stays byte-identical.

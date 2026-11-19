@@ -19,6 +19,7 @@ use coda::loop_score;
 use coda::midi_import;
 use coda::mix;
 use coda::normalize;
+use coda::notes;
 use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
 use coda::resample;
@@ -100,6 +101,7 @@ OPTIONS
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
       --scale <name>   major | minor | pentatonic | chromatic (seed only)
+      --root <note>    Root note for seed (default: C4)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -201,6 +203,7 @@ fn main() -> ExitCode {
     let mut target_rate: Option<u32> = None;
     let mut channel_mode: Option<String> = None;
     let mut bits: u16 = 8;
+    let mut root_note: Option<String> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -460,6 +463,13 @@ fn main() -> ExitCode {
                     i += 2;
                 }
                 None => return fail("--mode needs a name", "coda channels in.wav --mode mono"),
+            },
+            "--root" => match need(i) {
+                Some(name) => {
+                    root_note = Some(name.to_string());
+                    i += 2;
+                }
+                None => return fail("--root needs a note name", "coda seed 42 --root D4"),
             },
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
@@ -1308,7 +1318,21 @@ fn main() -> ExitCode {
             if let Some(t) = tempo_override {
                 options.tempo = t;
             }
-            gen::generate(number, options)
+            let mut generated = gen::generate(number, options);
+            if let Some(name) = &root_note {
+                match notes::midi(name) {
+                    Some(midi) => {
+                        generated = transpose::transpose(&generated, midi - 60);
+                    }
+                    None => {
+                        return fail(
+                            &format!("invalid root note '{name}'"),
+                            "use a note name like C4, D4 or Bb3",
+                        )
+                    }
+                }
+            }
+            generated
         }
         other => return fail(&format!("unknown command '{other}'"), "coda help"),
     };

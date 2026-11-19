@@ -53,6 +53,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Resampling** — `resample` converts a Coda WAV to another sample rate with deterministic linear interpolation.
 - **Channel tools** — `channels --mode mono|swap|left|right` folds, swaps or isolates stereo sides.
 - **Bit depth** — `bitdepth --bits 8|16` exports unsigned 8-bit PCM or keeps the original 16-bit bytes.
+- **Root key** — `seed --root D4` generates an arrangement transposed from C into the chosen key.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -107,7 +108,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 
-Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`, `--peak`, `--fade-in`, `--fade-out`, `--echo-delay`, `--echo-feedback`, `--autopan-rate`, `--autopan-depth`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
+Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`, `--peak`, `--fade-in`, `--fade-out`, `--echo-delay`, `--echo-feedback`, `--autopan-rate`, `--autopan-depth`, `--root`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
 
 ## Score language
 
