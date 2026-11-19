@@ -14,6 +14,7 @@ use coda::crush;
 use coda::dc;
 use coda::diatonic;
 use coda::digest;
+use coda::distort;
 use coda::echo;
 use coda::echo_wav;
 use coda::extract;
@@ -123,6 +124,7 @@ USAGE
   coda velocity <score.coda> --peak 0..1 [-o out.coda]
   coda midi-info <file.mid>
   coda chord <score.coda> --at B --pitch NOTE --quality NAME --beats B [-o out.coda]
+  coda distort <in.wav> --drive 0..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -181,6 +183,7 @@ OPTIONS
       --pitch NOTE     Root pitch for chord
       --quality NAME   major | minor | dim | aug for chord
       --beats B        Duration of the chord triad
+      --drive 0..1     Saturation amount for distort (0 = identity)
       --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
       --intervals LIST Comma-separated semitones for harmonize
@@ -324,6 +327,7 @@ fn main() -> ExitCode {
     let mut chord_pitch: Option<String> = None;
     let mut chord_quality: Option<String> = None;
     let mut chord_beats = 1.0_f64;
+    let mut drive_amount: Option<f64> = None;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -735,6 +739,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--alpha must be between 0 and 1",
                         "coda lowpass in.wav --alpha 0.2",
+                    )
+                }
+            },
+            "--drive" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    drive_amount = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--drive must be between 0 and 1",
+                        "coda distort in.wav --drive 0.5",
                     )
                 }
             },
@@ -1200,6 +1216,47 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "distort" {
+        if positional.is_empty() {
+            return fail(
+                "distort needs an input WAV",
+                "coda distort in.wav --drive 0.5",
+            );
+        }
+        let drive = match drive_amount {
+            Some(value) => value,
+            None => return fail("distort needs --drive", "coda distort in.wav --drive 0.5"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let saturated = match distort::apply_distort(&bytes, drive) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "distorted.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &saturated) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, drive {drive})", saturated.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

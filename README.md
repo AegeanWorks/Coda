@@ -87,6 +87,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Velocity normalization** — `velocity --peak N` rescales dynamics so the loudest note reaches the target.
 - **MIDI inspection** — `midi-info` reports a MIDI file's header and recovered musical content.
 - **Chords** — `chord --at B --pitch NOTE --quality NAME` inserts a named-quality triad.
+- **Distortion** — `distort --drive 0..1` adds bounded soft saturation; drive 0 is an identity.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -156,6 +157,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `velocity <score.coda> --peak 0..1` | Rescale note velocities to a peak. |
 | `midi-info <file.mid>` | Inspect a MIDI file read-only. |
 | `chord <score.coda> --at B --pitch NOTE --quality NAME` | Insert a triad. |
+| `distort <in.wav> --drive 0..1` | Apply soft-clip saturation. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

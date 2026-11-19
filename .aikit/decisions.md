@@ -550,3 +550,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: harmonize spawned voices from existing notes and pedal added one note, but no tool inserted a chord of a chosen quality at a chosen beat.
 - **Decision**: Append a major, minor, diminished or augmented triad at the requested beat and duration with 0.7 velocity and score-default timbre, preserving existing notes.
 - **Consequences**: All four qualities, preservation, exact round-trip and argument validation are pinned by byte tests.
+
+### ADR-078: Distort applies bounded soft saturation
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: gain trimmed linearly with a hard clamp and crush quantized levels, leaving no smooth saturation effect.
+- **Decision**: Map each sample through (1+drive)*x/(1+drive*|x|), which is bounded, preserves sign, boosts quiet samples more than loud ones, and is byte-identical at drive 0.
+- **Consequences**: Zero-drive identity, bounded output, monotonic magnitude growth, determinism and validation are pinned by byte tests.

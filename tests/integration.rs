@@ -2087,6 +2087,51 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_distort_saturates_quiet_samples_more() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-distort-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.2, -0.2), (1.0, -1.0)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("distort")
+        .arg(&input)
+        .args(["--drive", "1", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    assert!(
+        first > 0.2_f64.mul_add(32767.0, 0.0) as i16,
+        "quiet sample boosted"
+    );
+
+    let result = Command::new(exe)
+        .arg("distort")
+        .arg(&input)
+        .args(["--drive", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_chord_inserts_a_triad() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-chord-{}", std::process::id()));

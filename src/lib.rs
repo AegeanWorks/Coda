@@ -19,6 +19,7 @@ pub mod crush;
 pub mod dc;
 pub mod diatonic;
 pub mod digest;
+pub mod distort;
 pub mod echo;
 pub mod echo_wav;
 pub mod envelope;

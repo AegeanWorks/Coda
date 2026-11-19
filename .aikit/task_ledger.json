@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-chord",
+    "task_id": "coda-distort",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795092920.1725569,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795093407.724305,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795100120.1725569,
+    "lease_until": 1795100607.724305,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795092927.157019,
-    "completed_head": "cf22e484c50da2754767d38add02c6c7b9f6644c",
-    "completed_tree": "34c4ad7c5eeedb11fdeb515fb1ad3b45d80beb0d"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-lowpass",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 349 tests green; identity, freeze, step response and determinism pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795091074.206266,
-      "timestamp_str": "2026-11-19 15:24:34",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-lowpass",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-lowpass' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795091082.5663335,
-      "timestamp_str": "2026-11-19 15:24:42",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "a4e6c81a0dc5137b11776744b9458a669b170aa6",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-pan",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-distort",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add soft-clip distortion for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795093060.7400517,
+      "timestamp_str": "2026-11-19 15:57:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "gain applies linear trim with a hard clamp and crush reduces resolution, but there is no smooth saturation effect to add warmth or glue.",
+        "benefits": "distort applies a deterministic soft-saturation curve with a drive control, staying bounded and byte-identical at drive 0.",
+        "risks": "contract: drive 0..1, drive 0 identity, all samples within range, monotonic curve, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, bounded saturation, monotonicity and determinism, a CLI command with --drive, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "771252be9d826cbfd1485714c17b6228a53faee9182f73aee349a53f5e87df27",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-distort",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 381 tests green; identity, bounded saturation, monotonic magnitude and determinism pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795093407.724305,
+      "timestamp_str": "2026-11-19 16:03:27",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
