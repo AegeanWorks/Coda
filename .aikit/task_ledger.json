@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-sustain",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795098236.980662,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795105436.980662,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795098242.983037,
+    "completed_head": "1a1c1f4fb5d72af649889e62cf47ef5f6c07e8d0",
+    "completed_tree": "056bd4014e8793446d5f12f2c9379ce625755954"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-render",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add MIDI-to-WAV rendering",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795096100.578606,
-      "timestamp_str": "2026-11-19 16:48:20",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "import-midi writes a score and render reads one, but turning a MIDI file straight into audio requires two manual steps.",
-        "benefits": "midi-render imports a Standard MIDI File and renders it directly to a deterministic Coda WAV at the chosen sample rate.",
-        "risks": "contract: invalid MIDI fails, recovered score renders byte-identically to rendering that score, default rate 44100, output routing by extension; dependency: std only, reuse import + render; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests comparing midi-render output with direct render of the source score, a CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "89c31c7ba0a220f758c3d606a3a2a1cefb79e15b3ca7d96cad6f553aa738dae5",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-midi-render",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-sustain",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-sustain' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795098243.1843402,
+      "timestamp_str": "2026-11-19 17:24:03",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "1a1c1f4fb5d72af649889e62cf47ef5f6c07e8d0",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
