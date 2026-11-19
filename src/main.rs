@@ -54,6 +54,7 @@ use coda::pad;
 use coda::pan;
 use coda::pan_sweep;
 use coda::pedal;
+use coda::pingpong;
 use coda::polarity;
 use coda::quantize;
 use coda::ramp;
@@ -170,6 +171,7 @@ USAGE
   coda velgrid <score.coda> --levels N [-o out.coda]
   coda envelope <in.wav> [--window N] [-o out.wav]
   coda solo <score.coda> --low NOTE --high NOTE [-o out.coda]
+  coda pingpong <in.wav> [--ping-delay S] [--ping-feedback 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -247,6 +249,8 @@ OPTIONS
       --tuplet-ratio R Tuplet time ratio for a beat window
       --levels N       Velocity grid level count for velgrid
       --window N       Peak-envelope window in frames (default: 256)
+      --ping-delay S   Ping-pong delay in seconds (default: 0)
+      --ping-feedback  Ping-pong feedback 0..1 (default: 0.35)
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -387,6 +391,8 @@ fn main() -> ExitCode {
     let mut tuplet_ratio: Option<f64> = None;
     let mut grid_levels: Option<usize> = None;
     let mut env_window: usize = 256;
+    let mut ping_delay = 0.0_f64;
+    let mut ping_feedback = 0.35_f64;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -836,6 +842,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--ping-delay" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    ping_delay = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--ping-delay must be non-negative",
+                        "coda pingpong in.wav --ping-delay 0.05",
+                    )
+                }
+            },
+            "--ping-feedback" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    ping_feedback = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--ping-feedback must be between 0 and 1",
+                        "coda pingpong in.wav --ping-feedback 0.5",
                     )
                 }
             },
@@ -2175,6 +2205,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &saturated) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, drive {drive})", saturated.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "pingpong" {
+        if positional.is_empty() {
+            return fail(
+                "pingpong needs an input WAV",
+                "coda pingpong in.wav --ping-delay 0.05",
+            );
+        }
+        if ping_delay <= 0.0 {
+            return fail(
+                "pingpong needs a positive --ping-delay",
+                "coda pingpong in.wav --ping-delay 0.05",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let delayed = match pingpong::apply_pingpong(&bytes, ping_delay, ping_feedback) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "pingpong.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &delayed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {ping_delay}s, {ping_feedback} feedback)",
+                    delayed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

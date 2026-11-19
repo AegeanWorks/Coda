@@ -2087,6 +2087,54 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_pingpong_bounces_echoes_across_channels() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-pingpong-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+
+    let mut frames = vec![(0.0_f64, 0.0_f64); 16];
+    frames[0] = (1.0, 0.0);
+    std::fs::write(&input, wav_bytes(&frames, 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("pingpong")
+        .arg(&input)
+        .args(["--ping-delay", "0.000375", "--ping-feedback", "0.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let frame = |i: usize| {
+        (
+            i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]),
+            i16::from_le_bytes([after[46 + i * 4], after[47 + i * 4]]),
+        )
+    };
+    let (l0, _) = frame(0);
+    let (_, r3) = frame(3);
+    let (l6, _) = frame(6);
+    assert!(l0 > 30000, "original on left");
+    assert!(r3 > 15000, "first echo on right");
+    assert!(l6 > 7000, "second echo back on left");
+
+    let missing = Command::new(exe)
+        .arg("pingpong")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_solo_keeps_only_a_pitch_range() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-solo-{}", std::process::id()));

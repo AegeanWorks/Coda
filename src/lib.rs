@@ -61,6 +61,7 @@ pub mod pad;
 pub mod pan;
 pub mod pan_sweep;
 pub mod pedal;
+pub mod pingpong;
 pub mod polarity;
 pub mod quantize;
 pub mod ramp;

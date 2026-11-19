@@ -718,3 +718,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: snap-scale moved pitches into a range but no tool extracted only the notes already inside one.
 - **Decision**: Retain only sounding notes whose MIDI number lies within [low, high], dropping rests and out-of-range notes and preserving every kept field.
 - **Consequences**: In-range filtering, rest removal, field preservation and round-trip are pinned by byte tests.
+
+### ADR-102: Pingpong bounces echoes between stereo channels
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: echo-to fed back into the same channels, with no cross-channel alternating echo.
+- **Decision**: Feed each channel's delay line into the opposite channel with decaying feedback, clamping the gain below 1; zero delay is byte-identical.
+- **Consequences**: Zero-delay identity, alternating channel tails, bounded output and determinism are pinned by byte tests.
