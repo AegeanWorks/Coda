@@ -256,3 +256,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Hard cuts between rendered sections click and sound abrupt.
 - **Decision**: Add an optional overlap in join that blends the tail and head of adjacent sections with equal-power gains, clamping the overlap to half of the shorter section; zero overlap keeps the old byte-identical path.
 - **Consequences**: Crossfaded output is shorter by the summed overlaps, the blend is deterministic, and section-level WAV bytes remain unchanged.
+
+### ADR-036: Trim selects frames by time or by detected silence
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Rendered audio often has empty edges or needs an excerpt, with no Coda tool to cut it.
+- **Decision**: Add trim that selects a frame range from seconds or auto-detects content above a dBFS threshold, keeping a single silent frame for fully silent input and preserving the sample rate.
+- **Consequences**: No-op ranges are byte-identical, invalid ranges fail clearly, and edge-frame assertions tolerate 16-bit quantization.

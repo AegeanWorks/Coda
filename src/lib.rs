@@ -31,6 +31,7 @@ pub mod stretch;
 pub mod swing;
 pub mod templates;
 pub mod transpose;
+pub mod trim;
 pub mod vary;
 pub mod wav_reverse;
 pub mod wave;

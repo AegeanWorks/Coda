@@ -23,6 +23,7 @@ use coda::stretch;
 use coda::swing;
 use coda::templates;
 use coda::transpose;
+use coda::trim;
 use coda::vary;
 use coda::wav_reverse;
 use coda::wave::Wave;
@@ -49,6 +50,7 @@ USAGE
   coda swing <score.coda> [--ratio 0..1] [-o out.coda]
   coda stretch <score.coda> --factor F [-o out.coda]
   coda analyze <in.wav>
+  coda trim <in.wav> [--start S] [--end S] [--trim-silence] [-o out.wav]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
@@ -74,6 +76,9 @@ OPTIONS
       --ratio 0..1     Swing amount (default: 0.6)
       --factor F       Time-stretch factor (default: 1)
       --crossfade S    Overlap between joined sections in seconds (default: 0)
+      --start S / --end S  Time range for trim
+      --trim-silence   Auto-trim silence below --threshold
+      --threshold DB   Silence threshold for trim (default: -60 dBFS)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -170,6 +175,10 @@ fn main() -> ExitCode {
     let mut factor = 1.0_f64;
     let mut rms_target: Option<f64> = None;
     let mut crossfade = 0.0_f64;
+    let mut trim_start = 0.0_f64;
+    let mut trim_end: Option<f64> = None;
+    let mut trim_silence = false;
+    let mut trim_threshold = -60.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -349,6 +358,46 @@ fn main() -> ExitCode {
                     return fail(
                         "--crossfade must be a non-negative number",
                         "coda join a.coda b.coda --crossfade 0.05",
+                    )
+                }
+            },
+            "--start" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    trim_start = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--start must be a non-negative number",
+                        "coda trim in.wav --start 1.0",
+                    )
+                }
+            },
+            "--end" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    trim_end = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--end must be a non-negative number",
+                        "coda trim in.wav --end 2.0",
+                    )
+                }
+            },
+            "--trim-silence" => {
+                trim_silence = true;
+                i += 1;
+            }
+            "--threshold" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (-100.0..=0.0).contains(&v) => {
+                    trim_threshold = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--threshold must be between -100 and 0 dBFS",
+                        "coda trim in.wav --trim-silence --threshold -60",
                     )
                 }
             },
@@ -544,6 +593,48 @@ fn main() -> ExitCode {
                     composed.notes.len(),
                     positional[0]
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "trim" {
+        if positional.is_empty() {
+            return fail(
+                "trim needs an input WAV",
+                "coda trim in.wav [--start S] [--end S]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let threshold = if trim_silence {
+            Some(trim_threshold)
+        } else {
+            None
+        };
+        let cut = match trim::trim_wav(&bytes, trim_start, trim_end, threshold) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "check the trim range and threshold"),
+        };
+        let path = if output == "out.wav" {
+            "trimmed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &cut) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, trimmed)", cut.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

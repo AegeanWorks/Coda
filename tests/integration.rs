@@ -822,6 +822,50 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_trim_removes_silence_and_shortens_audio() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-trim-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(
+            &[(0.0, 0.0); 100]
+                .into_iter()
+                .chain([(0.5, 0.5); 100])
+                .chain([(0.0, 0.0); 100])
+                .collect::<Vec<_>>(),
+            8_000,
+        ),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("trim")
+        .arg(&input)
+        .args(["--trim-silence", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(std::fs::read(&output).unwrap().len() < std::fs::read(&input).unwrap().len());
+
+    let analysis = Command::new(exe)
+        .arg("analyze")
+        .arg(&output)
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&analysis.stdout);
+    assert!(text.contains("frames      100"), "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_rms_normalization_hits_the_target() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-rms-norm-{}", std::process::id()));
