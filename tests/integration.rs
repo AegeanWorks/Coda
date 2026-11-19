@@ -2087,6 +2087,54 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_envelope_extracts_a_peak_contour() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-envwav-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.0, 0.0), (0.5, 0.5), (0.2, 0.2), (1.0, 1.0)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("envelope")
+        .arg(&input)
+        .args(["--window", "2", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let sample = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert_eq!(sample(0), 0, "silence at the start");
+    assert!((sample(1) as f64 / 32767.0 - 0.5).abs() < 0.01);
+    assert!((sample(3) as f64 / 32767.0 - 1.0).abs() < 0.01);
+
+    let result = Command::new(exe)
+        .arg("envelope")
+        .arg(&input)
+        .args(["--window", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_velgrid_snaps_velocities() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-velgrid-{}", std::process::id()));

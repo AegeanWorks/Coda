@@ -22,6 +22,7 @@ use coda::digest;
 use coda::distort;
 use coda::echo;
 use coda::echo_wav;
+use coda::envelope_wav;
 use coda::extract;
 use coda::fade;
 use coda::fade_presets;
@@ -166,6 +167,7 @@ USAGE
   coda overwrite <base.wav> <insert.wav> --at S [-o out.wav]
   coda tuplets <score.coda> --start B --end B --tuplet-ratio R [-o out.coda]
   coda velgrid <score.coda> --levels N [-o out.coda]
+  coda envelope <in.wav> [--window N] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -242,6 +244,7 @@ OPTIONS
       --comp-ratio N   Compressor ratio 1..20 (default: 1)
       --tuplet-ratio R Tuplet time ratio for a beat window
       --levels N       Velocity grid level count for velgrid
+      --window N       Peak-envelope window in frames (default: 256)
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -381,6 +384,7 @@ fn main() -> ExitCode {
     let mut comp_ratio = 1.0_f64;
     let mut tuplet_ratio: Option<f64> = None;
     let mut grid_levels: Option<usize> = None;
+    let mut env_window: usize = 256;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -830,6 +834,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--window" => match need(i).and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n >= 1 => {
+                    env_window = n;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--window must be at least 1",
+                        "coda envelope in.wav --window 256",
                     )
                 }
             },
@@ -2157,6 +2173,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &saturated) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, drive {drive})", saturated.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "envelope" {
+        if positional.is_empty() {
+            return fail(
+                "envelope needs an input WAV",
+                "coda envelope in.wav --window 256",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let contoured = match envelope_wav::envelope_wav(&bytes, env_window) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "envelope.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &contoured) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, window {env_window})",
+                    contoured.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

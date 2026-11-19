@@ -28,6 +28,7 @@ pub mod distort;
 pub mod echo;
 pub mod echo_wav;
 pub mod envelope;
+pub mod envelope_wav;
 pub mod extract;
 pub mod fade;
 pub mod fade_presets;

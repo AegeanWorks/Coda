@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-velgrid",
+    "task_id": "coda-envelope-wav",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795100571.3315217,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795100970.9376805,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795107771.3315217,
+    "lease_until": 1795108170.9376805,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795100577.2913482,
-    "completed_head": "3317494f5b6ed4961e788955137c2c02f9b216a9",
-    "completed_tree": "8bd862e7a3a1372ed88498b5caebcc35897f8508"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-compress",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 450 tests green; identity, quiet preservation, loud attenuation and sign preservation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795097784.6306381,
-      "timestamp_str": "2026-11-19 17:16:24",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-compress",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-compress' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795097790.8834722,
-      "timestamp_str": "2026-11-19 17:16:30",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-sustain",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-envelope-wav",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add rolling peak-envelope extraction for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795100686.6320713,
+      "timestamp_str": "2026-11-19 18:04:46",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "analysis reports peak and RMS but there is no way to turn a signal's amplitude contour into audio for visualization or follow-up processing.",
+        "benefits": "envelope renders a causal rolling peak per channel over a window in frames; window 1 is byte-identical and output stays bounded.",
+        "risks": "contract: window >=1, causal trailing window, window 1 identity, length and rate preserved, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, constant-signal contour, silence and bounds, a CLI command with --window, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "6f2cfea26173edf62525b636762bc9b31318a676bf5876742da32ee320d9cebe",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-envelope-wav",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 485 tests green; causal contour, window-one identity and bounds pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795100970.9376805,
+      "timestamp_str": "2026-11-19 18:09:30",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

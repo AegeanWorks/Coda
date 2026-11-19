@@ -704,3 +704,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: velocity tools scaled or ramped values but could not reduce a score to a small set of discrete dynamic levels.
 - **Decision**: Snap each sounding velocity to the nearest of N evenly spaced levels, choosing the lower on ties and leaving rests and all other fields untouched.
 - **Consequences**: Nearest-level snapping, tie-breaking, rest handling and round-trip are pinned by byte tests.
+
+### ADR-100: Envelope renders a rolling peak contour as audio
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: analysis reported peak and RMS but could not turn a signal's amplitude contour into audio for follow-up processing.
+- **Decision**: Replace each frame with the peak magnitude over the trailing window of frames; window 1 is byte-identical and length and rate are preserved.
+- **Consequences**: Causal contour, window-one identity, silence, bounded output and validation are pinned by byte tests.
