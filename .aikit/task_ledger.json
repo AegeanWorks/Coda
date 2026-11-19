@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-chord",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795092920.1725569,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795100120.1725569,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795092927.157019,
+    "completed_head": "cf22e484c50da2754767d38add02c6c7b9f6644c",
+    "completed_tree": "34c4ad7c5eeedb11fdeb515fb1ad3b45d80beb0d"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-lowpass",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a one-pole low-pass filter for WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795090883.0396998,
-      "timestamp_str": "2026-11-19 15:21:23",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "No tool can smooth harsh high-frequency content in a rendered WAV; existing effects only modulate amplitude, delay or resolution.",
-        "benefits": "lowpass applies a deterministic one-pole filter per channel with a smoothing coefficient, keeping frame count and rate, with coefficient 1 byte-identical.",
-        "risks": "contract: coefficient 0..1, coefficient 1 identity, coefficient 0 holds the first sample, deterministic state, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for identity, freeze, smoothing and determinism, a CLI command with --alpha, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "86e4559a9a649f833502bc095de85f669da3594c0bdb71a8d15125d8845923bf",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-lowpass",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-chord",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-chord' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795092927.225247,
+      "timestamp_str": "2026-11-19 15:55:27",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "cf22e484c50da2754767d38add02c6c7b9f6644c",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
