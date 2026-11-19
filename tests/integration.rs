@@ -2087,6 +2087,50 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_pan_places_the_stereo_image() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-pan-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let left = root.join("left.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, -0.25); 8], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("pan")
+        .arg(&input)
+        .args(["--pan", "-1", "-o"])
+        .arg(&left)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&left).unwrap();
+    assert_eq!(
+        i16::from_le_bytes([after[46], after[47]]),
+        0,
+        "right silenced"
+    );
+
+    let result = Command::new(exe)
+        .arg("pan")
+        .arg(&input)
+        .args(["--pan", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_lowpass_smooths_a_step() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-lowpass-{}", std::process::id()));

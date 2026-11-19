@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-lowpass",
+    "task_id": "coda-pan",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795091074.206266,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795091329.4328904,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795098274.206266,
+    "lease_until": 1795098529.4328904,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795091082.4858108,
-    "completed_head": "a4e6c81a0dc5137b11776744b9458a669b170aa6",
-    "completed_tree": "a84cf38a1e1d483af8e49ba4bc82a6a2304d015b"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-polarity",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 319 tests green; sign flips, byte-exact double inversion at i16 extreme and header preservation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795089125.996713,
-      "timestamp_str": "2026-11-19 14:52:05",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-polarity",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-polarity' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795089135.2402465,
-      "timestamp_str": "2026-11-19 14:52:15",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "fd6f88d353ecff53cce953285e1dbc7c3b0ac6fa",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-overlay",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-pan",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add static equal-power panning for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091146.6074257,
+      "timestamp_str": "2026-11-19 15:25:46",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "autopan sweeps the image over time and width folds or widens it, but there is no way to place a finished WAV at a fixed stereo position.",
+        "benefits": "pan applies an equal-power constant gain per channel from a fixed -1..1 position, with centre byte-identical and full positions isolating a side.",
+        "risks": "contract: pan must be finite -1..1, centre identity exact, hard left/right silence the opposite channel, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for centre identity, hard sides, equal-power balance and determinism, a CLI command with --pan, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "89f43629d7803f82f46be45277f5eb14b0bf860df9cfd6b7df4ec0481f319ac9",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-pan",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 354 tests green; centre identity, hard-side isolation and bounded gains pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091329.4328904,
+      "timestamp_str": "2026-11-19 15:28:49",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

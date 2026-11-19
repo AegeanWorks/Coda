@@ -35,6 +35,7 @@ use coda::normalize;
 use coda::notes;
 use coda::overlay;
 use coda::pad;
+use coda::pan;
 use coda::pedal;
 use coda::polarity;
 use coda::quantize;
@@ -111,6 +112,7 @@ USAGE
   coda snap-scale <score.coda> --root NOTE [--scale NAME] [-o out.coda]
   coda splice <a.wav> <b.wav> --at S [-o out.wav]
   coda lowpass <in.wav> --alpha 0..1 [-o out.wav]
+  coda pan <in.wav> --pan -1..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -167,6 +169,7 @@ OPTIONS
       --before S / --after S  Silence seconds for pad
       --at S           Insertion time in seconds for splice
       --alpha 0..1     Low-pass smoothing coefficient (1 = identity)
+      --pan -1..1      Static stereo position for pan (0 = identity)
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -288,6 +291,7 @@ fn main() -> ExitCode {
     let mut pedal_velocity = 0.5_f64;
     let mut splice_at: Option<f64> = None;
     let mut lp_alpha: Option<f64> = None;
+    let mut static_pan: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -690,6 +694,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--pan" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (-1.0..=1.0).contains(&v) => {
+                    static_pan = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--pan must be between -1 and 1",
+                        "coda pan in.wav --pan -0.5",
                     )
                 }
             },
@@ -1666,6 +1682,44 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "pan" {
+        if positional.is_empty() {
+            return fail("pan needs an input WAV", "coda pan in.wav --pan -0.5");
+        }
+        let position = match static_pan {
+            Some(value) => value,
+            None => return fail("pan needs --pan", "coda pan in.wav --pan -0.5"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let panned = match pan::apply_pan(&bytes, position) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "panned.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &panned) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, pan {position})", panned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 

@@ -508,3 +508,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: No effect could smooth harsh high-frequency content in a rendered WAV.
 - **Decision**: Filter each channel with y = y + alpha*(x - y), seeded from the first sample, with alpha=1 byte-identical and alpha=0 holding the initial value.
 - **Consequences**: Identity, freeze, step response, determinism and coefficient validation are pinned by byte tests.
+
+### ADR-072: Static pan places a WAV with equal-power gains
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: autopan swept the image over time and width folded or widened it, but no tool set a fixed stereo position on a finished WAV.
+- **Decision**: Apply fixed equal-power cos/sin gains derived from --pan, with centre byte-identical and hard sides silencing the opposite channel.
+- **Consequences**: Centre identity, hard-side isolation, bounded partial gains and determinism are pinned by byte tests.
