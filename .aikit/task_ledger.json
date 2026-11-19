@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-tremolo",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795087086.3138523,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,26 +14,13 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_without_impact_assessment": true,
+    "completed_at": 1795087099.5759377,
+    "completed_head": "d25362e0c180abc981234a210d69dd0fa10dcaed",
+    "completed_tree": "99d91f03f7fe6447efb6785f90370a8735c10e0f"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pad",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-pad' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795078084.9106512,
-      "timestamp_str": "2026-11-19 11:48:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "e3aea9f04a5d20c0a174f8ad0dce6d563050bfd0",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-fade-seconds",
       "phase": "phase 2",
@@ -405,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-tremolo",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-tremolo' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795087099.6797688,
+      "timestamp_str": "2026-11-19 14:18:19",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "d25362e0c180abc981234a210d69dd0fa10dcaed",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
