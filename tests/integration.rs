@@ -547,6 +547,51 @@ fn cli_vary_is_seeded_and_writes_parseable_source() {
 }
 
 #[test]
+fn cli_compare_has_exact_deterministic_output() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-compare-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.coda");
+    let b = root.join("b.coda");
+    std::fs::write(&a, "tempo 120\nwave sine\nnote C4 1\n").unwrap();
+    std::fs::write(&b, "tempo 96\nwave sine\nnote D4 1\n").unwrap();
+
+    let out = Command::new(exe)
+        .arg("compare")
+        .arg(&a)
+        .arg(&a)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout),
+        "identical: yes\naudio: identical\n"
+    );
+
+    let out = Command::new(exe)
+        .arg("compare")
+        .arg(&a)
+        .arg(&b)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout),
+        concat!(
+            "identical: no\n",
+            "difference: tempo 120 -> 96\n",
+            "difference: note 0 pitch C4 -> D4\n",
+            "audio: different\n",
+        )
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_lint_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-lint-{}", std::process::id()));

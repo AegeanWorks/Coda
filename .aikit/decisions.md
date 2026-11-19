@@ -109,3 +109,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A score is a single point; a reproducible family of related pieces needs a bounded transform with no hidden state.
 - **Decision**: Implement vary(score, seed, amount) with a seeded LCG, bounded velocity/pan drift, occasional pitch ornament and waveform swaps; amount 0 returns the input unchanged, and the CLI writes canonical .coda source.
 - **Consequences**: Identical seeds give identical source bytes; all varied fields stay in valid ranges; the result is an ordinary editable score that re-parses exactly.
+
+### ADR-015: Compare reports structure and audio bytes in a stable order
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Variation and transposition produce many similar scores; a reviewable, testable diff is needed.
+- **Decision**: Add a pure compare module that emits ordered structural differences and renders both scores to compare WAV bytes, exposed as a read-only compare command that exits 0 even when scores differ.
+- **Consequences**: Exact-output tests pin the report; no score or output file is modified; equivalent scores are reported as audio-identical.

@@ -5,6 +5,7 @@
 //! input always yields bit-identical output: no clock, no randomness (unless
 //! seeded explicitly), no network, no crates.
 
+pub mod compare;
 pub mod digest;
 pub mod envelope;
 pub mod gen;

@@ -1,5 +1,6 @@
 //! Command-line front end for Coda.
 
+use coda::compare;
 use coda::digest;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::lint;
@@ -21,6 +22,7 @@ USAGE
   coda lint <score.coda>
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
+  coda compare <a.coda> <b.coda>
   coda digest <score.coda> [options]
   coda album <number> [options]
   coda help
@@ -227,6 +229,37 @@ fn main() -> ExitCode {
                 i += 1;
             }
         }
+    }
+
+    if command == "compare" {
+        if positional.len() < 2 {
+            return fail(
+                "compare needs two score files",
+                "coda compare a.coda b.coda",
+            );
+        }
+        let left = match read_score(&positional[0]) {
+            Ok(s) => s,
+            Err(code) => return code,
+        };
+        let right = match read_score(&positional[1]) {
+            Ok(s) => s,
+            Err(code) => return code,
+        };
+        let result = compare::compare(&left, &right, sample_rate);
+        println!("identical: {}", if result.identical { "yes" } else { "no" });
+        for difference in &result.differences {
+            println!("difference: {difference}");
+        }
+        println!(
+            "audio: {}",
+            if result.audio_identical {
+                "identical"
+            } else {
+                "different"
+            }
+        );
+        return ExitCode::SUCCESS;
     }
 
     if command == "album" {
