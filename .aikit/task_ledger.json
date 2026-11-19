@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-port",
+    "task_id": "coda-doc-fix",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1795065698.518902,
+    "updated_at": 1795065812.7507515,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -15,9 +15,9 @@
         "path": "projects/coda"
       }
     ],
-    "completed_at": 1795065759.9172218,
-    "completed_head": "30fc7736e16bf65fdb5fde787a00ead1fab97a6b",
-    "completed_tree": "0bc1b44fcad7f1f09ebcfdb115eb4d0132d847f9"
+    "completed_at": 1795065813.3546522,
+    "completed_head": "1af6c2b15a04cd902e5590fb793e7dc4c1666dad",
+    "completed_tree": "968a8d3c4beb24c68ad7be40bc2ac2311149ae16"
   },
   "checkpoints": [
     {
@@ -97,6 +97,65 @@
       "timestamp_str": "2026-11-19 08:22:40",
       "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
       "head": "30fc7736e16bf65fdb5fde787a00ead1fab97a6b",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
+    },
+    {
+      "task_id": "coda-doc-fix",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Record the README cold-start tree fix",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795065812.1271114,
+      "timestamp_str": "2026-11-19 08:23:32",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "The strict gate found a tracked path missing from the README tree after the migration commit.",
+        "benefits": "A cold-starting agent sees every tracked directory.",
+        "risks": "contract: README tree must match tracked paths; dependency: none; concurrency: none; state: ledger must not trail a completed task.",
+        "mitigation": "Record the one-commit doc fix as its own task, pass Phase 4, then complete it."
+      },
+      "plan_digest": "cc4614929cbb4a7167f26d86e61779ed2e94901e509a1e0636170d75e0ce5dfd",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-doc-fix",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "README tree now lists scripts/ and tests/; AIKit phase 4 to be rerun",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795065812.7507515,
+      "timestamp_str": "2026-11-19 08:23:32",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-doc-fix",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-doc-fix' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795065813.4303164,
+      "timestamp_str": "2026-11-19 08:23:33",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "1af6c2b15a04cd902e5590fb793e7dc4c1666dad",
       "delivery": {
         "roots": [
           "."
