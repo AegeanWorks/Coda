@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-midi-ignore",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795066417.0734017,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,7 +14,10 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795066430.4965935,
+    "completed_head": "c3765b6e36d56aa641ad2ce40824e2c81e9ef959",
+    "completed_tree": "2920397dc38075b78e29a64d710bc825cf3bd0a8"
   },
   "checkpoints": [
     {
@@ -319,6 +322,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-midi-ignore",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-midi-ignore' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795066430.8254862,
+      "timestamp_str": "2026-11-19 08:33:50",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "c3765b6e36d56aa641ad2ce40824e2c81e9ef959",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
