@@ -10,6 +10,7 @@ pub mod analyze;
 pub mod arpeggiate;
 pub mod augment;
 pub mod autopan;
+pub mod bandpass;
 pub mod bitdepth;
 pub mod channels;
 pub mod chord;

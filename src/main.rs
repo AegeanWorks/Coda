@@ -5,6 +5,7 @@ use coda::analyze;
 use coda::arpeggiate;
 use coda::augment;
 use coda::autopan;
+use coda::bandpass;
 use coda::bitdepth;
 use coda::channels;
 use coda::chord;
@@ -125,6 +126,7 @@ USAGE
   coda midi-info <file.mid>
   coda chord <score.coda> --at B --pitch NOTE --quality NAME --beats B [-o out.coda]
   coda distort <in.wav> --drive 0..1 [-o out.wav]
+  coda bandpass <in.wav> --high-alpha 0..1 --low-alpha 0..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -184,6 +186,8 @@ OPTIONS
       --quality NAME   major | minor | dim | aug for chord
       --beats B        Duration of the chord triad
       --drive 0..1     Saturation amount for distort (0 = identity)
+      --high-alpha N   High-pass coefficient for bandpass
+      --low-alpha N    Low-pass coefficient for bandpass
       --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
       --intervals LIST Comma-separated semitones for harmonize
@@ -328,6 +332,8 @@ fn main() -> ExitCode {
     let mut chord_quality: Option<String> = None;
     let mut chord_beats = 1.0_f64;
     let mut drive_amount: Option<f64> = None;
+    let mut high_alpha: Option<f64> = None;
+    let mut low_alpha: Option<f64> = None;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -739,6 +745,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--alpha must be between 0 and 1",
                         "coda lowpass in.wav --alpha 0.2",
+                    )
+                }
+            },
+            "--high-alpha" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    high_alpha = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--high-alpha must be between 0 and 1",
+                        "coda bandpass in.wav --high-alpha 0.1 --low-alpha 0.4",
+                    )
+                }
+            },
+            "--low-alpha" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    low_alpha = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--low-alpha must be between 0 and 1",
+                        "coda bandpass in.wav --high-alpha 0.1 --low-alpha 0.4",
                     )
                 }
             },
@@ -1216,6 +1246,64 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "bandpass" {
+        if positional.is_empty() {
+            return fail(
+                "bandpass needs an input WAV",
+                "coda bandpass in.wav --high-alpha 0.1 --low-alpha 0.4",
+            );
+        }
+        let high = match high_alpha {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "bandpass needs --high-alpha",
+                    "coda bandpass in.wav --high-alpha 0.1 --low-alpha 0.4",
+                )
+            }
+        };
+        let low = match low_alpha {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "bandpass needs --low-alpha",
+                    "coda bandpass in.wav --high-alpha 0.1 --low-alpha 0.4",
+                )
+            }
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let filtered = match bandpass::apply_bandpass(&bytes, high, low) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "bandpassed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &filtered) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, high {high}, low {low})",
+                    filtered.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

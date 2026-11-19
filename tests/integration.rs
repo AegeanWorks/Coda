@@ -2087,6 +2087,43 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_bandpass_filters_a_step_signal() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-bandpass-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, 0.5); 32], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("bandpass")
+        .arg(&input)
+        .args(["--high-alpha", "1", "--low-alpha", "1", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    assert!(
+        after[44..].iter().all(|b| *b == 0),
+        "constant signal removed"
+    );
+
+    let missing = Command::new(exe)
+        .arg("bandpass")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_distort_saturates_quiet_samples_more() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-distort-{}", std::process::id()));

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-distort",
+    "task_id": "coda-bandpass",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795093407.724305,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795093693.0778553,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795100607.724305,
+    "lease_until": 1795100893.0778553,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795093415.8359706,
-    "completed_head": "ebe8892acf0c39fd398d0c3a098fd7665ed3f079",
-    "completed_tree": "ee3e1031781988eda20bd0c4e7a9cafa03f01e65"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pan",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 354 tests green; centre identity, hard-side isolation and bounded gains pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795091329.4328904,
-      "timestamp_str": "2026-11-19 15:28:49",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-pan",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-pan' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795091338.8695376,
-      "timestamp_str": "2026-11-19 15:28:58",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "77bb31497d27e28690264ed16b6e742bef92b8c8",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-highpass",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-bandpass",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a cascaded band-pass filter for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795093481.8827455,
+      "timestamp_str": "2026-11-19 16:04:41",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "lowpass and highpass exist separately, but removing rumble and hiss together needs a composed two-stage filter.",
+        "benefits": "bandpass chains a one-pole high-pass and low-pass in one pass with deterministic state, preserving frame count and rate.",
+        "risks": "contract: both coefficients 0..1, known edge combinations exact, output bounded, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for the edge coefficient combinations and determinism, a CLI command with --high-alpha/--low-alpha, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "5ef65cb6f427e6d42969391989928dc25adaf20a2c9bbf90b10d576a0ff5c29b",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-bandpass",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 386 tests green; edge coefficients, constant removal and bounded output pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795093693.0778553,
+      "timestamp_str": "2026-11-19 16:08:13",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

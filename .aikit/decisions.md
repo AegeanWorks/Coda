@@ -557,3 +557,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: gain trimmed linearly with a hard clamp and crush quantized levels, leaving no smooth saturation effect.
 - **Decision**: Map each sample through (1+drive)*x/(1+drive*|x|), which is bounded, preserves sign, boosts quiet samples more than loud ones, and is byte-identical at drive 0.
 - **Consequences**: Zero-drive identity, bounded output, monotonic magnitude growth, determinism and validation are pinned by byte tests.
+
+### ADR-079: Bandpass cascades high-pass and low-pass stages
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Lowpass and highpass each addressed one end of the spectrum but removing both needed two separate commands.
+- **Decision**: Apply a one-pole high-pass then low-pass in a single frame pass with shared deterministic state, requiring both coefficients in 0..1.
+- **Consequences**: Edge coefficient combinations, constant-signal removal, bounded output and validation are pinned by byte tests.
