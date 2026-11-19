@@ -822,6 +822,43 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_register_fits_notes_into_a_range() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-register-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C2 1\nnote C4 1\nnote C6 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("register")
+        .arg(&source)
+        .args(["--low", "C4", "--high", "C5", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4"), "{text}");
+    assert!(text.contains("note C5"), "{text}");
+    assert!(!text.contains("C2"), "{text}");
+    assert!(!text.contains("C6"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("register")
+        .arg(&source)
+        .args(["--low", "C6", "--high", "C4"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_accent_cycles_velocities() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-accent-{}", std::process::id()));

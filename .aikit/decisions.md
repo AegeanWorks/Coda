@@ -417,3 +417,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Auto-pan modulated the stereo image at render time but there was no way to apply a repeating amplitude swell to an existing WAV.
 - **Decision**: Expose tremolo as a WAV transform with --lfo-rate and --lfo-depth, using gain = 1 - depth/2 + (depth/2)*cos(2*pi*rate*t) so it starts at unity, stays within [1-depth,1], and depth 0 is byte-identical.
 - **Consequences**: Unity start, bounded modulation, determinism and zero-depth identity are pinned by byte tests; invalid rates or depths fail clearly.
+
+### ADR-059: Register fitting moves notes by octave into a range
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Transpose shifts every note by a fixed interval and inversion mirrors pitches, but neither can fold stray notes into a target register.
+- **Decision**: For each sounding pitch choose the octave congruent to it that lies inside [low,high] and is closest to the original, leaving the note unchanged when no such octave exists.
+- **Consequences**: Octave folding, preservation of all other fields, exact round-trip and bound validation are pinned by byte tests.

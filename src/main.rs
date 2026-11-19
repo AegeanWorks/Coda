@@ -29,6 +29,7 @@ use coda::normalize;
 use coda::notes;
 use coda::pad;
 use coda::quantize;
+use coda::register;
 use coda::render::{render, wav_bytes, Frame};
 use coda::report;
 use coda::resample;
@@ -93,6 +94,7 @@ USAGE
   coda invert <score.coda> [--center C4] [-o out.coda]
   coda extract <score.coda> --start B --end B [-o out.coda]
   coda accent <score.coda> --pattern 1.0,0.5 [-o out.coda]
+  coda register <score.coda> --low C4 --high C5 [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -140,6 +142,7 @@ OPTIONS
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --pattern LIST   Velocities 0..1 for accent
+      --low NOTE / --high NOTE  Register bounds for register
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -253,6 +256,8 @@ fn main() -> ExitCode {
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
+    let mut low_note: Option<String> = None;
+    let mut high_note: Option<String> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -683,6 +688,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--pattern needs a list",
                         "coda accent score.coda --pattern 1.0,0.5",
+                    )
+                }
+            },
+            "--low" => match need(i) {
+                Some(name) => {
+                    low_note = Some(name.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--low needs a note name",
+                        "coda register score.coda --low C4 --high C5",
+                    )
+                }
+            },
+            "--high" => match need(i) {
+                Some(name) => {
+                    high_note = Some(name.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--high needs a note name",
+                        "coda register score.coda --low C4 --high C5",
                     )
                 }
             },
@@ -1802,7 +1831,8 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "digest" => {
+        | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
+        | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1867,6 +1897,51 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "register" {
+        let low = match low_note {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "register needs --low",
+                    "coda register score.coda --low C4 --high C5",
+                )
+            }
+        };
+        let high = match high_note {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "register needs --high",
+                    "coda register score.coda --low C4 --high C5",
+                )
+            }
+        };
+        let fitted = match register::register(&composed, &low, &high) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use note names like C4 and C5 with low <= high"),
+        };
+        let path = if output == "out.wav" {
+            "registered.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&fitted);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {low}..{high})",
+                    text.len(),
+                    fitted.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "accent" {
         let accented = match accent::accent(&composed, &accent_pattern) {

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-tremolo",
+    "task_id": "coda-register",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795087086.3138523,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795087428.12147,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,55 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_without_impact_assessment": true,
-    "completed_at": 1795087099.5759377,
-    "completed_head": "d25362e0c180abc981234a210d69dd0fa10dcaed",
-    "completed_tree": "99d91f03f7fe6447efb6785f90370a8735c10e0f"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-fade-seconds",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add explicit fade durations for WAV files",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795078148.9545116,
-      "timestamp_str": "2026-11-19 11:49:08",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Named presets cover common cases, but exact fade lengths are needed to fit a specific transition.",
-        "benefits": "fade-to applies --fade-in/--fade-out seconds to any Coda WAV using the shared fade engine, with zero durations as an identity.",
-        "risks": "contract: durations must be non-negative, zero/zero must be byte-identical, and invalid WAVs must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for exact edge attenuation, a CLI command reusing the shared fade function, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "ff98294f58213ba31b948e82a82e811477c8c57f60e81ed784f68f79c93ea528",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-fade-seconds",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 256 tests green; exact fade durations, head attenuation and zero identity pinned",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795078285.4930506,
-      "timestamp_str": "2026-11-19 11:51:25",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-fade-seconds",
       "phase": "completed",
@@ -409,6 +363,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-register",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add register fitting by octave displacement",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795087177.4786744,
+      "timestamp_str": "2026-11-19 14:19:37",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Transpose shifts all pitches by a fixed interval and invert mirrors them, but there is no way to fold stray notes into a target pitch range.",
+        "benefits": "register octave-displaces each sounding pitch into [low,high], preserving rhythm, velocity, pan and timbre as editable canonical source.",
+        "risks": "contract: bounds must be valid notes with low below high, rests untouched, out-of-range results skipped, and output must round-trip; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for octave folding, preservation and round-trip, a CLI command with --low/--high, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "59faecaacd90f5e056206161d6819a10e6e5b40ec43fdb0f452eea87d8cacd81",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-register",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 289 tests green; octave folding, field preservation, round-trip and bound validation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795087428.12147,
+      "timestamp_str": "2026-11-19 14:23:48",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

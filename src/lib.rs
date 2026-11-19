@@ -36,6 +36,7 @@ pub mod normalize;
 pub mod notes;
 pub mod pad;
 pub mod quantize;
+pub mod register;
 pub mod render;
 pub mod report;
 pub mod resample;
