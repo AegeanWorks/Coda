@@ -51,7 +51,7 @@ USAGE
   coda analyze <in.wav>
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
-  coda normalize <in.wav> [-o out.wav] [--peak 0..1]
+  coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
   coda mix <a.wav> <b.wav> [-o out.wav] [--gain-b 0..1]
   coda import-midi <file.mid> [-o out.coda]
@@ -83,6 +83,7 @@ OPTIONS
       --seed N         Variation seed for `vary`
       --amount 0..1    Variation strength (default: 0.5)
       --peak 0..1      Target peak for normalize (default: 0.95)
+      --rms-target DB  Target RMS in dBFS (-100..0) instead of peak
 
 SCORE DIRECTIVES
   tempo <bpm>          wave <name>          gain <0..1>
@@ -166,6 +167,7 @@ fn main() -> ExitCode {
     let mut steps = 0_i32;
     let mut ratio = 0.6_f64;
     let mut factor = 1.0_f64;
+    let mut rms_target: Option<f64> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -446,6 +448,18 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--rms-target" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (-100.0..=0.0).contains(&v) => {
+                    rms_target = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--rms-target must be between -100 and 0 dBFS",
+                        "coda normalize in.wav --rms-target -14",
+                    )
+                }
+            },
             flag if flag.starts_with('-') => {
                 return fail(&format!("unknown option '{flag}'"), "coda help")
             }
@@ -639,9 +653,21 @@ fn main() -> ExitCode {
                 )
             }
         };
-        let scaled = match normalize::normalize(&bytes, peak) {
-            Ok(b) => b,
-            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        let (scaled, mode) = match rms_target {
+            Some(target) => (
+                match normalize::normalize_rms(&bytes, target) {
+                    Ok(b) => b,
+                    Err(e) => return fail(&e, "use an RMS target between -100 and 0 dBFS"),
+                },
+                format!("RMS {target} dBFS"),
+            ),
+            None => (
+                match normalize::normalize(&bytes, peak) {
+                    Ok(b) => b,
+                    Err(e) => return fail(&e, "use a peak between 0 and 1"),
+                },
+                format!("peak {peak}"),
+            ),
         };
         let path = if output == "out.wav" {
             "normalized.wav".to_string()
@@ -650,7 +676,7 @@ fn main() -> ExitCode {
         };
         return match fs::write(&path, &scaled) {
             Ok(()) => {
-                println!("wrote {path} ({} bytes, peak {peak})", scaled.len());
+                println!("wrote {path} ({} bytes, {mode})", scaled.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

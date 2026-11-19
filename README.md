@@ -47,7 +47,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Comparison** — `compare` reports ordered structural differences between two scores and whether their rendered audio is byte-identical.
 - **Joining** — `join` renders several scores at one sample rate and concatenates their PCM data with a corrected RIFF header.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
-- **Normalization** — `normalize` scales a Coda WAV to a chosen peak with deterministic clamping; it is idempotent and leaves silence untouched.
+- **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
 - **Fades** — `--fade-in` and `--fade-out` apply deterministic linear envelopes to rendered audio, clamped to half the piece.
 - **Echo** — `--echo-delay` and `--echo-feedback` add a bounded, reproducible feedback delay to any render.
@@ -88,7 +88,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
 | `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
 | `join <a.coda> <b.coda> [...]` | Render sections and concatenate them into one WAV. |
-| `normalize <in.wav>` | Scale a Coda WAV to a target peak. |
+| `normalize <in.wav> [--peak P | --rms-target DB]` | Scale to a peak or RMS target. |
 | `templates` / `template <name>` | List sketches or write one as canonical source. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |

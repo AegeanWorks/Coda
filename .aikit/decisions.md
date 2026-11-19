@@ -242,3 +242,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Tempo override changes beat duration but not the score's written rhythm; scaling starts and durations changes the piece itself.
 - **Decision**: Multiply every note start and beat length by a positive factor, leaving pitch, velocity, pan, envelopes, vibrato and waveform unchanged; factor 1 is an identity.
 - **Consequences**: Stretched scores re-serialize exactly, invalid factors fail clearly, and stretch composes with swing, humanize and quantization.
+
+### ADR-034: Normalize supports RMS targets alongside peak
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Peak normalization does not control perceived loudness; an RMS target mode is needed for level matching.
+- **Decision**: Add normalize_rms that scales frames to a dBFS target with shared decoding and clamping, selected by --rms-target while --peak keeps its exact previous behavior.
+- **Consequences**: RMS mode is idempotent and leaves silence untouched; the CLI report names its mode; analyze verifies the achieved level byte-for-byte.

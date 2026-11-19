@@ -822,6 +822,46 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_rms_normalization_hits_the_target() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-rms-norm-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.3, 0.3), (-0.2, -0.1)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("normalize")
+        .arg(&input)
+        .args(["--rms-target", "-18", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(String::from_utf8_lossy(&result.stdout).contains("RMS -18 dBFS"));
+
+    let analysis = Command::new(exe)
+        .arg("analyze")
+        .arg(&output)
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&analysis.stdout);
+    let rms_dbfs: f64 = text
+        .lines()
+        .find(|line| line.starts_with("rms "))
+        .and_then(|line| line.split('(').nth(1))
+        .and_then(|part| part.split_whitespace().next())
+        .and_then(|value| value.parse().ok())
+        .expect("rms dBFS in analyze report");
+    assert!((rms_dbfs + 18.0).abs() < 0.1, "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_swing_delays_offbeats_with_exact_identity() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-swing-{}", std::process::id()));

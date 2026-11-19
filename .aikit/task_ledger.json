@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-stretch",
+    "task_id": "coda-rms-normalize",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795073140.1928513,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795073405.0722916,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795073147.0951707,
-    "completed_head": "42fdfeb084534b188891f10e9fecfb7850842778",
-    "completed_tree": "93cf3ed6229df09a59387f8365a43e50b87a398f"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-wav-reverse",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 146 tests green; frame-order reversal and double-reverse byte identity pinned",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795071617.4428155,
-      "timestamp_str": "2026-11-19 10:00:17",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-wav-reverse",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-wav-reverse' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795071623.999906,
-      "timestamp_str": "2026-11-19 10:00:23",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "5b76d0346f709b59ac96dd4473e90593c78ae02c",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-mix",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-rms-normalize",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add RMS-targeted normalization",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795073203.4599142,
+      "timestamp_str": "2026-11-19 10:26:43",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Peak normalization can leave a quiet-sounding track at full peak; loudness work needs an RMS target mode.",
+        "benefits": "normalize --rms-target <dBFS> scales a Coda WAV to a chosen RMS level with deterministic clamping, complementing peak mode.",
+        "risks": "contract: silence must be left unchanged, invalid dBFS targets must fail clearly, and peak mode must stay byte-identical; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure RMS gain function with known-vector and silence tests, extend the normalize CLI, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "1047ac0d715ab79da87b500b388d7b10fc3128e8f567ceab93064e97222fca1f",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-rms-normalize",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 179 tests green; RMS target verified by analyze, peak mode unchanged",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795073405.0722916,
+      "timestamp_str": "2026-11-19 10:30:05",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
