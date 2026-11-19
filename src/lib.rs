@@ -27,6 +27,7 @@ pub mod render;
 pub mod reverse;
 pub mod score;
 pub mod stats;
+pub mod stretch;
 pub mod swing;
 pub mod templates;
 pub mod transpose;

@@ -780,6 +780,48 @@ fn cli_analyze_reports_exact_measurements() {
 }
 
 #[test]
+fn cli_stretch_scales_time_with_exact_identity() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-stretch-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let one = root.join("one.coda");
+    let two = root.join("two.coda");
+    let baseline = root.join("baseline.coda");
+
+    for (path, value) in [(&one, "1"), (&two, "2")] {
+        let out = Command::new(exe)
+            .args(["stretch", "examples/scale.coda", "--factor", value, "-o"])
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let out = Command::new(exe)
+        .args(["export-score", "examples/scale.coda", "-o"])
+        .arg(&baseline)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        std::fs::read(&one).unwrap(),
+        std::fs::read(&baseline).unwrap()
+    );
+    assert_ne!(
+        std::fs::read(&two).unwrap(),
+        std::fs::read(&baseline).unwrap()
+    );
+
+    let info = Command::new(exe).arg("stats").arg(&two).output().unwrap();
+    let text = String::from_utf8_lossy(&info.stdout);
+    assert!(text.contains("8 beats / 4.800s"), "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_swing_delays_offbeats_with_exact_identity() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-swing-{}", std::process::id()));

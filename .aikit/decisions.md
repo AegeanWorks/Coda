@@ -235,3 +235,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Mixing decisions need inspectable level and duration data without leaving Coda.
 - **Decision**: Add a pure analyzer that computes frames, duration, sample rate, peak and RMS with dBFS from 16-bit stereo frames, and a read-only analyze command with an exact pinned report.
 - **Consequences**: Silence reports finite -inf dBFS values; invalid WAVs fail clearly; no score, WAV or gate behavior changes.
+
+### ADR-033: Stretch scales the event timeline only
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Tempo override changes beat duration but not the score's written rhythm; scaling starts and durations changes the piece itself.
+- **Decision**: Multiply every note start and beat length by a positive factor, leaving pitch, velocity, pan, envelopes, vibrato and waveform unchanged; factor 1 is an identity.
+- **Consequences**: Stretched scores re-serialize exactly, invalid factors fail clearly, and stretch composes with swing, humanize and quantization.

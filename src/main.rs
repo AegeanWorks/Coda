@@ -19,6 +19,7 @@ use coda::render::{render, wav_bytes, Frame};
 use coda::reverse;
 use coda::score;
 use coda::stats;
+use coda::stretch;
 use coda::swing;
 use coda::templates;
 use coda::transpose;
@@ -46,6 +47,7 @@ USAGE
   coda humanize <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda diatonic <score.coda> --steps N [--scale name] [-o out.coda]
   coda swing <score.coda> [--ratio 0..1] [-o out.coda]
+  coda stretch <score.coda> --factor F [-o out.coda]
   coda analyze <in.wav>
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
@@ -70,6 +72,7 @@ OPTIONS
       --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
       --steps N        Scale degrees to move in diatonic (default: 0)
       --ratio 0..1     Swing amount (default: 0.6)
+      --factor F       Time-stretch factor (default: 1)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -162,6 +165,7 @@ fn main() -> ExitCode {
     let mut gain_b = 0.5_f64;
     let mut steps = 0_i32;
     let mut ratio = 0.6_f64;
+    let mut factor = 1.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -317,6 +321,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--ratio must be between 0 and 1",
                         "coda swing score.coda --ratio 0.6",
+                    )
+                }
+            },
+            "--factor" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    factor = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--factor must be a positive finite number",
+                        "coda stretch score.coda --factor 2",
                     )
                 }
             },
@@ -854,7 +870,7 @@ fn main() -> ExitCode {
 
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
-        | "diatonic" | "swing" | "reverse" | "quantize" | "digest" => {
+        | "diatonic" | "swing" | "stretch" | "reverse" | "quantize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -905,6 +921,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "stretch" {
+        let scaled = match stretch::stretch(&composed, factor) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive finite factor"),
+        };
+        let path = if output == "out.wav" {
+            "stretched.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&scaled);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, factor {factor})",
+                    text.len(),
+                    scaled.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "swing" {
         let swung = match swing::swing(&composed, ratio) {
