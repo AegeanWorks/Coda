@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-lint",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795067274.8362987,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795067287.6080813,
+    "completed_head": "f79394cbfe46c2b205e07d560766ae9cd1f8e750",
+    "completed_tree": "04b944f69b19175036a9bfa6709b89744d105879"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-doc-fix",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Record the README cold-start tree fix",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795065812.1271114,
-      "timestamp_str": "2026-11-19 08:23:32",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "The strict gate found a tracked path missing from the README tree after the migration commit.",
-        "benefits": "A cold-starting agent sees every tracked directory.",
-        "risks": "contract: README tree must match tracked paths; dependency: none; concurrency: none; state: ledger must not trail a completed task.",
-        "mitigation": "Record the one-commit doc fix as its own task, pass Phase 4, then complete it."
-      },
-      "plan_digest": "cc4614929cbb4a7167f26d86e61779ed2e94901e509a1e0636170d75e0ce5dfd",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-doc-fix",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-lint",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-lint' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795067287.720675,
+      "timestamp_str": "2026-11-19 08:48:07",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "f79394cbfe46c2b205e07d560766ae9cd1f8e750",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
