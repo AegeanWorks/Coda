@@ -707,6 +707,35 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_stats_has_exact_deterministic_output() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-stats-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let path = root.join("stats.coda");
+    std::fs::write(
+        &path,
+        "tempo 120\nnote C4 0.5 1 -0.5\nat 1 A4 0.5 1 0.5\nrest 1.5\n",
+    )
+    .unwrap();
+
+    let out = Command::new(exe).arg("stats").arg(&path).output().unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout),
+        concat!(
+            "notes       2 sounding, 1 rests\n",
+            "duration    2 beats / 1.000s\n",
+            "pitch range C4..A4 (MIDI 60..69)\n",
+            "distinct    2\n",
+            "density     1.000 notes/beat\n",
+            "waves       triangle\n",
+            "pan         -0.500..0.500\n",
+        )
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_compare_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-compare-{}", std::process::id()));

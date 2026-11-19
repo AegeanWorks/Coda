@@ -8,6 +8,7 @@ use coda::lint;
 use coda::midi_import;
 use coda::render::{render, wav_bytes};
 use coda::score;
+use coda::stats;
 use coda::transpose;
 use coda::vary;
 use coda::wave::Wave;
@@ -21,6 +22,7 @@ USAGE
   coda render <score.coda> [options]
   coda seed <number> [options]
   coda info <score.coda>
+  coda stats <score.coda>
   coda lint <score.coda>
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
@@ -444,7 +446,7 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "lint" | "export-score" | "vary" | "digest" => {
+        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -518,6 +520,11 @@ fn main() -> ExitCode {
                 "check that the output directory exists and is writable",
             ),
         };
+    }
+
+    if command == "stats" {
+        print!("{}", stats::report(&composed));
+        return ExitCode::SUCCESS;
     }
 
     if command == "lint" {

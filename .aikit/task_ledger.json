@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-join",
+    "task_id": "coda-stats",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795069401.4705427,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795069577.084932,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795069410.7468371,
-    "completed_head": "5ee1ed12177abeb2702db6dd9dc398d766746062",
-    "completed_tree": "8b56731ba2451cce31286bfe78fcbc8ce9a20a23"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-transpose",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 78 tests green; inverse transposition restores byte-identical audio and CLI semitone routing verified",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795068104.6619344,
-      "timestamp_str": "2026-11-19 09:01:44",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-transpose",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-transpose' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795068116.6250172,
-      "timestamp_str": "2026-11-19 09:01:56",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "e17b2deba953a811260c7bb305f2a422f45c375e",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-wave-override-fix",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-stats",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a deterministic score statistics command",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795069468.0391603,
+      "timestamp_str": "2026-11-19 09:24:28",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Scores are now generated, varied, imported and joined; a quick summary is needed to compare them without reading the source.",
+        "benefits": "stats reports counts, duration, pitch range, distinct pitches, density, waveforms and pan span in a stable format suitable for scripts and tests.",
+        "risks": "contract: stats must be read-only with exact, ordered output and safe behavior on empty scores; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure stats module with exact-string tests including the empty case, a CLI command reusing score loading, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "18878bcf5f89214feb4c7b2d5d15a3e3fc3e0ed172d07b461fe4d98d8817057a",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-stats",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 108 tests green; stats output pinned byte-for-byte including empty-score safety",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795069577.084932,
+      "timestamp_str": "2026-11-19 09:26:17",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

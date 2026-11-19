@@ -137,3 +137,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Sections rendered separately must combine into one playable file without external audio tools.
 - **Decision**: Add a pure join module that checks 16-bit stereo WAV headers and sample-rate parity, concatenates data payloads, and writes a fresh RIFF header with the summed length; expose it as the join command.
 - **Consequences**: Sections at different sample rates are rejected; single-part joins are byte-identical; golden vectors for individual renders are unchanged.
+
+### ADR-019: Statistics are a read-only, exactly formatted view
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Generated, varied and imported scores need a quick comparison that does not require reading source or audio.
+- **Decision**: Add a pure stats reporter with a fixed line order and safe empty-score behavior, exposed as a read-only stats command.
+- **Consequences**: Exact-output tests pin the format; no score or output file changes; the command reuses the same score loader as info and lint.

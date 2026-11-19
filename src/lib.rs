@@ -16,6 +16,7 @@ pub mod midi_import;
 pub mod notes;
 pub mod render;
 pub mod score;
+pub mod stats;
 pub mod transpose;
 pub mod vary;
 pub mod wave;
