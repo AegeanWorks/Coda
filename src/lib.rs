@@ -82,6 +82,7 @@ pub mod trim;
 pub mod vary;
 pub mod velocity;
 pub mod verify;
+pub mod vibrato;
 pub mod wav_reverse;
 pub mod wave;
 pub mod width;

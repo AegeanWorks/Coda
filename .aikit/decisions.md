@@ -641,3 +641,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: width folded or widened with L/R mixing but could not scale the side component of a mid/side image.
 - **Decision**: Scale the side component by a bounded factor, with 0 collapsing to dual mono, 1 byte-identical, and values above 1 widening the image within clamped bounds.
 - **Consequences**: Mono collapse, identity, widening, bounded output and validation are pinned by byte tests.
+
+### ADR-091: Vibrato warps a WAV timeline with a sine LFO
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: score vibrato applied at render time, leaving finished WAVs without pitch modulation.
+- **Decision**: Warp sample positions by a sine LFO of chosen rate and frame depth with deterministic linear interpolation; depth 0 is byte-identical and length is preserved.
+- **Consequences**: Identity, determinism, length preservation, bounded output and validation are pinned by byte tests.

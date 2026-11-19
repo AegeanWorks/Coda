@@ -75,6 +75,7 @@ use coda::trim;
 use coda::vary;
 use coda::velocity;
 use coda::verify;
+use coda::vibrato;
 use coda::wav_reverse;
 use coda::wave::Wave;
 use coda::width;
@@ -148,6 +149,7 @@ USAGE
   coda midi-render <file.mid> [--sample-rate N] [-o out.wav]
   coda pan-sweep <in.wav> [--autopan-rate HZ] [--autopan-depth 0..1] [-o out.wav]
   coda mswidth <in.wav> --side 0..2 [-o out.wav]
+  coda vibrato <in.wav> --vib-rate HZ --vib-depth N [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -214,6 +216,8 @@ OPTIONS
       --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
       --side 0..2      Side gain for mswidth (1 = identity)
+      --vib-rate HZ    Vibrato LFO rate in Hz
+      --vib-depth N    Vibrato depth in frames
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -341,6 +345,8 @@ fn main() -> ExitCode {
     let mut lp_alpha: Option<f64> = None;
     let mut static_pan: Option<f64> = None;
     let mut side_gain: Option<f64> = None;
+    let mut vib_rate: Option<f64> = None;
+    let mut vib_depth: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -788,6 +794,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--vib-rate" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    vib_rate = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--vib-rate must be a positive number",
+                        "coda vibrato in.wav --vib-rate 5 --vib-depth 2",
+                    )
+                }
+            },
+            "--vib-depth" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    vib_depth = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--vib-depth must be non-negative",
+                        "coda vibrato in.wav --vib-rate 5 --vib-depth 2",
                     )
                 }
             },
@@ -1325,6 +1355,64 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "vibrato" {
+        if positional.is_empty() {
+            return fail(
+                "vibrato needs an input WAV",
+                "coda vibrato in.wav --vib-rate 5 --vib-depth 2",
+            );
+        }
+        let rate = match vib_rate {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "vibrato needs --vib-rate",
+                    "coda vibrato in.wav --vib-rate 5 --vib-depth 2",
+                )
+            }
+        };
+        let depth = match vib_depth {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "vibrato needs --vib-depth",
+                    "coda vibrato in.wav --vib-rate 5 --vib-depth 2",
+                )
+            }
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let warped = match vibrato::apply_vibrato(&bytes, rate, depth) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "vibrato.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &warped) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {rate} Hz, depth {depth})",
+                    warped.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

@@ -2087,6 +2087,49 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_vibrato_warps_the_timeline() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-vib-{}-{}", std::process::id(), 23));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.0, 0.0), (0.4, 0.4), (1.0, 1.0), (0.4, 0.4)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("vibrato")
+        .arg(&input)
+        .args(["--vib-rate", "1000", "--vib-depth", "1.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    let before = std::fs::read(&input).unwrap();
+    assert_eq!(after.len(), before.len());
+    assert_ne!(after, before, "positive depth changes samples");
+
+    let result = Command::new(exe)
+        .arg("vibrato")
+        .arg(&input)
+        .args(["--vib-rate", "5", "--vib-depth", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), before);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_mswidth_adjusts_the_side_component() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-msw-{}-{}", std::process::id(), 19));
