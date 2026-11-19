@@ -5,9 +5,9 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1795114728.3598917,
+    "updated_at": 1795114810.2678308,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795121928.3598917,
+    "lease_until": 1795122010.2678308,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -18,18 +18,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 100",
-      "phase_num": 3,
-      "description": "Reforge stage 100: window 300, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795113344.444875,
-      "timestamp_str": "2026-11-19 21:35:44",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 100",
@@ -293,6 +281,24 @@
       "status": "in_progress",
       "timestamp": 1795114728.3598917,
       "timestamp_str": "2026-11-19 21:58:48",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-brand-publish",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Correction: prior Phase 4 note was recorded before README listed assets/. Failure fixed by adding assets/ to the project tree; re-ran check coda --strict and all 5 gates now genuinely pass (397 unit + 118 integration).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795114810.2678308,
+      "timestamp_str": "2026-11-19 22:00:10",
       "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
       "checklists": "passed",
       "workspaces": [
