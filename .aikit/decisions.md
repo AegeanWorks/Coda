@@ -466,3 +466,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Pitch inversion and WAV reversal existed but there was no phase-flip utility for comparing correlated signals.
 - **Decision**: Negate each interleaved i16 sample in place with wrapping_neg and copy the header unchanged, so applying polarity twice restores every byte including the i16::MIN extreme.
 - **Consequences**: Sign flips, byte-exact double inversion at the extreme, header preservation and invalid-WAV rejection are pinned by byte tests.
+
+### ADR-066: Overlay superimposes scores at their absolute beats
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: concat joined scores sequentially and mix overlaid rendered audio, but neither left a superimposition of two editable scores.
+- **Decision**: Union the note lists without shifting starts, sort the result by start then pitch for deterministic canonical output, and keep the first score's global settings.
+- **Consequences**: Start preservation, stable ordering, round-trip and empty-input rejection are pinned by byte tests.

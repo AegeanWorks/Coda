@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-polarity",
+    "task_id": "coda-overlay",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795089125.996713,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795089618.8496802,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795096325.996713,
+    "lease_until": 1795096818.8496802,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795089135.1339881,
-    "completed_head": "fd6f88d353ecff53cce953285e1dbc7c3b0ac6fa",
-    "completed_tree": "256daffa6494478e0b89dc8839c454e8142d3d47"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-register",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 289 tests green; octave folding, field preservation, round-trip and bound validation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795087428.12147,
-      "timestamp_str": "2026-11-19 14:23:48",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-register",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-register' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795087443.4059706,
-      "timestamp_str": "2026-11-19 14:24:03",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "15097fcf08cad275eb37283dc52cf2ad50e2fa32",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-gate",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-overlay",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add score overlay (parallel superposition)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795089401.702353,
+      "timestamp_str": "2026-11-19 14:56:41",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "concat lays scores end to end and mix overlays rendered audio, but there is no way to superimpose two editable scores at their own absolute beats.",
+        "benefits": "overlay unions the note lists of several scores without shifting starts, sorts them deterministically by start and pitch, and keeps the first score's settings.",
+        "risks": "contract: starts must be unchanged, note count is the sum, ordering stable, first score settings win, output round-trips, empty input fails; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for start preservation, ordering and round-trip, a CLI command taking two or more scores, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "d68508f8ba99748417b78720ae7d714c9fed501909e72df9f24502ad73b3d316",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-overlay",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 324 tests green; start preservation, stable ordering and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795089618.8496802,
+      "timestamp_str": "2026-11-19 15:00:18",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

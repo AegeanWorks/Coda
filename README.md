@@ -50,6 +50,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Fade presets** — `fade --preset` applies named envelopes to any Coda WAV using the deterministic fade code.
 - **Looping** — `loop` repeats a score's phrase N times into editable canonical source.
 - **Concatenation** — `concat` merges several score files into one arrangement with correct time offsets.
+- **Overlay** — `overlay` superimposes scores at their original beats for editable polyphonic layering.
 - **Resampling** — `resample` converts a Coda WAV to another sample rate with deterministic linear interpolation.
 - **Channel tools** — `channels --mode mono|swap|left|right` folds, swaps or isolates stereo sides.
 - **Bit depth** — `bitdepth --bits 8|16` exports unsigned 8-bit PCM or keeps the original 16-bit bytes.
@@ -116,6 +117,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `fade <in.wav> --preset NAME` | Apply short/gentle/long/tail/attack. |
 | `loop <score.coda> --times N` | Repeat a phrase into canonical source. |
 | `concat <a.coda> <b.coda> [...]` | Merge scores into one arrangement. |
+| `overlay <a.coda> <b.coda> [...]` | Superimpose scores at absolute beats. |
 | `resample <in.wav> --rate HZ` | Convert to another sample rate. |
 | `channels <in.wav> --mode NAME` | Fold, swap or isolate stereo channels. |
 | `bitdepth <in.wav> --bits 8|16` | Export 8-bit or keep 16-bit PCM. |

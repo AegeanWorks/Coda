@@ -31,6 +31,7 @@ use coda::midi_import;
 use coda::mix;
 use coda::normalize;
 use coda::notes;
+use coda::overlay;
 use coda::pad;
 use coda::polarity;
 use coda::quantize;
@@ -99,6 +100,7 @@ USAGE
   coda echo-to <in.wav> [--echo-delay S] [--echo-feedback 0..1] [-o out.wav]
   coda augment <score.coda> --factor F [-o out.coda]
   coda polarity <in.wav> [-o out.wav]
+  coda overlay <a.coda> <b.coda> [...] [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1833,6 +1835,47 @@ fn main() -> ExitCode {
                     text.len(),
                     imported.notes.len(),
                     imported.tempo
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "overlay" {
+        if positional.len() < 2 {
+            return fail(
+                "overlay needs at least two score files",
+                "coda overlay a.coda b.coda [-o out.coda]",
+            );
+        }
+        let mut scores = Vec::new();
+        for path in &positional {
+            match read_score(path) {
+                Ok(s) => scores.push(s),
+                Err(code) => return code,
+            }
+        }
+        let layered = match overlay::overlay_scores(&scores) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "provide at least two valid scores"),
+        };
+        let path = if output == "out.wav" {
+            "overlay.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&layered);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} scores)",
+                    text.len(),
+                    layered.notes.len(),
+                    scores.len()
                 );
                 ExitCode::SUCCESS
             }

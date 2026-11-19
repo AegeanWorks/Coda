@@ -1849,6 +1849,46 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_overlay_superimposes_scores_at_absolute_beats() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-overlay-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.coda");
+    let b = root.join("b.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&a, "note C4 1\nat 2 E4 0.5\n").unwrap();
+    std::fs::write(&b, "note G3 2\nat 1 B3 0.5\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("overlay")
+        .arg(&a)
+        .arg(&b)
+        .args(["-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 1"), "{text}");
+    assert!(text.contains("at 0 G3 2 1"), "{text}");
+    assert!(text.contains("note B3 0.5 1"), "{text}");
+    assert!(text.contains("at 2 E4 0.5 1"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let summary = String::from_utf8_lossy(&stats.stdout);
+    assert!(summary.contains("notes       4 sounding"), "{summary}");
+    assert!(summary.contains("pitch range G3..E4"), "{summary}");
+
+    let missing = Command::new(exe).arg("overlay").arg(&a).output().unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_polarity_flips_and_restores_samples() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-polarity-{}", std::process::id()));

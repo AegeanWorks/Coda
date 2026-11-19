@@ -38,6 +38,7 @@ pub mod midi_import;
 pub mod mix;
 pub mod normalize;
 pub mod notes;
+pub mod overlay;
 pub mod pad;
 pub mod polarity;
 pub mod quantize;
