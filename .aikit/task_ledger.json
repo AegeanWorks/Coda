@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-noise",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795096016.1014068,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795103216.1014068,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795096023.9577081,
+    "completed_head": "902ae0739e824b00f01beacead63c16c84bb2c16",
+    "completed_tree": "b7b118e54ae01aa23d472d7b2f7e5216ffabe7de"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-reverse-region",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add WAV region reversal",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795094061.9282985,
-      "timestamp_str": "2026-11-19 16:14:21",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "reverse-wav flips an entire file, but reversing only a selected time span requires an external editor.",
-        "benefits": "reverse-region reverses frames inside an exact time window, leaving the head and tail byte-identical and preserving rate and length.",
-        "risks": "contract: 0 <= start < end finite, frame rounding exact, head/tail unchanged, out-of-range windows handled, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for middle/full windows, identity cases and validation, a CLI command reusing --start/--end, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "6b7874f38ff4cbfeb54bca18c4222e5dff9efe2e9e25d003053ff448342074fa",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-reverse-region",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-noise",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-noise' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795096024.0695047,
+      "timestamp_str": "2026-11-19 16:47:04",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "902ae0739e824b00f01beacead63c16c84bb2c16",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
