@@ -274,6 +274,7 @@ coda/
 ├── LICENSES/                 <- REUSE license texts
 ├── REUSE.toml                <- Machine-readable SPDX metadata
 ├── README.md
+├── assets/                   <- Approved brand logo and social preview (SVG)
 ├── Cargo.toml                <- Zero dependencies
 ├── scripts/                  <- One-command cross-toolchain test runner
 │   └── verify.ps1
