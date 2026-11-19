@@ -389,3 +389,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Chords written as simultaneous notes could not be turned into a linear figure.
 - **Decision**: Group notes by their grid-aligned start and reassign sequential starts within each group while preserving all other fields.
 - **Consequences**: Note count and timbre are unchanged, output re-serializes exactly, and invalid grids fail clearly.
+
+### ADR-055: Melodic inversion mirrors pitches around a center
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Time reversal and transposition existed but pitch reflection around a center did not.
+- **Decision**: Reflect each pitch as 2*center - pitch, skipping rests and out-of-range results, preserving all other note fields.
+- **Consequences**: Reflection values, field preservation and round-trip are pinned by byte tests; invalid centers fail clearly.

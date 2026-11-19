@@ -23,6 +23,7 @@ pub mod gain;
 pub mod gen;
 pub mod harmonize;
 pub mod humanize;
+pub mod invert;
 pub mod join;
 pub mod lint;
 pub mod loop_score;

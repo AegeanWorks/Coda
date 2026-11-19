@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-arpeggiate",
+    "task_id": "coda-invert",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795078827.2881799,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795085855.035265,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795078832.9381814,
-    "completed_head": "808a8bb5e547e3af85c6b65de82b2aff6d492e3d",
-    "completed_tree": "c6d2e54e667f0233dc7420b24ee4a45400828746"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-width",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 241 tests green; width 0 mono, 1 identity, widening clamp pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795077379.6055856,
-      "timestamp_str": "2026-11-19 11:36:19",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-width",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-width' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795077385.7597501,
-      "timestamp_str": "2026-11-19 11:36:25",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "a06a8393a4ad8eb170b24a02ae10857f67480fef",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-gain",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-invert",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add melodic inversion",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795085621.1752083,
+      "timestamp_str": "2026-11-19 13:53:41",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Time reversal and transposition exist, but mirroring pitches around a center note is a distinct compositional transform.",
+        "benefits": "invert reflects every pitch around a chosen center while preserving rhythm, velocity, pan and timbre.",
+        "risks": "contract: center must parse as a note, reflected pitches must stay in MIDI range, and invalid input must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for pitch reflection, field preservation and round-trip, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "37390ed0ec8bc5cc5eee0a789a0eceff1bc8d4d7473fcec09343de04e4317cc1",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-invert",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 270 tests green; pitch reflection, field preservation and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795085855.035265,
+      "timestamp_str": "2026-11-19 13:57:35",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

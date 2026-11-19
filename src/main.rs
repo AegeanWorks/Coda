@@ -17,6 +17,7 @@ use coda::gain;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::harmonize;
 use coda::humanize;
+use coda::invert;
 use coda::join;
 use coda::lint;
 use coda::loop_score;
@@ -85,6 +86,7 @@ USAGE
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
   coda arpeggiate <score.coda> [--grid 0.25] [-o out.coda]
+  coda invert <score.coda> [--center C4] [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -128,6 +130,7 @@ OPTIONS
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
       --intervals LIST Comma-separated semitones for harmonize
+      --center NOTE    Center pitch for invert (default: C4)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -237,6 +240,7 @@ fn main() -> ExitCode {
     let mut pad_before = 0.0_f64;
     let mut pad_after = 0.0_f64;
     let mut intervals: Vec<i32> = Vec::new();
+    let mut center_note = "C4".to_string();
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -607,6 +611,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--center" => match need(i) {
+                Some(name) => {
+                    center_note = name.to_string();
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--center needs a note name",
+                        "coda invert score.coda --center C4",
                     )
                 }
             },
@@ -1686,7 +1702,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "harmonize" | "arpeggiate" | "digest" => {
+        | "report" | "harmonize" | "arpeggiate" | "invert" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1751,6 +1767,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "invert" {
+        let mirrored = match invert::invert(&composed, &center_note) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a note name like C4 or Bb3"),
+        };
+        let path = if output == "out.wav" {
+            "inverted.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&mirrored);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, center {center_note})",
+                    text.len(),
+                    mirrored.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "arpeggiate" {
         let rolled = match arpeggiate::arpeggiate(&composed, grid) {

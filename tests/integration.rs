@@ -822,6 +822,41 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_invert_mirrors_pitches() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-invert-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote E4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("invert")
+        .arg(&source)
+        .args(["--center", "C4", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4"), "{text}");
+    assert!(text.contains("note G#3"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("invert")
+        .arg(&source)
+        .args(["--center", "H9"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_arpeggiate_rolls_a_chord() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-arp-{}", std::process::id()));
