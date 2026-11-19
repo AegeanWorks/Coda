@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-reverse-region",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795094251.662837,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795101451.662837,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795094258.7042162,
+    "completed_head": "40a2fe9054dd2a632427ff0437169b9b8dcd4fcf",
+    "completed_tree": "093b0d966306fccd8cfb35d34b1185e8f75d0131"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-velocity",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add score velocity normalization",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795092116.6045394,
-      "timestamp_str": "2026-11-19 15:41:56",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "accent cycles fixed velocities and humanize jitters them, but there is no way to rescale a score's dynamics to a chosen peak while keeping their ratios.",
-        "benefits": "velocity scales all sounding note velocities by one factor so the loudest reaches --peak, preserving rests, timing and timbre as editable source.",
-        "risks": "contract: peak 0..1, maximum reaches target exactly, ratios preserved, rests untouched, silent scores identity, round-trip; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for scaling, ratios, rests and round-trip, a CLI command reusing --peak, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "485eefb9bafc467298d643510f31f950fc59cddc865f5bfa2eb2ba05add6f494",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-velocity",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-reverse-region",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-reverse-region' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795094258.7934287,
+      "timestamp_str": "2026-11-19 16:17:38",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "40a2fe9054dd2a632427ff0437169b9b8dcd4fcf",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
