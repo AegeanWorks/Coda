@@ -34,6 +34,7 @@ pub mod invert;
 pub mod join;
 pub mod lint;
 pub mod loop_score;
+pub mod lowpass;
 pub mod midi;
 pub mod midi_import;
 pub mod mix;

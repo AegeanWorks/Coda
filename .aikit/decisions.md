@@ -501,3 +501,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: pad inserted only silence and mix added signals, with no way to place one recording inside another and shift the tail.
 - **Decision**: Round the offset to frames at the shared sample rate, keep the base head, zero-fill any gap past its end, append the insert, then reattach the shifted tail.
 - **Consequences**: Frame-exact insertion, zero padding, rate validation and tail preservation are pinned by byte tests.
+
+### ADR-071: Lowpass applies a deterministic one-pole filter
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: No effect could smooth harsh high-frequency content in a rendered WAV.
+- **Decision**: Filter each channel with y = y + alpha*(x - y), seeded from the first sample, with alpha=1 byte-identical and alpha=0 holding the initial value.
+- **Consequences**: Identity, freeze, step response, determinism and coefficient validation are pinned by byte tests.

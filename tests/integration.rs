@@ -2087,6 +2087,57 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_lowpass_smooths_a_step() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-lowpass-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(
+            &[(0.0, 0.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0)],
+            8_000,
+        ),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("lowpass")
+        .arg(&input)
+        .args(["--alpha", "0.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let sample = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert_eq!(sample(0), 0);
+    assert!((sample(1) as f64 / 32767.0 - 0.5).abs() < 0.01);
+    assert!((sample(2) as f64 / 32767.0 - 0.75).abs() < 0.01);
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("lowpass")
+        .arg(&input)
+        .args(["--alpha", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_splice_inserts_at_an_offset() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-splice-{}", std::process::id()));

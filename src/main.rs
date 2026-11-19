@@ -28,6 +28,7 @@ use coda::invert;
 use coda::join;
 use coda::lint;
 use coda::loop_score;
+use coda::lowpass;
 use coda::midi_import;
 use coda::mix;
 use coda::normalize;
@@ -109,6 +110,7 @@ USAGE
   coda pedal <score.coda> --note C2 [--velocity 0..1] [-o out.coda]
   coda snap-scale <score.coda> --root NOTE [--scale NAME] [-o out.coda]
   coda splice <a.wav> <b.wav> --at S [-o out.wav]
+  coda lowpass <in.wav> --alpha 0..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -164,6 +166,7 @@ OPTIONS
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
       --at S           Insertion time in seconds for splice
+      --alpha 0..1     Low-pass smoothing coefficient (1 = identity)
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -284,6 +287,7 @@ fn main() -> ExitCode {
     let mut pedal_note: Option<String> = None;
     let mut pedal_velocity = 0.5_f64;
     let mut splice_at: Option<f64> = None;
+    let mut lp_alpha: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -686,6 +690,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--alpha" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    lp_alpha = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--alpha must be between 0 and 1",
+                        "coda lowpass in.wav --alpha 0.2",
                     )
                 }
             },
@@ -1650,6 +1666,47 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "lowpass" {
+        if positional.is_empty() {
+            return fail(
+                "lowpass needs an input WAV",
+                "coda lowpass in.wav --alpha 0.2",
+            );
+        }
+        let alpha = match lp_alpha {
+            Some(value) => value,
+            None => return fail("lowpass needs --alpha", "coda lowpass in.wav --alpha 0.2"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let filtered = match lowpass::apply_lowpass(&bytes, alpha) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "lowpassed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &filtered) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, alpha {alpha})", filtered.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 
