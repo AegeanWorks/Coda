@@ -1008,6 +1008,38 @@ fn cli_humanize_is_seeded_with_exact_identity() {
 }
 
 #[test]
+fn cli_join_crossfade_shortens_the_result() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-xfade-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.coda");
+    let b = root.join("b.coda");
+    std::fs::write(&a, "note C4 1\n").unwrap();
+    std::fs::write(&b, "note E4 1\n").unwrap();
+
+    let hard = root.join("hard.wav");
+    let soft = root.join("soft.wav");
+    for (path, extra) in [(&hard, Vec::new()), (&soft, vec!["--crossfade", "0.05"])] {
+        let mut args = vec!["join"];
+        args.push(a.to_str().unwrap());
+        args.push(b.to_str().unwrap());
+        args.extend(extra);
+        args.push("-o");
+        let out = Command::new(exe).args(args).arg(path).output().unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let hard_bytes = std::fs::read(&hard).unwrap();
+    let soft_bytes = std::fs::read(&soft).unwrap();
+    assert!(soft_bytes.len() < hard_bytes.len());
+    assert_eq!(&soft_bytes[0..4], b"RIFF");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_mix_layers_wavs_with_gain_control() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-mix-{}", std::process::id()));

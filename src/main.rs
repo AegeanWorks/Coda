@@ -50,7 +50,7 @@ USAGE
   coda stretch <score.coda> --factor F [-o out.coda]
   coda analyze <in.wav>
   coda compare <a.coda> <b.coda>
-  coda join <a.coda> <b.coda> [more...] [-o out.wav]
+  coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
   coda mix <a.wav> <b.wav> [-o out.wav] [--gain-b 0..1]
@@ -73,6 +73,7 @@ OPTIONS
       --steps N        Scale degrees to move in diatonic (default: 0)
       --ratio 0..1     Swing amount (default: 0.6)
       --factor F       Time-stretch factor (default: 1)
+      --crossfade S    Overlap between joined sections in seconds (default: 0)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -168,6 +169,7 @@ fn main() -> ExitCode {
     let mut ratio = 0.6_f64;
     let mut factor = 1.0_f64;
     let mut rms_target: Option<f64> = None;
+    let mut crossfade = 0.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -335,6 +337,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--factor must be a positive finite number",
                         "coda stretch score.coda --factor 2",
+                    )
+                }
+            },
+            "--crossfade" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    crossfade = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--crossfade must be a non-negative number",
+                        "coda join a.coda b.coda --crossfade 0.05",
                     )
                 }
             },
@@ -716,7 +730,8 @@ fn main() -> ExitCode {
             let (_, bytes) = rendered_wav(&score, &audio);
             parts.push(bytes);
         }
-        let joined = match join::join_wavs(&parts) {
+        let overlap = (crossfade * sample_rate as f64).round() as usize;
+        let joined = match join::join_wavs_crossfade(&parts, overlap) {
             Ok(bytes) => bytes,
             Err(e) => return fail(&e, "all sections must be rendered at the same sample rate"),
         };

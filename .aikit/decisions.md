@@ -249,3 +249,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Peak normalization does not control perceived loudness; an RMS target mode is needed for level matching.
 - **Decision**: Add normalize_rms that scales frames to a dBFS target with shared decoding and clamping, selected by --rms-target while --peak keeps its exact previous behavior.
 - **Consequences**: RMS mode is idempotent and leaves silence untouched; the CLI report names its mode; analyze verifies the achieved level byte-for-byte.
+
+### ADR-035: Join can crossfade adjacent sections with equal power
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Hard cuts between rendered sections click and sound abrupt.
+- **Decision**: Add an optional overlap in join that blends the tail and head of adjacent sections with equal-power gains, clamping the overlap to half of the shorter section; zero overlap keeps the old byte-identical path.
+- **Consequences**: Crossfaded output is shorter by the summed overlaps, the blend is deterministic, and section-level WAV bytes remain unchanged.

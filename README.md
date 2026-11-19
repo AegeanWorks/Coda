@@ -45,7 +45,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Transposition** — `--semitones N` shifts every pitched note chromatically while leaving timing, velocity, pan and envelopes untouched; an inverse shift restores byte-identical audio.
 - **Seeded variation** — `vary` applies bounded, reproducible changes to pitch, velocity, pan and timbre; `--amount 0` is an exact identity.
 - **Comparison** — `compare` reports ordered structural differences between two scores and whether their rendered audio is byte-identical.
-- **Joining** — `join` renders several scores at one sample rate and concatenates their PCM data with a corrected RIFF header.
+- **Joining** — `join` renders several scores at one sample rate and concatenates them, with an optional `--crossfade` overlap for seamless transitions.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -87,7 +87,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
 | `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
-| `join <a.coda> <b.coda> [...]` | Render sections and concatenate them into one WAV. |
+| `join <a.coda> <b.coda> [...] [--crossfade S]` | Render sections into one WAV, optionally crossfaded. |
 | `normalize <in.wav> [--peak P | --rms-target DB]` | Scale to a peak or RMS target. |
 | `templates` / `template <name>` | List sketches or write one as canonical source. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
