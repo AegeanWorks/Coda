@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-reverse",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795070792.1847486,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795070802.044229,
+    "completed_head": "d0ccd95039e2148ac16cb59494a831c2dfdb0e36",
+    "completed_tree": "8c7f23f998b8f5190935f9171540f694948ac5f7"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-join",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add WAV joining across multiple scores",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795069234.6933715,
-      "timestamp_str": "2026-11-19 09:20:34",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Long pieces are written as sections, but Coda could only render one score per file; joining renders a sequence as one WAV.",
-        "benefits": "join validates sample-rate parity and concatenates PCM data with a corrected RIFF header, so sections compose without external audio tools.",
-        "risks": "contract: individual WAV bytes and golden vectors must not change; mismatched sample rates must fail clearly; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure join module with exact header/data byte tests, a CLI command rendering each input at one rate, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "cee6eb08fe61cb73d5b2e9340f15c7ec8474bda44a9fad082b8b5e83f36300ca",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-join",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-reverse",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-reverse' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795070802.1410742,
+      "timestamp_str": "2026-11-19 09:46:42",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "d0ccd95039e2148ac16cb59494a831c2dfdb0e36",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
