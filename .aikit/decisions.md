@@ -81,3 +81,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Four-number ADSR overrides are precise but unreadable for common articulations.
 - **Decision**: Expose five named envelopes through Envelope::preset and a preset directive that writes the same running note envelope as env; preset default restores the score envelope.
 - **Consequences**: Presets are plain Envelope values with no new data type; a preset is byte-equivalent to its explicit numbers; unoverridden scores keep their golden vectors.
+
+### ADR-011: Canonical score source round-trips through the existing parser
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Generated arrangements were render-only; saving one as an editable score required a lossless inverse of the parser.
+- **Decision**: Add score::serialize that writes score directives and explicit per-note overrides, tracking the parser's cursor so at/note/rest placement is preserved; route .coda output and export-score to it.
+- **Consequences**: parse(serialize(score)) equals score for all styles and overrides; no new file format or parser; WAV and MIDI output unchanged.

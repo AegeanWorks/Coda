@@ -17,12 +17,13 @@ USAGE
   coda seed <number> [options]
   coda info <score.coda>
   coda lint <score.coda>
+  coda export-score <score.coda> [options]
   coda digest <score.coda> [options]
   coda album <number> [options]
   coda help
 
 OPTIONS
-  -o, --out <file>     Output path (default: out.wav); .mid/.midi writes MIDI
+  -o, --out <file>     Output path (default: out.wav); .mid/.midi MIDI, .coda source
       --sample-rate N  Samples per second (default: 44100)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
@@ -268,7 +269,7 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "lint" | "digest" => {
+        "render" | "info" | "lint" | "export-score" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -348,6 +349,29 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
+    if command == "export-score" {
+        let path = if output == "out.wav" {
+            "out.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&composed);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, score)",
+                    text.len(),
+                    composed.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
     if command == "digest" {
         let samples = render(&composed, sample_rate);
         let bytes = wav_bytes(&samples, sample_rate);
@@ -362,7 +386,16 @@ fn main() -> ExitCode {
 
     let lowered = output.to_ascii_lowercase();
     let is_midi = lowered.ends_with(".mid") || lowered.ends_with(".midi");
-    let (bytes, summary) = if is_midi {
+    let is_score = lowered.ends_with(".coda");
+    let (bytes, summary) = if is_score {
+        let text = score::serialize(&composed);
+        let summary = format!(
+            "{} bytes, {} notes, score",
+            text.len(),
+            composed.notes.len()
+        );
+        (text.into_bytes(), summary)
+    } else if is_midi {
         let bytes = coda::midi::midi_bytes(&composed);
         let summary = format!(
             "{} bytes, {} notes, MIDI",

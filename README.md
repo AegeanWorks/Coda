@@ -41,6 +41,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Audio fingerprint** — `digest` prints a stable FNV-1a 64-bit ID for any rendered piece; golden vectors pin the renderer at two sample rates.
 - **Score inspector** — `info` reports waveform, timing, note/rest counts and duration without writing audio.
 - **Score linter** — `lint` reports deterministic warnings for extreme pitch, silent notes, clipping risk, duplicate notes and long values without changing the score.
+- **Score round-trip** — `export-score` (or a `.coda` output extension) writes canonical source that parses back to the identical `Score`, including every per-note override.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -53,10 +54,11 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `album <n>` | Write a directory of deterministic tracks. |
 | `info <score.coda>` | Inspect a score without rendering. |
 | `lint <score.coda>` | Print deterministic warnings; never changes the score. |
+| `export-score <score.coda>` | Write canonical, re-parseable source. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 
-Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`. A `.wav` output renders audio; `.mid`/`.midi` writes MIDI instead. Exit codes: `0` success, `2` usage/IO error.
+Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
 
 ## Score language
 

@@ -309,9 +309,108 @@ pub fn parse(text: &str) -> Result<Score, String> {
     Ok(score)
 }
 
+/// Render a `Score` back into canonical, parseable source.
+///
+/// Every per-note override is written explicitly before its note so the source
+/// always parses to the identical `Score`, regardless of running defaults.
+pub fn serialize(score: &Score) -> String {
+    let mut out = String::new();
+    out.push_str(&format!("tempo {}\n", score.tempo));
+    out.push_str(&format!("wave {}\n", score.wave.name()));
+    out.push_str(&format!("gain {}\n", score.gain));
+    out.push_str(&format!("attack {}\n", score.envelope.attack));
+    out.push_str(&format!("decay {}\n", score.envelope.decay));
+    out.push_str(&format!("sustain {}\n", score.envelope.sustain));
+    out.push_str(&format!("release {}\n", score.envelope.release));
+    out.push_str(&format!(
+        "vibrato {} {}\n",
+        score.vibrato.rate, score.vibrato.cents
+    ));
+    out.push('\n');
+
+    // The parser advances its cursor only for `note` and `rest`, never for
+    // `at`. Track exactly that cursor so a round-trip preserves every start.
+    let mut cursor = 0.0_f64;
+    for note in &score.notes {
+        out.push_str(&format!(
+            "env {} {} {} {}\n",
+            note.envelope.attack, note.envelope.decay, note.envelope.sustain, note.envelope.release
+        ));
+        out.push_str(&format!(
+            "vib {} {}\n",
+            note.vibrato.rate, note.vibrato.cents
+        ));
+        out.push_str(&format!("inst {}\n", note.wave.name()));
+        out.push_str(&format!("pan {}\n", note.pan));
+
+        if note.pitch == "-" {
+            out.push_str(&format!("rest {}\n", note.beats));
+            cursor += note.beats;
+        } else if (note.start - cursor).abs() < 1e-9 {
+            out.push_str(&format!(
+                "note {} {} {}\n",
+                note.pitch, note.beats, note.velocity
+            ));
+            cursor += note.beats;
+        } else {
+            out.push_str(&format!(
+                "at {} {} {} {}\n",
+                note.start, note.pitch, note.beats, note.velocity
+            ));
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::gen::{GenOptions, Style};
+
+    #[test]
+    fn serialize_is_canonical() {
+        let score = parse("tempo 120\nwave sine\nnote C4 1\n").unwrap();
+        assert_eq!(
+            serialize(&score),
+            concat!(
+                "tempo 120\n",
+                "wave sine\n",
+                "gain 0.3\n",
+                "attack 0.01\n",
+                "decay 0.08\n",
+                "sustain 0.65\n",
+                "release 0.15\n",
+                "vibrato 0 0\n",
+                "\n",
+                "env 0.01 0.08 0.65 0.15\n",
+                "vib 0 0\n",
+                "inst sine\n",
+                "pan 0\n",
+                "note C4 1 1\n",
+            )
+        );
+    }
+
+    #[test]
+    fn serialize_roundtrips_all_note_fields() {
+        let source = "tempo 96\nwave saw\ngain 0.4\npreset pad\nvib 7 40\npan -0.5\nnote C4 1 0.8\nat 3 E4 0.5 0.6 0.7\nrest 1\n";
+        let score = parse(source).unwrap();
+        assert_eq!(parse(&serialize(&score)).unwrap(), score);
+    }
+
+    #[test]
+    fn serialize_roundtrips_generated_styles() {
+        for style in [Style::Flow, Style::Arp, Style::Chords] {
+            let options = GenOptions {
+                bars: 2,
+                style,
+                wave: Wave::Pluck,
+                ..GenOptions::default()
+            };
+            let score = crate::gen::generate(7, options);
+            assert_eq!(parse(&serialize(&score)).unwrap(), score, "{style:?}");
+        }
+    }
 
     #[test]
     fn parses_defaults_and_notes() {

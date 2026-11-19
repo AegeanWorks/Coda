@@ -368,6 +368,50 @@ fn cli_extension_routes_midi_and_wav() {
 }
 
 #[test]
+fn cli_score_export_is_parseable_source() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-roundtrip-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let generated = root.join("generated.coda");
+    let exported = root.join("exported.coda");
+
+    let out = Command::new(exe)
+        .args(["seed", "42", "--bars", "2", "--style", "chords", "-o"])
+        .arg(&generated)
+        .output()
+        .expect("coda binary should run");
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let out = Command::new(exe)
+        .args(["export-score", "examples/scale.coda", "-o"])
+        .arg(&exported)
+        .output()
+        .expect("coda binary should run");
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    for path in [&generated, &exported] {
+        let text = std::fs::read_to_string(path).unwrap();
+        assert!(text.starts_with("tempo "), "{text}");
+        assert!(text.contains("env "), "{text}");
+        let checked = Command::new(exe).arg("lint").arg(path).output().unwrap();
+        assert!(
+            checked.status.success(),
+            "{}",
+            String::from_utf8_lossy(&checked.stderr)
+        );
+    }
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_lint_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-lint-{}", std::process::id()));
