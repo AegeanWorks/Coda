@@ -822,6 +822,33 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_arpeggiate_rolls_a_chord() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-arp-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("chord.coda");
+    let out = root.join("rolled.coda");
+    std::fs::write(&source, "note C4 1\nat 0 E4 1\nat 0 G4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("arpeggiate")
+        .arg(&source)
+        .args(["--grid", "0.25", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("at 0.25 E4"), "{text}");
+    assert!(text.contains("at 0.5 G4"), "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_harmonize_adds_voices() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-harm-{}", std::process::id()));

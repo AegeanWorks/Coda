@@ -382,3 +382,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Melodies could be moved and varied but could not grow harmony voices from their existing notes.
 - **Decision**: Append one voice per requested semitone interval after each pitched note at 70% velocity, skipping rests and out-of-range pitches.
 - **Consequences**: Original notes are untouched, intervals are bounded, and the result re-serializes exactly.
+
+### ADR-054: Arpeggiation rolls simultaneities onto a grid
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Chords written as simultaneous notes could not be turned into a linear figure.
+- **Decision**: Group notes by their grid-aligned start and reassign sequential starts within each group while preserving all other fields.
+- **Consequences**: Note count and timbre are unchanged, output re-serializes exactly, and invalid grids fail clearly.

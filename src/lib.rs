@@ -6,6 +6,7 @@
 //! seeded explicitly), no network, no crates.
 
 pub mod analyze;
+pub mod arpeggiate;
 pub mod autopan;
 pub mod bitdepth;
 pub mod channels;

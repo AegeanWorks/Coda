@@ -1,6 +1,7 @@
 //! Command-line front end for Coda.
 
 use coda::analyze;
+use coda::arpeggiate;
 use coda::autopan;
 use coda::bitdepth;
 use coda::channels;
@@ -83,6 +84,7 @@ USAGE
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
+  coda arpeggiate <score.coda> [--grid 0.25] [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -1684,7 +1686,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "harmonize" | "digest" => {
+        | "report" | "harmonize" | "arpeggiate" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1749,6 +1751,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "arpeggiate" {
+        let rolled = match arpeggiate::arpeggiate(&composed, grid) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive finite grid in beats"),
+        };
+        let path = if output == "out.wav" {
+            "arpeggiated.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&rolled);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, grid {grid})",
+                    text.len(),
+                    rolled.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "harmonize" {
         let harmonized = match harmonize::harmonize(&composed, &intervals) {
