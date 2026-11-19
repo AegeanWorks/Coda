@@ -725,3 +725,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: echo-to fed back into the same channels, with no cross-channel alternating echo.
 - **Decision**: Feed each channel's delay line into the opposite channel with decaying feedback, clamping the gain below 1; zero delay is byte-identical.
 - **Consequences**: Zero-delay identity, alternating channel tails, bounded output and determinism are pinned by byte tests.
+
+### ADR-103: Thin drops notes below a spacing gap
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: there was no way to reduce a dense run of notes to a minimum spacing without rewriting the score.
+- **Decision**: Keep a sounding note only when it starts at least a gap after the previously kept note; rests are always kept and kept notes are unchanged.
+- **Consequences**: Spacing rule, first-note retention, rest preservation and round-trip are pinned by byte tests.

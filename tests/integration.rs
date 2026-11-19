@@ -2087,6 +2087,45 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_thin_removes_close_notes() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-thin-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(
+        &source,
+        "note C4 0.25\nat 0.1 E4 0.25\nat 0.5 G4 0.25\nat 1 A4 0.25\n",
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("thin")
+        .arg(&source)
+        .args(["--gap", "0.4", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("C4"), "{text}");
+    assert!(!text.contains("E4"), "{text}");
+    assert!(text.contains("G4"), "{text}");
+    assert!(text.contains("A4"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    assert!(String::from_utf8_lossy(&stats.stdout).contains("notes       3 sounding"));
+
+    let bad = Command::new(exe).arg("thin").arg(&source).output().unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_pingpong_bounces_echoes_across_channels() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-pingpong-{}", std::process::id()));

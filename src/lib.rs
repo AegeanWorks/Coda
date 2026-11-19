@@ -85,6 +85,7 @@ pub mod stretch;
 pub mod sustain;
 pub mod swing;
 pub mod templates;
+pub mod thin;
 pub mod transpose;
 pub mod tremolo;
 pub mod trim;

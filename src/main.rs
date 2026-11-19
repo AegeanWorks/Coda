@@ -78,6 +78,7 @@ use coda::stretch;
 use coda::sustain;
 use coda::swing;
 use coda::templates;
+use coda::thin;
 use coda::transpose;
 use coda::tremolo;
 use coda::trim;
@@ -172,6 +173,7 @@ USAGE
   coda envelope <in.wav> [--window N] [-o out.wav]
   coda solo <score.coda> --low NOTE --high NOTE [-o out.coda]
   coda pingpong <in.wav> [--ping-delay S] [--ping-feedback 0..1] [-o out.wav]
+  coda thin <score.coda> --gap B [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -251,6 +253,7 @@ OPTIONS
       --window N       Peak-envelope window in frames (default: 256)
       --ping-delay S   Ping-pong delay in seconds (default: 0)
       --ping-feedback  Ping-pong feedback 0..1 (default: 0.35)
+      --gap B          Minimum spacing in beats for thin
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -393,6 +396,7 @@ fn main() -> ExitCode {
     let mut env_window: usize = 256;
     let mut ping_delay = 0.0_f64;
     let mut ping_feedback = 0.35_f64;
+    let mut thin_gap: Option<f64> = None;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -842,6 +846,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--gap" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    thin_gap = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--gap must be a positive number",
+                        "coda thin score.coda --gap 0.25",
                     )
                 }
             },
@@ -3697,7 +3713,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "ramp" | "tuplets" | "velgrid" | "solo" | "digest" => {
+        | "sustain" | "ramp" | "tuplets" | "velgrid" | "solo" | "thin" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4429,6 +4445,37 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "thin" {
+        let gap = match thin_gap {
+            Some(value) => value,
+            None => return fail("thin needs --gap", "coda thin score.coda --gap 0.25"),
+        };
+        let reduced = match thin::thin(&composed, gap) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive gap in beats"),
+        };
+        let path = if output == "out.wav" {
+            "thinned.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&reduced);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, gap {gap})",
+                    text.len(),
+                    reduced.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "solo" {
