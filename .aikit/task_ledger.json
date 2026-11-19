@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-compress",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795097784.6306381,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795104984.6306381,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795097790.8041706,
+    "completed_head": "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
+    "completed_tree": "4f3c652c9453cdcf270133dc45592f962eec52b7"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-noise",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add deterministic noise overlay for WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795095867.239277,
-      "timestamp_str": "2026-11-19 16:44:27",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "the project generates seeded scores but has no way to add a reproducible noise floor to an existing WAV.",
-        "benefits": "noise adds seeded, bounded pseudo-random samples at a chosen amount, with amount 0 byte-identical and identical seeds giving identical output.",
-        "risks": "contract: amount 0..1, seed deterministic, different seeds differ, samples clamped, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for identity, determinism, seed variation and bounds, a CLI command reusing --seed/--amount, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "c4e5b657dad6ed03ba5cf26e7dbf99d7a85fb70931620b07ebbd775da63cceeb",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-noise",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-compress",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-compress' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795097790.8834722,
+      "timestamp_str": "2026-11-19 17:16:30",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
