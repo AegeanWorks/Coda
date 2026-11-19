@@ -2,6 +2,7 @@
 
 use coda::digest;
 use coda::gen::{self, GenOptions, Scale, Style};
+use coda::lint;
 use coda::render::{render, wav_bytes};
 use coda::score;
 use coda::wave::Wave;
@@ -15,6 +16,7 @@ USAGE
   coda render <score.coda> [options]
   coda seed <number> [options]
   coda info <score.coda>
+  coda lint <score.coda>
   coda digest <score.coda> [options]
   coda album <number> [options]
   coda help
@@ -265,7 +267,7 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "digest" => {
+        "render" | "info" | "lint" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -305,6 +307,17 @@ fn main() -> ExitCode {
         }
         other => return fail(&format!("unknown command '{other}'"), "coda help"),
     };
+
+    if command == "lint" {
+        let warnings = lint::lint(&composed);
+        for warning in &warnings {
+            println!("WARN {}", warning.message);
+        }
+        if warnings.is_empty() {
+            println!("OK: no warnings");
+        }
+        return ExitCode::SUCCESS;
+    }
 
     if command == "info" {
         let sounding = composed.notes.iter().filter(|n| n.pitch != "-").count();

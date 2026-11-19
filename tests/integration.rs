@@ -347,6 +347,35 @@ fn cli_extension_routes_midi_and_wav() {
 }
 
 #[test]
+fn cli_lint_has_exact_deterministic_output() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-lint-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let bad = root.join("bad.coda");
+    let good = root.join("good.coda");
+    std::fs::write(&bad, "tempo 300\nnote C9 9 0 -1\n").unwrap();
+    std::fs::write(&good, "tempo 120\nnote C4 1\n").unwrap();
+
+    let out = Command::new(exe).arg("lint").arg(&bad).output().unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout),
+        concat!(
+            "WARN score: tempo 300 is outside 40..200\n",
+            "WARN note 0 @ beat 0: pitch C9 (MIDI 120) is outside C2..C7\n",
+            "WARN note 0 @ beat 0: duration 9 beats is very long\n",
+            "WARN note 0 @ beat 0: velocity 0 is silent\n",
+            "WARN note 0 @ beat 0: pan -1 is hard-panned\n",
+        )
+    );
+
+    let out = Command::new(exe).arg("lint").arg(&good).output().unwrap();
+    assert_eq!(String::from_utf8_lossy(&out.stdout), "OK: no warnings\n");
+
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn malformed_scores_fail_with_line_numbers() {
     assert!(score::parse("tempo 120\nwave nonsense\n")
         .unwrap_err()

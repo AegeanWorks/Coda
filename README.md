@@ -40,6 +40,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **MIDI export** — any score or seed can be written as a type-0 Standard MIDI File by choosing a `.mid`/`.midi` output extension; tempo, note on/off, velocity and end-of-track are all deterministic.
 - **Audio fingerprint** — `digest` prints a stable FNV-1a 64-bit ID for any rendered piece; golden vectors pin the renderer at two sample rates.
 - **Score inspector** — `info` reports waveform, timing, note/rest counts and duration without writing audio.
+- **Score linter** — `lint` reports deterministic warnings for extreme pitch, silent notes, clipping risk, duplicate notes and long values without changing the score.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -51,6 +52,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `seed <n>` | Compose and render deterministically from a seed. |
 | `album <n>` | Write a directory of deterministic tracks. |
 | `info <score.coda>` | Inspect a score without rendering. |
+| `lint <score.coda>` | Print deterministic warnings; never changes the score. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 
@@ -95,7 +97,7 @@ coda/
 ├── inventory.py              <- AI-compat inventory: kind|name|locator lines (ADR-315)
 ├── demo.py                   <- AI-compat scripted drive: WORLD-DELTA lines (ADR-315)
 ├── examples/                 <- Five example scores
-├── src/                      <- Ten Rust modules (DSP, parser, WAV and MIDI encoders, CLI)
+├── src/                      <- Eleven Rust modules (DSP, parser, WAV/MIDI encoders, linter, CLI)
 ├── tests/                    <- Pipeline, golden vectors and CLI tests
 │   └── integration.rs
 └── .aikit/                   <- this project's memory: record, ledger, decisions

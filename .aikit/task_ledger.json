@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-note-wave",
+    "task_id": "coda-lint",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795067019.3496358,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795067274.8362987,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,55 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795067031.9460454,
-    "completed_head": "c9736327476392f089e0d633e6fe9dc612817606",
-    "completed_tree": "83dda5d9f10b40b80787a429462521bbc12bdf17"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-port",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] AIKit Phase 4 passed: 5/5 gates (hygiene, guidelines, secrets, compat, cargo test); 48 tests green; README and codebase map verified; local-only, no remote",
-      "files_affected": [
-        "Cargo.toml",
-        "src",
-        "tests",
-        "examples",
-        "scripts",
-        "README.md",
-        ".gitignore"
-      ],
-      "status": "in_progress",
-      "timestamp": 1795065698.518902,
-      "timestamp_str": "2026-11-19 08:21:38",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-port",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-port' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795065760.0945816,
-      "timestamp_str": "2026-11-19 08:22:40",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "30fc7736e16bf65fdb5fde787a00ead1fab97a6b",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-doc-fix",
       "phase": "phase 2",
@@ -416,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-lint",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a deterministic score linter command",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795067116.3114097,
+      "timestamp_str": "2026-11-19 08:45:16",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Parse errors are caught, but questionable yet legal scores (extreme pitch, silent notes, clipping risk) produce audio with no feedback.",
+        "benefits": "coda lint gives inspectable, deterministic warnings before rendering, so a bad score can be caught without listening.",
+        "risks": "contract: lint must never change WAV/MIDI bytes or exit non-zero for warnings; dependency: std only; concurrency: none; state: warnings must be generated in a stable order.",
+        "mitigation": "Add a pure lint module with exact-output tests, route a new lint command before rendering, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "d33eb085e871aa50dda7bdc2412ebd07fb39205e43485b1f42f30f72860f9f8d",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-lint",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 65 tests green; lint output pinned byte-for-byte in a CLI test; WAV/MIDI output unchanged",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795067274.8362987,
+      "timestamp_str": "2026-11-19 08:47:54",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

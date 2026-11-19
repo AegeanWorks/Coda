@@ -67,3 +67,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A single score-wide wave cannot give a bass and a lead different timbres in one render.
 - **Decision**: Give Note a concrete Wave field; the score-wide wave directive updates both the score and the running note value, inst <name> overrides following notes, and inst default restores the score wave. Generated notes inherit the selected --wave.
 - **Consequences**: The renderer reads note.wave directly with no branching; unoverridden scores and generated pieces render byte-identically; wave names are validated at parse time.
+
+### ADR-009: Linting is a read-only view, not a validation gate
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Legal scores can still be musically poor or risky; an error would prevent experimentation and change existing output.
+- **Decision**: Add a pure lint module that returns ordered warnings and a lint command that only prints them, exiting 0 even with warnings; parse errors still exit 2.
+- **Consequences**: Exact-output tests pin the warning format; no WAV, MIDI or score bytes change; CLI feedback is deterministic and reviewable.
