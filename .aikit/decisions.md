@@ -39,3 +39,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: The user explicitly said the project must not appear in their GitHub profile.
 - **Decision**: Keep the AIKit-created repository with no remote; never run publish or push for this project.
 - **Consequences**: All delivery stops at local commit and aikit check; no GitHub repo, no dossier entry, no upstream.
+
+### ADR-005: Album output carries a deterministic manifest
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Album digests were printed to stdout only, so generated tracks had no inspectable record of their seed and settings.
+- **Decision**: Write manifest.json into the album directory with seed, track count, bars, scale, style, wave, tempo, sample rate, album digest and per-track digests.
+- **Consequences**: Generated albums are self-describing and byte-identical across runs; no WAV bytes changed; album/ stays gitignored.

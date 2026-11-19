@@ -179,13 +179,18 @@ fn cli_album_is_deterministic() {
         );
     }
 
-    for name in ["track-01.wav", "track-02.wav"] {
+    for name in ["track-01.wav", "track-02.wav", "manifest.json"] {
         assert_eq!(
             std::fs::read(a.join(name)).unwrap(),
             std::fs::read(b.join(name)).unwrap(),
             "{name} should be byte-identical"
         );
     }
+    let manifest = std::fs::read_to_string(a.join("manifest.json")).unwrap();
+    assert!(manifest.contains("\"seed\": 42"));
+    assert!(manifest.contains("\"scale\": \"minor\""));
+    assert!(manifest.contains("\"album_digest\":"));
+    assert!(manifest.contains("\"track_digests\": ["));
     std::fs::remove_dir_all(&root).unwrap();
 }
 

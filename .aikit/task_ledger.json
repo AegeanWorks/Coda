@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-doc-fix",
+    "task_id": "coda-album-manifest",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795065812.7507515,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795065973.0183685,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,10 +14,7 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795065813.3546522,
-    "completed_head": "1af6c2b15a04cd902e5590fb793e7dc4c1666dad",
-    "completed_tree": "968a8d3c4beb24c68ad7be40bc2ac2311149ae16"
+    ]
   },
   "checkpoints": [
     {
@@ -162,6 +159,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-album-manifest",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Add a deterministic album manifest alongside generated tracks",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795065854.6367152,
+      "timestamp_str": "2026-11-19 08:24:14",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Album mode prints digests to stdout but leaves no inspectable record next to the tracks.",
+        "benefits": "A seed, settings and digests travel with the WAVs; the output is auditable and reproducible.",
+        "risks": "contract: only additive output, no change to WAV bytes or golden vectors; dependency: std only; concurrency: none; state: generated album/ is gitignored.",
+        "mitigation": "Write a plain JSON manifest after the tracks, test byte equality across two runs, rerun all AIKit gates."
+      },
+      "plan_digest": "95413175bbeeb995f6a8952f02ef0a5e75de1ca4e5197e464e254f78e191529e",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-album-manifest",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 48 tests green; album manifest is deterministic and byte-identical across runs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795065973.0183685,
+      "timestamp_str": "2026-11-19 08:26:13",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

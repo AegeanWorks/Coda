@@ -220,7 +220,46 @@ fn main() -> ExitCode {
             println!("{filename}  {fingerprint}  {} samples", samples.len());
         }
         let album_digest = digest::fingerprint(fingerprints.join("\n").as_bytes());
+        let track_list = fingerprints
+            .iter()
+            .map(|f| format!("\"{f}\""))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let manifest = format!(
+            concat!(
+                "{{\n",
+                "  \"seed\": {base},\n",
+                "  \"tracks\": {tracks},\n",
+                "  \"bars\": {bars},\n",
+                "  \"scale\": \"{scale}\",\n",
+                "  \"style\": \"{style}\",\n",
+                "  \"wave\": \"{wave}\",\n",
+                "  \"tempo\": {tempo},\n",
+                "  \"sample_rate\": {sample_rate},\n",
+                "  \"album_digest\": \"{album_digest}\",\n",
+                "  \"track_digests\": [{track_list}]\n",
+                "}}\n"
+            ),
+            base = base,
+            tracks = tracks,
+            bars = options.bars,
+            scale = options.scale.name(),
+            style = options.style.name(),
+            wave = options.wave.name(),
+            tempo = options.tempo,
+            sample_rate = sample_rate,
+            album_digest = album_digest,
+            track_list = track_list,
+        );
+        let manifest_path = Path::new(&output).join("manifest.json");
+        if let Err(e) = fs::write(&manifest_path, manifest) {
+            return fail(
+                &format!("cannot write '{}': {e}", manifest_path.display()),
+                "check that the album directory is writable",
+            );
+        }
         println!("album {album_digest}  {tracks} tracks");
+        println!("manifest {}", manifest_path.display());
         return ExitCode::SUCCESS;
     }
 

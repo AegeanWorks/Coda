@@ -35,7 +35,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 
 - **Score compiler** — tempo, waveform, gain, ADSR, vibrato, per-note velocity, per-note ADSR overrides, equal-power stereo pan, `repeat` expansion, explicit beat placement (polyphony via stacked `at`).
 - **Generative composition** — `seed` plus scale (major/minor/pentatonic/chromatic), tempo, bar count, waveform and arrangement style (`flow`, `arp`, `chords`). A seed always yields the same piece.
-- **Album mode** — deterministic multi-track output with a single album fingerprint.
+- **Album mode** — deterministic multi-track output plus a `manifest.json` recording the seed, settings, album fingerprint and per-track fingerprints.
 - **Audio fingerprint** — `digest` prints a stable FNV-1a 64-bit ID for any rendered piece; golden vectors pin the renderer at two sample rates.
 - **Score inspector** — `info` reports waveform, timing, note/rest counts and duration without writing audio.
 
