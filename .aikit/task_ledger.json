@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-brand-publish",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795114810.2678308,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795122010.2678308,
@@ -15,21 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795114963.0334568,
+    "completed_head": "bd4e2787ab37dbc8c87ca4e13723cdec943c9d74",
+    "completed_tree": "8ec19a513513f6f0c24ebde01968850459d2256e"
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 100",
-      "phase_num": 3,
-      "description": "Reforge stage 100: stage 100 host review reviewed; run active; coverage 16/16",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795113351.0417764,
-      "timestamp_str": "2026-11-19 21:35:51",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 101",
@@ -307,6 +298,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-brand-publish",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-brand-publish' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795114963.1239524,
+      "timestamp_str": "2026-11-19 22:02:43",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "bd4e2787ab37dbc8c87ca4e13723cdec943c9d74",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
