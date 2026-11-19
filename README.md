@@ -74,6 +74,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Bitcrush** — `crush --crush-bits N --hold N` reduces resolution and holds samples for a lo-fi effect.
 - **Ring modulation** — `ring a.wav b.wav` multiplies two WAVs sample by sample.
 - **WAV echo** — `echo-to --echo-delay S --echo-feedback 0..1` adds a bounded feedback delay to any WAV.
+- **Polarity** — `polarity` flips every sample's sign; applying it twice restores the original bytes.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -130,6 +131,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `ring <a.wav> <b.wav>` | Multiply two WAVs (ring modulation). |
 | `echo-to <in.wav> --echo-delay S [--echo-feedback 0..1]` | Add feedback delay to a WAV. |
 | `augment <score.coda> --factor F` | Scale only note durations. |
+| `polarity <in.wav>` | Invert sample polarity (phase flip). |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

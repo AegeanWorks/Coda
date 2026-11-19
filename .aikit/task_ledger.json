@@ -1,12 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-augment",
+    "task_id": "coda-polarity",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795088815.00362,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795089125.996713,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+    "lease_until": 1795096325.996713,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -14,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795088828.1752872,
-    "completed_head": "b1fa6afd9771e679bf7010274966422c83569a69",
-    "completed_tree": "3ec00d8d4dcfa24514b58846a4e2bbdf38cef060"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-tremolo",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 284 tests green; unity start, bounded modulation, determinism and zero identity pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795087086.3138523,
-      "timestamp_str": "2026-11-19 14:18:06",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-tremolo",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-tremolo' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795087099.6797688,
-      "timestamp_str": "2026-11-19 14:18:19",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "d25362e0c180abc981234a210d69dd0fa10dcaed",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-register",
       "phase": "phase 2",
@@ -408,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-polarity",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add polarity inversion for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088920.3534489,
+      "timestamp_str": "2026-11-19 14:48:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "The toolset can negate pitch (invert) and reverse audio (reverse-wav) but cannot flip sample polarity, a standard phase-cancellation utility.",
+        "benefits": "polarity negates every sample in place with exact double-application identity, preserving frame count and sample rate.",
+        "risks": "contract: sign of every sample must flip, applying twice must be byte-identical even at the i16 extreme, invalid WAVs must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Use wrapping i16 negation in the byte-vector module, add tests for sign flip, double identity and length, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "7e5cc390824e28c5ee8b519aff020d547a6a87e583ddff16783823d70f4e1aee",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-polarity",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 319 tests green; sign flips, byte-exact double inversion at i16 extreme and header preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795089125.996713,
+      "timestamp_str": "2026-11-19 14:52:05",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

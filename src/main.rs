@@ -32,6 +32,7 @@ use coda::mix;
 use coda::normalize;
 use coda::notes;
 use coda::pad;
+use coda::polarity;
 use coda::quantize;
 use coda::register;
 use coda::render::{render, wav_bytes, Frame};
@@ -97,6 +98,7 @@ USAGE
   coda ring <a.wav> <b.wav> [-o out.wav]
   coda echo-to <in.wav> [--echo-delay S] [--echo-feedback 0..1] [-o out.wav]
   coda augment <score.coda> --factor F [-o out.coda]
+  coda polarity <in.wav> [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1060,6 +1062,43 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "polarity" {
+        if positional.is_empty() {
+            return fail(
+                "polarity needs an input WAV",
+                "coda polarity in.wav [-o out.wav]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let flipped = match polarity::invert_polarity(&bytes) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "inverted.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &flipped) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, polarity inverted)", flipped.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

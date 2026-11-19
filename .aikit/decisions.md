@@ -459,3 +459,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: stretch moved note starts as well as durations, leaving no way to lengthen notes in place for overlap or legato.
 - **Decision**: Multiply only each note's beats by a positive factor, leaving starts, pitches, timbres and velocities untouched, with unit factor byte-identical.
 - **Consequences**: Duration-only scaling, start preservation, exact round-trip and factor validation are pinned by byte tests.
+
+### ADR-065: Polarity inversion flips every WAV sample as an exact involution
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Pitch inversion and WAV reversal existed but there was no phase-flip utility for comparing correlated signals.
+- **Decision**: Negate each interleaved i16 sample in place with wrapping_neg and copy the header unchanged, so applying polarity twice restores every byte including the i16::MIN extreme.
+- **Consequences**: Sign flips, byte-exact double inversion at the extreme, header preservation and invalid-WAV rejection are pinned by byte tests.

@@ -39,6 +39,7 @@ pub mod mix;
 pub mod normalize;
 pub mod notes;
 pub mod pad;
+pub mod polarity;
 pub mod quantize;
 pub mod register;
 pub mod render;

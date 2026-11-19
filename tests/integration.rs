@@ -1849,6 +1849,47 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_polarity_flips_and_restores_samples() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-polarity-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let restored = root.join("restored.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, -0.25), (-0.8, 0.3)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("polarity")
+        .arg(&input)
+        .args(["-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let before = std::fs::read(&input).unwrap();
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(before.len(), after.len());
+    let original = i16::from_le_bytes([before[44], before[45]]);
+    let flipped = i16::from_le_bytes([after[44], after[45]]);
+    assert_eq!(flipped, -original, "first sample sign is flipped");
+
+    let result = Command::new(exe)
+        .arg("polarity")
+        .arg(&output)
+        .args(["-o"])
+        .arg(&restored)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&restored).unwrap(), before);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_echo_to_adds_a_delayed_tail() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-echoto-{}", std::process::id()));
