@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-ties",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795102343.166432,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795109543.166432,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795102350.6908023,
+    "completed_head": "0e728129e8a7253f822da48fd415014c2cbc1ce7",
+    "completed_tree": "91b290c7c4f0438fad6d9de24ea89004e3d9534b"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-tuplets",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a localized tuplet transform",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795100022.8886645,
-      "timestamp_str": "2026-11-19 17:53:42",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "stretch scales a whole score and augment scales durations globally, with no way to compress or expand only a beat window into a tuplet.",
-        "benefits": "tuplets remaps note times inside [start,end) by a ratio, leaving notes outside untouched and preserving pitch, velocity and timbre.",
-        "risks": "contract: 0 <= start < end, ratio positive finite, notes outside window unchanged, inside times and durations scaled, round-trip, invalid values fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for window remapping, outside-note preservation and round-trip, a CLI command with --start/--end/--tuplet-ratio, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "31820ac386989d3ab5d93d30e30aa5d70caa25408472873b38b0f2ed6518a6d3",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-tuplets",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-ties",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-ties' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795102350.7515018,
+      "timestamp_str": "2026-11-19 18:32:30",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "0e728129e8a7253f822da48fd415014c2cbc1ce7",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
