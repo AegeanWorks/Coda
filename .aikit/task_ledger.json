@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-pan-sweep",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795096476.0015748,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795103676.0015748,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795096482.9829853,
+    "completed_head": "27d59e6840e33b8a59dd5f2fab11880209a37afc",
+    "completed_tree": "15e862edcc376fc15d3754a6b4b155b224310c80"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-crossfade",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add crossfading of two WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795094579.5831954,
-      "timestamp_str": "2026-11-19 16:22:59",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "join crossfades scores before rendering, but there is no way to crossfade two already-rendered WAVs.",
-        "benefits": "crossfade overlaps the tail of one WAV with the head of another over an exact duration using deterministic linear gains.",
-        "risks": "contract: rates must match, overlap rounded to frames and bounded by both lengths, zero overlap is plain concatenation, output clamped, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for zero overlap, exact midpoint blending and length, a two-WAV CLI command with --crossfade, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "0f33fa89ec98f0d62104513d2291e03af035443ced22c8d5583ad28f21e29ce1",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-crossfade",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-pan-sweep",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-pan-sweep' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795096483.0510864,
+      "timestamp_str": "2026-11-19 16:54:43",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "27d59e6840e33b8a59dd5f2fab11880209a37afc",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
