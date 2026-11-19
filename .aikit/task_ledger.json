@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-distort",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795093407.724305,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795100607.724305,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795093415.8359706,
+    "completed_head": "ebe8892acf0c39fd398d0c3a098fd7665ed3f079",
+    "completed_tree": "ee3e1031781988eda20bd0c4e7a9cafa03f01e65"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pan",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add static equal-power panning for WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795091146.6074257,
-      "timestamp_str": "2026-11-19 15:25:46",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "autopan sweeps the image over time and width folds or widens it, but there is no way to place a finished WAV at a fixed stereo position.",
-        "benefits": "pan applies an equal-power constant gain per channel from a fixed -1..1 position, with centre byte-identical and full positions isolating a side.",
-        "risks": "contract: pan must be finite -1..1, centre identity exact, hard left/right silence the opposite channel, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for centre identity, hard sides, equal-power balance and determinism, a CLI command with --pan, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "89f43629d7803f82f46be45277f5eb14b0bf860df9cfd6b7df4ec0481f319ac9",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-pan",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-distort",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-distort' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795093415.9234593,
+      "timestamp_str": "2026-11-19 16:03:35",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "ebe8892acf0c39fd398d0c3a098fd7665ed3f079",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
