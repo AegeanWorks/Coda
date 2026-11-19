@@ -2,6 +2,7 @@
 
 use coda::analyze;
 use coda::autopan;
+use coda::channels;
 use coda::compare;
 use coda::concat;
 use coda::diatonic;
@@ -60,6 +61,7 @@ USAGE
   coda compare <a.coda> <b.coda>
   coda concat <a.coda> <b.coda> [...] [-o out.coda]
   coda resample <in.wav> --rate HZ [-o out.wav]
+  coda channels <in.wav> --mode mono|swap|left|right [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -90,6 +92,7 @@ OPTIONS
       --preset NAME    Fade preset: short|gentle|long|tail|attack
       --times N        Repetitions for loop (default: 1)
       --rate HZ        Target sample rate for resample
+      --mode NAME      Channel mode: mono|swap|left|right
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -193,6 +196,7 @@ fn main() -> ExitCode {
     let mut fade_preset: Option<String> = None;
     let mut times = 1_usize;
     let mut target_rate: Option<u32> = None;
+    let mut channel_mode: Option<String> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -446,6 +450,13 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--mode" => match need(i) {
+                Some(name) => {
+                    channel_mode = Some(name.to_string());
+                    i += 2;
+                }
+                None => return fail("--mode needs a name", "coda channels in.wav --mode mono"),
+            },
             "--bars" => match need(i).and_then(|v| v.parse::<u32>().ok()) {
                 Some(v) => {
                     options.bars = v;
@@ -638,6 +649,47 @@ fn main() -> ExitCode {
                     composed.notes.len(),
                     positional[0]
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "channels" {
+        if positional.is_empty() {
+            return fail(
+                "channels needs an input WAV",
+                "coda channels in.wav --mode mono",
+            );
+        }
+        let mode = match &channel_mode {
+            Some(m) => m.clone(),
+            None => return fail("channels needs --mode", "coda channels in.wav --mode mono"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let changed = match channels::transform(&bytes, &mode) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use mono, swap, left or right"),
+        };
+        let path = if output == "out.wav" {
+            "channels.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &changed) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, mode {mode})", changed.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

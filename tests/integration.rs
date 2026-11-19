@@ -822,6 +822,44 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_channels_transforms_stereo_frames() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-channels-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let swapped = root.join("swap.wav");
+    let mono = root.join("mono.wav");
+    std::fs::write(&input, wav_bytes(&[(0.8, 0.2); 100], 8_000)).unwrap();
+
+    for (mode, path) in [("swap", &swapped), ("mono", &mono)] {
+        let out = Command::new(exe)
+            .arg("channels")
+            .arg(&input)
+            .args(["--mode", mode, "-o"])
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let original = std::fs::read(&input).unwrap();
+    assert_eq!(original.len(), std::fs::read(&swapped).unwrap().len());
+    assert_ne!(original, std::fs::read(&swapped).unwrap());
+
+    let bad = Command::new(exe)
+        .arg("channels")
+        .arg(&input)
+        .args(["--mode", "nope"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_resample_halves_rate_and_frames() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-resample-{}", std::process::id()));

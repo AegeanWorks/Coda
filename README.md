@@ -51,6 +51,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Looping** — `loop` repeats a score's phrase N times into editable canonical source.
 - **Concatenation** — `concat` merges several score files into one arrangement with correct time offsets.
 - **Resampling** — `resample` converts a Coda WAV to another sample rate with deterministic linear interpolation.
+- **Channel tools** — `channels --mode mono|swap|left|right` folds, swaps or isolates stereo sides.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -92,6 +93,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `loop <score.coda> --times N` | Repeat a phrase into canonical source. |
 | `concat <a.coda> <b.coda> [...]` | Merge scores into one arrangement. |
 | `resample <in.wav> --rate HZ` | Convert to another sample rate. |
+| `channels <in.wav> --mode NAME` | Fold, swap or isolate stereo channels. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

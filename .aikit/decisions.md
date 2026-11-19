@@ -291,3 +291,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A single render sample rate is not usable by all downstream tools; conversion must stay deterministic and dependency-free.
 - **Decision**: Decode Coda WAV frames and interpolate linearly at target-rate positions, rebuilding the header; same-rate input is returned through re-encoding unchanged.
 - **Consequences**: Frame counts round from the rate ratio, interpolation midpoints are pinned by byte tests, and invalid rates fail clearly.
+
+### ADR-041: Channel operations are exact frame transforms
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Stereo WAVs could only be panned at render time; post-render channel folding or isolation was unavailable.
+- **Decision**: Add mono/swap/left/right modes that transform decoded frames and re-encode at the original rate with unchanged length.
+- **Consequences**: Each mode's frame math is pinned by byte tests, unknown modes fail clearly, and no existing vectors change.

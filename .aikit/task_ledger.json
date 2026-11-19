@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-resample",
+    "task_id": "coda-channels",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795074986.8250184,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795075222.5002532,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795074995.6588829,
-    "completed_head": "7f1657d944678c937c5f8d4514b78ebf2e415152",
-    "completed_tree": "20689ac6b0357333a25ea3aef05a2440d02a6559"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-rms-normalize",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 179 tests green; RMS target verified by analyze, peak mode unchanged",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795073405.0722916,
-      "timestamp_str": "2026-11-19 10:30:05",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-rms-normalize",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-rms-normalize' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795073412.3335464,
-      "timestamp_str": "2026-11-19 10:30:12",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "ee297393dcbf62399c8d61903e153598769933b1",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-crossfade",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-channels",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add stereo channel operations",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075058.2781708,
+      "timestamp_str": "2026-11-19 10:57:38",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Stereo WAVs can only be rendered with per-note pan; there is no way to fold to mono, swap channels or isolate a side after rendering.",
+        "benefits": "channels provides mono/swap/left/right operations on any Coda WAV with deterministic frame math.",
+        "risks": "contract: operations must be exact frame transformations, reject unknown modes, and preserve length and sample rate; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure channels module with exact frame-vector tests, a CLI mode option, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "aa603d27035c700138708fc3095ab4fda63454970829115fb63576059a125e8c",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-channels",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 214 tests green; mono/swap/left/right frame math and length preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075222.5002532,
+      "timestamp_str": "2026-11-19 11:00:22",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

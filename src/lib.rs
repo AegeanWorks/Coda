@@ -7,6 +7,7 @@
 
 pub mod analyze;
 pub mod autopan;
+pub mod channels;
 pub mod compare;
 pub mod concat;
 pub mod diatonic;
