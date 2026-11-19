@@ -522,3 +522,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Lowpass could remove top end but no tool removed slow drift and rumble from a rendered WAV.
 - **Decision**: Subtract a one-pole low-pass state per channel; alpha 1 passes sample-to-sample changes (first difference), alpha 0 removes the first-sample offset, and a constant signal is silent at any coefficient.
 - **Consequences**: First-difference behaviour, DC removal, constant-signal silence and determinism are pinned by byte tests.
+
+### ADR-074: Speed changes duration without changing sample rate
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: resample altered both playback speed and the declared sample rate, with no way to time-compress while keeping the output rate.
+- **Decision**: Resample the frame timeline by a factor with deterministic linear interpolation and write the original sample rate; factor 1 is byte-identical.
+- **Consequences**: Unit identity, frame-count rounding, interpolation, rate preservation and factor validation are pinned by byte tests.

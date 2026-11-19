@@ -83,6 +83,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Low-pass** — `lowpass --alpha 0..1` smooths harsh content with a one-pole filter; alpha 1 is an identity.
 - **Static pan** — `pan --pan -1..1` places a WAV at a fixed equal-power stereo position.
 - **High-pass** — `highpass --alpha 0..1` removes slow drift and rumble; alpha 1 cancels a constant signal.
+- **Speed** — `speed --factor F` time-compresses or expands audio while keeping the sample rate.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -148,6 +149,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `lowpass <in.wav> --alpha 0..1` | Apply a one-pole low-pass filter. |
 | `pan <in.wav> --pan -1..1` | Set a fixed stereo position. |
 | `highpass <in.wav> --alpha 0..1` | Apply a one-pole high-pass filter. |
+| `speed <in.wav> --factor F` | Change duration at a fixed sample rate. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

@@ -48,6 +48,7 @@ use coda::reverse;
 use coda::ring;
 use coda::score;
 use coda::snap_scale;
+use coda::speed;
 use coda::splice;
 use coda::stamp;
 use coda::stats;
@@ -115,6 +116,7 @@ USAGE
   coda lowpass <in.wav> --alpha 0..1 [-o out.wav]
   coda pan <in.wav> --pan -1..1 [-o out.wav]
   coda highpass <in.wav> --alpha 0..1 [-o out.wav]
+  coda speed <in.wav> --factor F [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1684,6 +1686,47 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "speed" {
+        if positional.is_empty() {
+            return fail("speed needs an input WAV", "coda speed in.wav --factor 2");
+        }
+        if !factor_seen {
+            return fail("speed needs --factor", "coda speed in.wav --factor 2");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let changed = match speed::apply_speed(&bytes, factor) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "sped.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &changed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, factor {factor})",
+                    changed.len(),
+                    (changed.len() - 44) / 4
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-highpass",
+    "task_id": "coda-speed",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795091728.84615,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795091990.280639,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795098928.84615,
+    "lease_until": 1795099190.280639,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795091735.7225747,
-    "completed_head": "66940f333907bac70480d8e73e4c96e56c55857a",
-    "completed_tree": "f78617fd7d7502b384dab1f28eba366652ab3374"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-health",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 329 tests green; exact counts, stable formatting and silence handling pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795090035.4163487,
-      "timestamp_str": "2026-11-19 15:07:15",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-health",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-health' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795090043.5336702,
-      "timestamp_str": "2026-11-19 15:07:23",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "929ea8a44816f0ebe5e1f4b5431a9f3f243aea19",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-pedal",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-speed",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV speed change at fixed sample rate",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091803.0874956,
+      "timestamp_str": "2026-11-19 15:36:43",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "resample changes both playback speed and the declared sample rate, so there is no way to time-compress audio while keeping the output rate.",
+        "benefits": "speed changes duration by a factor using deterministic linear interpolation while keeping the original sample rate and stereo format.",
+        "risks": "contract: factor positive finite, output frame count rounds correctly, factor 1 byte-identical, interpolation deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, halving, doubling and interpolation, a CLI command with --factor, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "7f62720be823576603cd758b583a8ca324d70bbb44098b5f4d7b59fd76a9494d",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-speed",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 364 tests green; unit identity, interpolation, rate preservation and factor validation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091990.280639,
+      "timestamp_str": "2026-11-19 15:39:50",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

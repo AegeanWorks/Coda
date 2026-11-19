@@ -2087,6 +2087,59 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_speed_changes_duration_at_fixed_rate() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-speed-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.0, 0.0), (0.5, 0.5), (1.0, 1.0), (1.0, 1.0)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("speed")
+        .arg(&input)
+        .args(["--factor", "2", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), 44 + 2 * 4, "4 frames -> 2");
+    let analysis = Command::new(exe)
+        .arg("analyze")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        String::from_utf8_lossy(&analysis.stdout).contains("sample rate 8000"),
+        "rate must be unchanged"
+    );
+
+    let result = Command::new(exe)
+        .arg("speed")
+        .arg(&input)
+        .args(["--factor", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_highpass_removes_a_constant_component() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-highpass-{}", std::process::id()));
