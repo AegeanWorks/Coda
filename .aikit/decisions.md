@@ -319,3 +319,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: After chains of effects and edits there was no direct check that a WAV still matches its score.
 - **Decision**: Re-render a score with the current settings, compare against a WAV byte-for-byte, report the first difference offset, and use exit 0 for match, 1 for mismatch, 2 for usage errors.
 - **Consequences**: Match and single-byte mismatch cases are pinned by byte tests; verify reuses the shared render path so effect options are honored.
+
+### ADR-045: WAV provenance uses a small CODA chunk
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Rendered audio did not record which score produced it, breaking the studio's 'explains itself' guarantee.
+- **Decision**: Append an even-padded CODA chunk with source digest, note count and tempo, updating the RIFF size while leaving audio bytes untouched; stamp-info reads it back.
+- **Consequences**: Audio payloads are unchanged, missing stamps report cleanly, and the chunk round-trip is pinned by byte tests.

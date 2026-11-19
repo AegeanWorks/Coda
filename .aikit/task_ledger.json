@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-verify",
+    "task_id": "coda-stamp",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795075959.9892123,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795076492.3228922,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795075966.4015255,
-    "completed_head": "107fe11dc23f1f54a0308f77da6375a0ddea818a",
-    "completed_tree": "79077a9e5b25f56b5a9303bfe40cffad3684068b"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-loop",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 198 tests green; loop identity, offsets and doubled duration pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795074544.5302193,
-      "timestamp_str": "2026-11-19 10:49:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-loop",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-loop' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795074551.8703783,
-      "timestamp_str": "2026-11-19 10:49:11",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "85b845932247e32c3d11d9a6b7669a9acbfad106",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-concat",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-stamp",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a CODA provenance chunk in WAV files",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795076030.9920197,
+      "timestamp_str": "2026-11-19 11:13:50",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Rendered audio carries no record of its source; a stamp makes each WAV explain which score digest produced it.",
+        "benefits": "stamp appends a small CODA chunk with score digest, note count and tempo, and stamp-info reads it back, without disturbing audio data.",
+        "risks": "contract: the RIFF size must be updated, audio bytes must be unchanged, missing chunks must report cleanly, and invalid WAVs must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure stamp module with round-trip and header byte tests, two CLI commands, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "b04930a6d5df8db4e89052612ff03dac334f774bb4203664cf21b98eded5f44c",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-stamp",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 229 tests green; CODA chunk round-trip, RIFF size and unchanged audio bytes pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795076492.3228922,
+      "timestamp_str": "2026-11-19 11:21:32",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

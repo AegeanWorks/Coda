@@ -822,6 +822,50 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_stamp_writes_and_reads_provenance() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-stamp-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let wav = root.join("audio.wav");
+    let stamped = root.join("stamped.wav");
+    let rendered = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&wav)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+
+    let result = Command::new(exe)
+        .args(["stamp", "examples/scale.coda"])
+        .arg(&wav)
+        .arg("-o")
+        .arg(&stamped)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let info = Command::new(exe)
+        .arg("stamp-info")
+        .arg(&stamped)
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&info.stdout);
+    assert!(
+        text.contains("digest:") && text.contains("notes:5"),
+        "{text}"
+    );
+
+    let before = std::fs::read(&wav).unwrap();
+    let after = std::fs::read(&stamped).unwrap();
+    assert_eq!(&after[8..before.len()], &before[8..]);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_verify_matches_and_locates_a_byte_change() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-verify-{}", std::process::id()));

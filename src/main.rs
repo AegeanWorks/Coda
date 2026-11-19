@@ -25,6 +25,7 @@ use coda::render::{render, wav_bytes, Frame};
 use coda::resample;
 use coda::reverse;
 use coda::score;
+use coda::stamp;
 use coda::stats;
 use coda::stretch;
 use coda::swing;
@@ -67,6 +68,8 @@ USAGE
   coda channels <in.wav> --mode mono|swap|left|right [-o out.wav]
   coda bitdepth <in.wav> --bits 8|16 [-o out.wav]
   coda verify <score.coda> <in.wav> [--sample-rate N]
+  coda stamp <score.coda> <in.wav> [-o out.wav]
+  coda stamp-info <in.wav>
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -1154,6 +1157,80 @@ fn main() -> ExitCode {
                     merged.notes.len(),
                     scores.len()
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "stamp-info" {
+        if positional.is_empty() {
+            return fail("stamp-info needs a WAV", "coda stamp-info in.wav");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        return match stamp::read(&bytes) {
+            Ok(Some(text)) => {
+                println!("{text}");
+                ExitCode::SUCCESS
+            }
+            Ok(None) => {
+                println!("no CODA stamp");
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "stamp" {
+        if positional.len() < 2 {
+            return fail(
+                "stamp needs a score and a WAV",
+                "coda stamp score.coda in.wav",
+            );
+        }
+        let source = match read_score(&positional[0]) {
+            Ok(s) => s,
+            Err(code) => return code,
+        };
+        let bytes = match fs::read(&positional[1]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[1]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let canonical = score::serialize(&source);
+        let payload = format!(
+            "digest:{}:notes:{}:tempo:{}",
+            digest::fingerprint(canonical.as_bytes()),
+            source.notes.len(),
+            source.tempo
+        );
+        let stamped = match stamp::stamp(&bytes, &payload) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "stamped.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &stamped) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, stamped)", stamped.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
