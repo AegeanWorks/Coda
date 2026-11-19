@@ -2087,6 +2087,52 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_solo_keeps_only_a_pitch_range() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-solo-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(
+        &source,
+        "note C3 1\nrest 1\nat 2 C4 1\nat 3 C5 1\nat 4 C6 1\n",
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("solo")
+        .arg(&source)
+        .args(["--low", "C4", "--high", "C5", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("at 2 C4 1"), "{text}");
+    assert!(text.contains("at 3 C5 1"), "{text}");
+    assert!(!text.contains("C3"), "{text}");
+    assert!(!text.contains("C6"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let summary = String::from_utf8_lossy(&stats.stdout);
+    assert!(summary.contains("notes       2 sounding"), "{summary}");
+    assert!(summary.contains("pitch range C4..C5"), "{summary}");
+
+    let bad = Command::new(exe)
+        .arg("solo")
+        .arg(&source)
+        .args(["--low", "C5", "--high", "C4"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_envelope_extracts_a_peak_contour() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-envwav-{}", std::process::id()));

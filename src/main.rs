@@ -68,6 +68,7 @@ use coda::ring;
 use coda::score;
 use coda::sequence;
 use coda::snap_scale;
+use coda::solo;
 use coda::speed;
 use coda::splice;
 use coda::stamp;
@@ -168,6 +169,7 @@ USAGE
   coda tuplets <score.coda> --start B --end B --tuplet-ratio R [-o out.coda]
   coda velgrid <score.coda> --levels N [-o out.coda]
   coda envelope <in.wav> [--window N] [-o out.wav]
+  coda solo <score.coda> --low NOTE --high NOTE [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -3619,7 +3621,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "ramp" | "tuplets" | "velgrid" | "digest" => {
+        | "sustain" | "ramp" | "tuplets" | "velgrid" | "solo" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4351,6 +4353,51 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "solo" {
+        let low = match low_note {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "solo needs --low",
+                    "coda solo score.coda --low C4 --high C5",
+                )
+            }
+        };
+        let high = match high_note {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "solo needs --high",
+                    "coda solo score.coda --low C4 --high C5",
+                )
+            }
+        };
+        let isolated = match solo::solo(&composed, &low, &high) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use note names like C4 and C5 with low <= high"),
+        };
+        let path = if output == "out.wav" {
+            "solo.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&isolated);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {low}..{high})",
+                    text.len(),
+                    isolated.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "velgrid" {

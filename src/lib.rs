@@ -75,6 +75,7 @@ pub mod ring;
 pub mod score;
 pub mod sequence;
 pub mod snap_scale;
+pub mod solo;
 pub mod speed;
 pub mod splice;
 pub mod stamp;

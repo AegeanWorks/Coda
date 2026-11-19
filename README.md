@@ -110,6 +110,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Tuplets** — `tuplets --start B --end B --tuplet-ratio R` compresses or expands a beat window.
 - **Velocity grid** — `velgrid --levels N` snaps velocities to N evenly spaced dynamic levels.
 - **Envelope** — `envelope --window N` renders a WAV's rolling peak amplitude as audio.
+- **Solo** — `solo --low C4 --high C5` keeps only the notes inside a pitch range.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -202,6 +203,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `tuplets <score.coda> --start B --end B --tuplet-ratio R` | Remap a beat window in time. |
 | `velgrid <score.coda> --levels N` | Snap velocities to a level grid. |
 | `envelope <in.wav> [--window N]` | Render a rolling peak envelope. |
+| `solo <score.coda> --low NOTE --high NOTE` | Keep notes in a pitch range. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

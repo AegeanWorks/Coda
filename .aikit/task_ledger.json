@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-envelope-wav",
+    "task_id": "coda-solo",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795100970.9376805,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795101373.8297026,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795108170.9376805,
+    "lease_until": 1795108573.8297026,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795100977.0442379,
-    "completed_head": "87edada0aa7a651fb37ae823fb151f4486363cbc",
-    "completed_tree": "15caa67f1ac47e845547010af66e08490d078983"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-sustain",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 455 tests green; legato extension, chord handling and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795098236.980662,
-      "timestamp_str": "2026-11-19 17:23:56",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-sustain",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-sustain' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795098243.1843402,
-      "timestamp_str": "2026-11-19 17:24:03",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "1a1c1f4fb5d72af649889e62cf47ef5f6c07e8d0",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-ramp",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-solo",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add register solo for scores",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795101060.2174492,
+      "timestamp_str": "2026-11-19 18:11:00",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "snap-scale moves pitches into a range but no tool extracts only the notes already inside a chosen pitch range.",
+        "benefits": "solo keeps only sounding notes whose pitch lies within [low, high], dropping rests and out-of-range notes while preserving all kept fields.",
+        "risks": "contract: bounds must parse with low <= high, in-range notes kept unchanged, out-of-range and rests removed, round-trip, invalid values fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for in/out filtering, rest removal and round-trip, a CLI command reusing --low/--high, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "be1c47dd723a5218e552c80aabf2e5b56a1ed2b38777c43614bf06e394ef799b",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-solo",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 490 tests green; range filtering, rest removal and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795101373.8297026,
+      "timestamp_str": "2026-11-19 18:16:13",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

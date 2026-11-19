@@ -711,3 +711,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: analysis reported peak and RMS but could not turn a signal's amplitude contour into audio for follow-up processing.
 - **Decision**: Replace each frame with the peak magnitude over the trailing window of frames; window 1 is byte-identical and length and rate are preserved.
 - **Consequences**: Causal contour, window-one identity, silence, bounded output and validation are pinned by byte tests.
+
+### ADR-101: Solo keeps only notes in a pitch range
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: snap-scale moved pitches into a range but no tool extracted only the notes already inside one.
+- **Decision**: Retain only sounding notes whose MIDI number lies within [low, high], dropping rests and out-of-range notes and preserving every kept field.
+- **Consequences**: In-range filtering, rest removal, field preservation and round-trip are pinned by byte tests.
