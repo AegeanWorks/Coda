@@ -592,3 +592,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: join crossfaded scores before rendering, with no way to overlap two already-rendered files.
 - **Decision**: Match rates, overlap the tail of the first and head of the second over a frame-rounded duration with linear weights, cap the overlap to the shorter input, and concatenate at zero duration.
 - **Consequences**: Zero-overlap concatenation, exact midpoint blending, length and rate preservation, and validation are pinned by byte tests.
+
+### ADR-084: Limit caps WAV samples at a ceiling
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: gain trimmed uniformly and distort saturated smoothly, but no tool imposed a hard symmetric ceiling on every sample.
+- **Decision**: Clamp each sample to [-limit, limit] with a bounded coefficient, preserving frame count and rate; full scale is byte-identical on ordinary signals.
+- **Consequences**: Full-scale identity, exact capping, determinism and validation are pinned by byte tests.

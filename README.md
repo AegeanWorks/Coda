@@ -93,6 +93,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Region reversal** — `reverse-region --start S --end S` flips a time window, keeping the head and tail.
 - **WAV repetition** — `repeat-wav --times N` tiles a finished WAV into a loop with untouched bytes.
 - **WAV crossfade** — `crossfade a.wav b.wav --crossfade S` blends two rendered files over an exact overlap.
+- **Limiter** — `limit --limit 0..1` caps every sample at a chosen ceiling; 1 is an identity.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -168,6 +169,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `reverse-region <in.wav> --start S --end S` | Reverse a time window. |
 | `repeat-wav <in.wav> --times N` | Repeat a WAV into a loop. |
 | `crossfade <a.wav> <b.wav> --crossfade S` | Crossfade two WAVs. |
+| `limit <in.wav> --limit 0..1` | Cap samples at a ceiling. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

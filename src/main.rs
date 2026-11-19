@@ -32,6 +32,7 @@ use coda::humanize;
 use coda::intervals;
 use coda::invert;
 use coda::join;
+use coda::limiter;
 use coda::lint;
 use coda::loop_score;
 use coda::lowpass;
@@ -135,6 +136,7 @@ USAGE
   coda reverse-region <in.wav> --start S --end S [-o out.wav]
   coda repeat-wav <in.wav> --times N [-o out.wav]
   coda crossfade <a.wav> <b.wav> --crossfade S [-o out.wav]
+  coda limit <in.wav> --limit 0..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -171,6 +173,7 @@ OPTIONS
       --ratio 0..1     Swing amount (default: 0.6)
       --factor F       Time-stretch factor (default: 1)
       --crossfade S    Overlap for join or crossfade in seconds (default: 0)
+      --limit 0..1     Ceiling for limit (1 = identity)
       --start S / --end S  Time range for trim / reverse-region
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim and gate (default: -60 dBFS)
@@ -298,6 +301,7 @@ fn main() -> ExitCode {
     let mut rms_target: Option<f64> = None;
     let mut crossfade = 0.0_f64;
     let mut crossfade_seen = false;
+    let mut limit_amount: Option<f64> = None;
     let mut trim_start = 0.0_f64;
     let mut trim_end: Option<f64> = None;
     let mut trim_silence = false;
@@ -528,6 +532,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--factor must be a positive finite number",
                         "coda stretch score.coda --factor 2",
+                    )
+                }
+            },
+            "--limit" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    limit_amount = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--limit must be between 0 and 1",
+                        "coda limit in.wav --limit 0.9",
                     )
                 }
             },
@@ -1258,6 +1274,44 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "limit" {
+        if positional.is_empty() {
+            return fail("limit needs an input WAV", "coda limit in.wav --limit 0.9");
+        }
+        let ceiling = match limit_amount {
+            Some(value) => value,
+            None => return fail("limit needs --limit", "coda limit in.wav --limit 0.9"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let limited = match limiter::apply_limit(&bytes, ceiling) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "limited.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &limited) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, limit {ceiling})", limited.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

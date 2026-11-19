@@ -2087,6 +2087,50 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_limit_caps_every_sample() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-limit-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.2, -0.2), (0.9, -0.9)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("limit")
+        .arg(&input)
+        .args(["--limit", "0.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    let second = i16::from_le_bytes([after[48], after[49]]);
+    assert!((first as f64 / 32767.0 - 0.2).abs() < 0.01, "quiet kept");
+    assert!((second as f64 / 32767.0 - 0.5).abs() < 0.01, "loud capped");
+
+    let result = Command::new(exe)
+        .arg("limit")
+        .arg(&input)
+        .args(["--limit", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_crossfade_blends_two_wavs() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-xfade-{}", std::process::id()));

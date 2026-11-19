@@ -38,6 +38,7 @@ pub mod humanize;
 pub mod intervals;
 pub mod invert;
 pub mod join;
+pub mod limiter;
 pub mod lint;
 pub mod loop_score;
 pub mod lowpass;
