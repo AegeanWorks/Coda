@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-sequence",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795095473.2635653,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795102673.2635653,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795095481.0315437,
+    "completed_head": "96562fc11b5d9dda7f478e592cdbd5f0f3023c33",
+    "completed_tree": "58b5706dcd1daa2323b5545c8b0e7c27f67ff7c0"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-bandpass",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a cascaded band-pass filter for WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795093481.8827455,
-      "timestamp_str": "2026-11-19 16:04:41",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "lowpass and highpass exist separately, but removing rumble and hiss together needs a composed two-stage filter.",
-        "benefits": "bandpass chains a one-pole high-pass and low-pass in one pass with deterministic state, preserving frame count and rate.",
-        "risks": "contract: both coefficients 0..1, known edge combinations exact, output bounded, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for the edge coefficient combinations and determinism, a CLI command with --high-alpha/--low-alpha, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "5ef65cb6f427e6d42969391989928dc25adaf20a2c9bbf90b10d576a0ff5c29b",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-bandpass",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-sequence",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-sequence' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795095481.2247348,
+      "timestamp_str": "2026-11-19 16:38:01",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "96562fc11b5d9dda7f478e592cdbd5f0f3023c33",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
