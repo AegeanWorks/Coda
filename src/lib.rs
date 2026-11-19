@@ -8,6 +8,7 @@
 pub mod analyze;
 pub mod autopan;
 pub mod compare;
+pub mod concat;
 pub mod diatonic;
 pub mod digest;
 pub mod echo;

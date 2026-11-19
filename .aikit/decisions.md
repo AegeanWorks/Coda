@@ -277,3 +277,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Repeating a phrase as rendered audio loses editability; a source-level loop keeps the arrangement inspectable.
 - **Decision**: Repeat every note with offsets of the phrase length into a new Score, with one repetition as an identity and zero rejected.
 - **Consequences**: Looped scores re-serialize exactly, compose with other transforms, and their note counts and duration are pinned by byte tests.
+
+### ADR-039: Concat merges scores in source form
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Audio join and phrase loop cover assembling sound, but distinct score files need a source-level merge for further editing.
+- **Decision**: Append each subsequent score's notes with an offset of the preceding span, keeping the first score's global settings, and write canonical source.
+- **Consequences**: A single input is byte-identical, offsets and note counts are pinned by byte tests, and the merged score re-serializes exactly.

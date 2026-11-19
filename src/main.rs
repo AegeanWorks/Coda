@@ -3,6 +3,7 @@
 use coda::analyze;
 use coda::autopan;
 use coda::compare;
+use coda::concat;
 use coda::diatonic;
 use coda::digest;
 use coda::echo;
@@ -56,6 +57,7 @@ USAGE
   coda fade <in.wav> --preset NAME [-o out.wav]
   coda loop <score.coda> --times N [-o out.coda]
   coda compare <a.coda> <b.coda>
+  coda concat <a.coda> <b.coda> [...] [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -941,6 +943,47 @@ fn main() -> ExitCode {
                     text.len(),
                     imported.notes.len(),
                     imported.tempo
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "concat" {
+        if positional.len() < 2 {
+            return fail(
+                "concat needs at least two score files",
+                "coda concat a.coda b.coda [-o out.coda]",
+            );
+        }
+        let mut scores = Vec::new();
+        for path in &positional {
+            match read_score(path) {
+                Ok(s) => scores.push(s),
+                Err(code) => return code,
+            }
+        }
+        let merged = match concat::concat_scores(&scores) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "provide at least two valid scores"),
+        };
+        let path = if output == "out.wav" {
+            "concatenated.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&merged);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} scores)",
+                    text.len(),
+                    merged.notes.len(),
+                    scores.len()
                 );
                 ExitCode::SUCCESS
             }

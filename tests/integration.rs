@@ -822,6 +822,41 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_concat_merges_scores_into_source() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-concat-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.coda");
+    let b = root.join("b.coda");
+    let out = root.join("merged.coda");
+    std::fs::write(&a, "tempo 120\nnote C4 1\n").unwrap();
+    std::fs::write(&b, "tempo 200\nnote E4 0.5\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("concat")
+        .arg(&a)
+        .arg(&b)
+        .arg("-o")
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let text = String::from_utf8_lossy(&stats.stdout);
+    assert!(text.contains("notes       2 sounding"), "{text}");
+    assert!(text.contains("1.5 beats / 0.750s"), "{text}");
+
+    let bad = Command::new(exe).arg("concat").arg(&a).output().unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_loop_repeats_the_phrase() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-loop-{}", std::process::id()));
