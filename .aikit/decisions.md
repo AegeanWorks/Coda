@@ -494,3 +494,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: quantize aligned note timing but no tool made an existing melody diatonic to a chosen key.
 - **Decision**: For each sounding pitch choose the scale degree nearest its pitch class relative to the root, keeping the lower degree on ties and preserving all other note fields.
 - **Consequences**: Nearest-degree snapping, tie-breaking, preservation, round-trip and root validation are pinned by byte tests.
+
+### ADR-070: Splice inserts a WAV at an exact frame offset
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: pad inserted only silence and mix added signals, with no way to place one recording inside another and shift the tail.
+- **Decision**: Round the offset to frames at the shared sample rate, keep the base head, zero-fill any gap past its end, append the insert, then reattach the shifted tail.
+- **Consequences**: Frame-exact insertion, zero padding, rate validation and tail preservation are pinned by byte tests.

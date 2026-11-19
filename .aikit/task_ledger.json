@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-snap-scale",
+    "task_id": "coda-splice",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795090545.8631477,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795090786.1995332,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795097745.8631477,
+    "lease_until": 1795097986.1995332,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795090553.7462714,
-    "completed_head": "0780f9b217c94a99396a8021e8ca113edd94824d",
-    "completed_tree": "bbda102ad5537f6c4fea63684a5b5620c696d1db"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-echo-wav",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 309 tests green; delayed tail, zero-delay identity, determinism and length preservation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795088564.6024976,
-      "timestamp_str": "2026-11-19 14:42:44",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-echo-wav",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-echo-wav' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795088573.453173,
-      "timestamp_str": "2026-11-19 14:42:53",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "03788fbbf41d4bc553ddf40f60f15bc98805d2c0",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-augment",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-splice",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV splice at a time offset",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795090613.193362,
+      "timestamp_str": "2026-11-19 15:16:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "pad inserts silence and mix adds signals, but there is no way to insert one WAV into another at a chosen time while keeping the original tail.",
+        "benefits": "splice places a WAV at an exact frame offset inside another, shifting the remaining audio unchanged, with zero-padding beyond the source end.",
+        "risks": "contract: rates must match, offset non-negative and rounded to frames, head/tail bytes preserved, gap zero-filled, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for insertion, padding, rate validation and exact frame counts, a two-WAV CLI command with --at, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "6914987dac140a940574586a4d58fedfb9e2475e14bf63e67dcd4dfa129db7fe",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-splice",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 344 tests green; exact insertion, zero padding and tail preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795090786.1995332,
+      "timestamp_str": "2026-11-19 15:19:46",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

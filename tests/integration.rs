@@ -2087,6 +2087,49 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_splice_inserts_at_an_offset() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-splice-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let out = root.join("out.wav");
+    std::fs::write(&a, wav_bytes(&[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)], 8_000)).unwrap();
+    std::fs::write(&b, wav_bytes(&[(0.9, 0.9), (0.8, 0.8)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("splice")
+        .arg(&a)
+        .arg(&b)
+        .args(["--at", "0.000125", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&out).unwrap();
+    assert_eq!(after.len(), 44 + 5 * 4, "3 + 2 frames");
+    let frame = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert!((frame(0) as f64 / 32767.0 - 0.1).abs() < 0.01);
+    assert!((frame(1) as f64 / 32767.0 - 0.9).abs() < 0.01);
+    assert!((frame(2) as f64 / 32767.0 - 0.8).abs() < 0.01);
+    assert!((frame(3) as f64 / 32767.0 - 0.2).abs() < 0.01);
+    assert!((frame(4) as f64 / 32767.0 - 0.3).abs() < 0.01);
+
+    let missing = Command::new(exe)
+        .arg("splice")
+        .arg(&a)
+        .arg(&b)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_ring_multiplies_two_wavs() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-ring-{}", std::process::id()));

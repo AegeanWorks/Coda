@@ -45,6 +45,7 @@ use coda::reverse;
 use coda::ring;
 use coda::score;
 use coda::snap_scale;
+use coda::splice;
 use coda::stamp;
 use coda::stats;
 use coda::stretch;
@@ -107,6 +108,7 @@ USAGE
   coda health <in.wav>
   coda pedal <score.coda> --note C2 [--velocity 0..1] [-o out.coda]
   coda snap-scale <score.coda> --root NOTE [--scale NAME] [-o out.coda]
+  coda splice <a.wav> <b.wav> --at S [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -161,6 +163,7 @@ OPTIONS
       --width 0..2     Stereo width for width (0 mono, 1 identity)
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
+      --at S           Insertion time in seconds for splice
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -280,6 +283,7 @@ fn main() -> ExitCode {
     let mut center_note = "C4".to_string();
     let mut pedal_note: Option<String> = None;
     let mut pedal_velocity = 0.5_f64;
+    let mut splice_at: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -682,6 +686,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--at" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    splice_at = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--at must be a non-negative number",
+                        "coda splice a.wav b.wav --at 0.5",
                     )
                 }
             },
@@ -1634,6 +1650,54 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "splice" {
+        if positional.len() < 2 {
+            return fail(
+                "splice needs two WAV files",
+                "coda splice a.wav b.wav --at 0.5 [-o out.wav]",
+            );
+        }
+        let at = match splice_at {
+            Some(value) => value,
+            None => return fail("splice needs --at", "coda splice a.wav b.wav --at 0.5"),
+        };
+        let mut inputs = Vec::new();
+        for path in positional.iter().take(2) {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that both WAV files exist and are readable",
+                    )
+                }
+            }
+        }
+        let joined = match splice::splice_wavs(&inputs[0], &inputs[1], at) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "both inputs must be Coda WAVs at the same sample rate"),
+        };
+        let path = if output == "out.wav" {
+            "spliced.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &joined) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, at {at}s)",
+                    joined.len(),
+                    (joined.len() - 44) / 4
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 

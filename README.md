@@ -79,6 +79,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Health diagnostics** — `health` reports silence, clipping, DC offset, zero crossings and crest factor.
 - **Pedal point** — `pedal --note C2` anchors a score with one sustained drone spanning its whole length.
 - **Scale snapping** — `snap-scale --root C4 --scale major` moves pitches to the nearest scale degree.
+- **Splicing** — `splice a.wav b.wav --at S` inserts audio at an exact time, shifting the original tail.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -140,6 +141,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `health <in.wav>` | Report silence, clipping, DC, crossings and crest. |
 | `pedal <score.coda> --note NOTE [--velocity 0..1]` | Add a spanning drone. |
 | `snap-scale <score.coda> --root NOTE [--scale NAME]` | Snap pitches to a scale. |
+| `splice <a.wav> <b.wav> --at S` | Insert a WAV at a time offset. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |
