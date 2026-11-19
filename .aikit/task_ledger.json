@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-splice",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795090786.1995332,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795097986.1995332,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795090796.6297238,
+    "completed_head": "8bec9adfaed4fbc9e0103bb6662e54efa1f16980",
+    "completed_tree": "64444114f0716d4a182057c7c580fda90ae1d44a"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-augment",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add duration-only augmentation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795088639.089027,
-      "timestamp_str": "2026-11-19 14:43:59",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "stretch scales both note starts and lengths, so there is no way to lengthen durations in place to create overlap or legato.",
-        "benefits": "augment multiplies only note durations by a factor, keeping starts, pitches and timbres fixed and producing canonical editable source.",
-        "risks": "contract: factor must be positive and finite, starts must be untouched, unit factor byte-identical, output must round-trip; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for duration scaling, start preservation and round-trip, a CLI command reusing --factor, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "6f8a40c564cc58510d30388763b50617a41af56a80bbfddedefafbcf76a6e34f",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-augment",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-splice",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-splice' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795090797.16474,
+      "timestamp_str": "2026-11-19 15:19:57",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "8bec9adfaed4fbc9e0103bb6662e54efa1f16980",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
