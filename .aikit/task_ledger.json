@@ -19,41 +19,6 @@
   },
   "checkpoints": [
     {
-      "task_id": "coda-rotate",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 515 tests green; wraparound, identity and length preservation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795103046.2563186,
-      "timestamp_str": "2026-11-19 18:44:06",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-rotate",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-rotate' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795103052.027833,
-      "timestamp_str": "2026-11-19 18:44:12",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
-    {
       "task_id": "reforge:run-1",
       "phase": "reforge run",
       "phase_num": 3,
@@ -286,6 +251,30 @@
       "status": "in_progress",
       "timestamp": 1795109224.4272401,
       "timestamp_str": "2026-11-19 20:27:04",
+      "agent": "opencode",
+      "operator_task": "coda-reforge-run1"
+    },
+    {
+      "task_id": "reforge:run-1",
+      "phase": "reforge stage 7",
+      "phase_num": 3,
+      "description": "Reforge stage 7: window 21, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795109254.6976542,
+      "timestamp_str": "2026-11-19 20:27:34",
+      "agent": "opencode",
+      "operator_task": "coda-reforge-run1"
+    },
+    {
+      "task_id": "reforge:run-1",
+      "phase": "reforge stage 7",
+      "phase_num": 3,
+      "description": "Reforge stage 7: stage 7 host review reviewed; run active; coverage 13/13",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795109269.278537,
+      "timestamp_str": "2026-11-19 20:27:49",
       "agent": "opencode",
       "operator_task": "coda-reforge-run1"
     }
