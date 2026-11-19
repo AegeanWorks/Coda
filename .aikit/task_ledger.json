@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-speed",
+    "task_id": "coda-velocity",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795091990.280639,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795092305.7593129,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795099190.280639,
+    "lease_until": 1795099505.7593129,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795091997.383372,
-    "completed_head": "1f42c2f1095210fe754ad484e9ca795acaa02114",
-    "completed_tree": "8d208ffd38c955f9da905021b2cde9bbacd6fc1e"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pedal",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 334 tests green; span, pitch, velocity, preservation and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795090337.8793538,
-      "timestamp_str": "2026-11-19 15:12:17",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-pedal",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-pedal' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795090347.5673187,
-      "timestamp_str": "2026-11-19 15:12:27",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "aa2186fb0da025701f0cbb875b032d1de9e9a6ae",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-snap-scale",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-velocity",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add score velocity normalization",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795092116.6045394,
+      "timestamp_str": "2026-11-19 15:41:56",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "accent cycles fixed velocities and humanize jitters them, but there is no way to rescale a score's dynamics to a chosen peak while keeping their ratios.",
+        "benefits": "velocity scales all sounding note velocities by one factor so the loudest reaches --peak, preserving rests, timing and timbre as editable source.",
+        "risks": "contract: peak 0..1, maximum reaches target exactly, ratios preserved, rests untouched, silent scores identity, round-trip; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for scaling, ratios, rests and round-trip, a CLI command reusing --peak, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "485eefb9bafc467298d643510f31f950fc59cddc865f5bfa2eb2ba05add6f494",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-velocity",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 369 tests green; peak targeting, ratio preservation and rest handling pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795092305.7593129,
+      "timestamp_str": "2026-11-19 15:45:05",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

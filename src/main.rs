@@ -59,6 +59,7 @@ use coda::transpose;
 use coda::tremolo;
 use coda::trim;
 use coda::vary;
+use coda::velocity;
 use coda::verify;
 use coda::wav_reverse;
 use coda::wave::Wave;
@@ -117,6 +118,7 @@ USAGE
   coda pan <in.wav> --pan -1..1 [-o out.wav]
   coda highpass <in.wav> --alpha 0..1 [-o out.wav]
   coda speed <in.wav> --factor F [-o out.wav]
+  coda velocity <score.coda> --peak 0..1 [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -311,6 +313,7 @@ fn main() -> ExitCode {
     let mut variation_seed = 0_u64;
     let mut variation_amount = 0.5_f64;
     let mut peak = 0.95_f64;
+    let mut peak_seen = false;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -948,6 +951,7 @@ fn main() -> ExitCode {
             "--peak" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
                 Some(v) if v > 0.0 && v <= 1.0 => {
                     peak = v;
+                    peak_seen = true;
                     i += 2;
                 }
                 _ => {
@@ -2436,7 +2440,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "pedal" | "snap-scale" | "digest" => {
+        | "augment" | "pedal" | "snap-scale" | "velocity" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -2501,6 +2505,36 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "velocity" {
+        if !peak_seen {
+            return fail("velocity needs --peak", "coda velocity score.coda --peak 1");
+        }
+        let scaled = match velocity::normalize_velocity(&composed, peak) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a peak between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "velocity.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&scaled);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, peak {peak})",
+                    text.len(),
+                    scaled.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "snap-scale" {
         let root = match root_note {

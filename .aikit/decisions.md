@@ -529,3 +529,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: resample altered both playback speed and the declared sample rate, with no way to time-compress while keeping the output rate.
 - **Decision**: Resample the frame timeline by a factor with deterministic linear interpolation and write the original sample rate; factor 1 is byte-identical.
 - **Consequences**: Unit identity, frame-count rounding, interpolation, rate preservation and factor validation are pinned by byte tests.
+
+### ADR-075: Velocity normalization rescales dynamics to a peak
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: accent cycled fixed velocities and humanize jittered them, but no tool rescaled a score's dynamics while keeping their ratios.
+- **Decision**: Multiply every sounding note velocity by peak divided by the current maximum, leaving rests and all other fields unchanged; a silent score is untouched.
+- **Consequences**: Peak targeting, ratio preservation, rest handling, round-trip and validation are pinned by byte tests.

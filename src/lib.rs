@@ -66,6 +66,7 @@ pub mod transpose;
 pub mod tremolo;
 pub mod trim;
 pub mod vary;
+pub mod velocity;
 pub mod verify;
 pub mod wav_reverse;
 pub mod wave;

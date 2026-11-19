@@ -2087,6 +2087,40 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_velocity_scales_to_a_peak() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-velocity-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1 0.8\nnote E4 1 0.4\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("velocity")
+        .arg(&source)
+        .args(["--peak", "1", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 1"), "{text}");
+    assert!(text.contains("note E4 1 0.5"), "{text}");
+
+    let missing = Command::new(exe)
+        .arg("velocity")
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_speed_changes_duration_at_fixed_rate() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-speed-{}", std::process::id()));
