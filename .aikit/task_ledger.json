@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-invert",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795085855.035265,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795085864.8580425,
+    "completed_head": "64fa2c6848a6ac0727d61d1598685ecaee881a6e",
+    "completed_tree": "9f95e524312c68c103559bc3708a624593acacc3"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-gain",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add decibel-based WAV gain",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795077448.040619,
-      "timestamp_str": "2026-11-19 11:37:28",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Needs a simple level trim in dB without re-rendering from the score; normalization only targets peak or RMS.",
-        "benefits": "gain applies an exact linear factor from dB to a Coda WAV, with 0 dB byte-identical and clamping handled deterministically.",
-        "risks": "contract: 0 dB must be an identity, -6 dB must halve amplitude within quantization, invalid WAVs must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure gain module with exact byte tests, a CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "8ec0e62adecaeb5177e7794e46c702b802b71a376ef72844efa31c6059e25f8d",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-gain",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-invert",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-invert' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795085864.9767294,
+      "timestamp_str": "2026-11-19 13:57:44",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "64fa2c6848a6ac0727d61d1598685ecaee881a6e",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
