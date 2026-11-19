@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-echo-wav",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795088564.6024976,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,26 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795088573.356669,
+    "completed_head": "03788fbbf41d4bc553ddf40f60f15bc98805d2c0",
+    "completed_tree": "6372550ff47534a506d898a513cf0a8992c2953c"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-extract",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-extract' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795086279.7134724,
-      "timestamp_str": "2026-11-19 14:04:39",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "9b6756900629f9180ad9c9068deb733df3f5e96d",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-accent",
       "phase": "phase 2",
@@ -405,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-echo-wav",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-echo-wav' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795088573.453173,
+      "timestamp_str": "2026-11-19 14:42:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "03788fbbf41d4bc553ddf40f60f15bc98805d2c0",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
