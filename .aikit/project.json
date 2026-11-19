@@ -27,5 +27,11 @@
   "ui_kind": "library",
   "ui_evidence": [],
   "ui_checked_at": "2026-11-19",
-  "ui_source": "detected"
+  "ui_source": "detected",
+  "archived": true,
+  "archived_at": "2026-11-19",
+  "archive_reason": "Public release v0.1.0 delivered and verified; project retired.",
+  "archive_repo": "AegeanWorks/Coda",
+  "archive_description": "[ARCHIVED] Coda is a deterministic, dependency-free Rust sound compiler that turns a small textual score into reproducible stereo WAV audio, with seeded arrangement styles for locally generated music. It is published as a public repository at github.com/AegeanWorks/Coda.",
+  "archive_origin": "projects/coda"
 }
