@@ -403,3 +403,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Scores could be trimmed only by hand while WAVs had a trim command.
 - **Decision**: Keep notes overlapping [start,end), clip their starts and durations to the window, preserve all other fields, and reject invalid ranges.
 - **Consequences**: Clipped positions and durations are pinned by byte tests and the result re-serializes exactly.
+
+### ADR-057: Accent applies a repeating velocity pattern
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Per-note velocities could be set but not cycled as a groove pattern.
+- **Decision**: Apply a list of velocities cyclically to sounding notes only, preserving all other fields and rejecting invalid patterns.
+- **Consequences**: Pattern cycling, rest skipping and round-trip are pinned by byte tests; invalid inputs fail clearly.

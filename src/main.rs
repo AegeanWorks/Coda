@@ -1,5 +1,6 @@
 //! Command-line front end for Coda.
 
+use coda::accent;
 use coda::analyze;
 use coda::arpeggiate;
 use coda::autopan;
@@ -89,6 +90,7 @@ USAGE
   coda arpeggiate <score.coda> [--grid 0.25] [-o out.coda]
   coda invert <score.coda> [--center C4] [-o out.coda]
   coda extract <score.coda> --start B --end B [-o out.coda]
+  coda accent <score.coda> --pattern 1.0,0.5 [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -133,6 +135,7 @@ OPTIONS
       --before S / --after S  Silence seconds for pad
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
+      --pattern LIST   Velocities 0..1 for accent
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -243,6 +246,7 @@ fn main() -> ExitCode {
     let mut pad_after = 0.0_f64;
     let mut intervals: Vec<i32> = Vec::new();
     let mut center_note = "C4".to_string();
+    let mut accent_pattern: Vec<f64> = Vec::new();
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -625,6 +629,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--center needs a note name",
                         "coda invert score.coda --center C4",
+                    )
+                }
+            },
+            "--pattern" => match need(i) {
+                Some(list) => match list
+                    .split(',')
+                    .map(|part| part.trim().parse::<f64>())
+                    .collect::<Result<Vec<f64>, _>>()
+                {
+                    Ok(values) => {
+                        accent_pattern = values;
+                        i += 2;
+                    }
+                    Err(_) => {
+                        return fail(
+                            "--pattern must be comma-separated numbers",
+                            "coda accent score.coda --pattern 1.0,0.5",
+                        )
+                    }
+                },
+                None => {
+                    return fail(
+                        "--pattern needs a list",
+                        "coda accent score.coda --pattern 1.0,0.5",
                     )
                 }
             },
@@ -1704,7 +1732,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "digest" => {
+        | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1769,6 +1797,34 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "accent" {
+        let accented = match accent::accent(&composed, &accent_pattern) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use velocities between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "accented.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&accented);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} velocities)",
+                    text.len(),
+                    accented.notes.len(),
+                    accent_pattern.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "extract" {
         let end = match trim_end {

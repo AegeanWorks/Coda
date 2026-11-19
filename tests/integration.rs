@@ -822,6 +822,42 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_accent_cycles_velocities() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-accent-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote E4 1\nnote G4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("accent")
+        .arg(&source)
+        .args(["--pattern", "1,0.5", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 1"), "{text}");
+    assert!(text.contains("note E4 1 0.5"), "{text}");
+    assert!(text.contains("note G4 1 1"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("accent")
+        .arg(&source)
+        .args(["--pattern", "1.5"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_extract_clips_a_beat_range() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-extract-{}", std::process::id()));
