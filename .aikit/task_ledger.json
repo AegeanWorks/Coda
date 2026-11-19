@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-register",
+    "task_id": "coda-gate",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795087428.12147,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795087748.008594,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,54 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795087443.314646,
-    "completed_head": "15097fcf08cad275eb37283dc52cf2ad50e2fa32",
-    "completed_tree": "59bdff44ba85f2a185b00b07c2549f9239744d89"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-harmonize",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add interval-based harmonization",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795078360.2000897,
-      "timestamp_str": "2026-11-19 11:52:40",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Scores can be transposed and varied but cannot spawn harmony voices from an existing melody.",
-        "benefits": "harmonize adds notes at chosen semitone intervals with reduced velocity, producing editable canonical source.",
-        "risks": "contract: original notes must be unchanged, added pitches must stay in valid MIDI range, and invalid intervals must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for pitches, velocity scaling and round-trip, a CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "9d5a326a5cd237e54bea3565d389d0243b58c8e683233d18cb7fcd24c3110a66",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-harmonize",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 261 tests green; interval voices, velocity scaling and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795078575.0806713,
-      "timestamp_str": "2026-11-19 11:56:15",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-harmonize",
       "phase": "completed",
@@ -408,6 +363,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-gate",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a downward noise gate for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795087552.9671702,
+      "timestamp_str": "2026-11-19 14:25:52",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "trim only removes silence at file edges; there is no way to silence quiet frames between phrases of an existing WAV.",
+        "benefits": "gate silences frames below a dBFS threshold while leaving louder frames byte-identical, with exact frame and rate preservation.",
+        "risks": "contract: threshold must be a valid dBFS value, quiet frames zeroed, loud frames untouched, invalid WAVs rejected; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for threshold behaviour and identity, a CLI command reusing --threshold, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "1dea221ab12a2d5a15c3c29cdc1b46f5b2ce01d38564525d71149b127c3fbd34",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-gate",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 294 tests green; selective gating, pass-through identity, all-frame gating and bounds pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795087748.008594,
+      "timestamp_str": "2026-11-19 14:29:08",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -424,3 +424,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Transpose shifts every note by a fixed interval and inversion mirrors pitches, but neither can fold stray notes into a target register.
 - **Decision**: For each sounding pitch choose the octave congruent to it that lies inside [low,high] and is closest to the original, leaving the note unchanged when no such octave exists.
 - **Consequences**: Octave folding, preservation of all other fields, exact round-trip and bound validation are pinned by byte tests.
+
+### ADR-060: Noise gate silences quiet WAV frames by dBFS threshold
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Trim removes edge silence only; quiet frames inside a WAV had no tool to silence them.
+- **Decision**: Gate each frame on its peak amplitude against a linear threshold derived from --threshold dBFS, zeroing frames below it and passing louder frames unchanged.
+- **Consequences**: Selective gating, pass-through identity at -100 dBFS, all-frame gating at 0 dBFS and bound validation are pinned by byte tests.

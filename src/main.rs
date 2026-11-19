@@ -16,6 +16,7 @@ use coda::extract;
 use coda::fade;
 use coda::fade_presets;
 use coda::gain;
+use coda::gate;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::harmonize;
 use coda::humanize;
@@ -87,6 +88,7 @@ USAGE
   coda width <in.wav> --width 0..2 [-o out.wav]
   coda gain <in.wav> --db N [-o out.wav]
   coda tremolo <in.wav> [--lfo-rate HZ] [--lfo-depth 0..1] [-o out.wav]
+  coda gate <in.wav> [--threshold DB] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -123,7 +125,7 @@ OPTIONS
       --crossfade S    Overlap between joined sections in seconds (default: 0)
       --start S / --end S  Time range for trim
       --trim-silence   Auto-trim silence below --threshold
-      --threshold DB   Silence threshold for trim (default: -60 dBFS)
+      --threshold DB   Silence threshold for trim and gate (default: -60 dBFS)
       --preset NAME    Fade preset: short|gentle|long|tail|attack
       --times N        Repetitions for loop (default: 1)
       --rate HZ        Target sample rate for resample
@@ -1025,6 +1027,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "gate" {
+        if positional.is_empty() {
+            return fail(
+                "gate needs an input WAV",
+                "coda gate in.wav --threshold -40",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let gated = match gate::apply_gate(&bytes, trim_threshold) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "gated.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &gated) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, threshold {trim_threshold} dBFS)",
+                    gated.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

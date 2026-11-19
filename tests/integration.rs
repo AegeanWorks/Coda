@@ -1815,6 +1815,63 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_gate_silences_quiet_frames() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-gate-{}-{}", std::process::id(), 1));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.8, -0.6), (0.001, 0.0005), (0.5, 0.4)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("gate")
+        .arg(&input)
+        .args(["--threshold", "-40", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let before = std::fs::read(&input).unwrap();
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(before.len(), after.len());
+    assert_eq!(
+        i16::from_le_bytes([after[44], after[45]]),
+        i16::from_le_bytes([before[44], before[45]]),
+        "loud first frame passes"
+    );
+    assert_eq!(
+        i16::from_le_bytes([after[48], after[49]]),
+        0,
+        "quiet frame gated"
+    );
+    assert_eq!(
+        i16::from_le_bytes([after[52], after[53]]),
+        i16::from_le_bytes([before[52], before[53]]),
+        "loud third frame passes"
+    );
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("gate")
+        .arg(&input)
+        .args(["--threshold", "-100", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), before);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_tremolo_modulates_amplitude() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-tremolo-{}", std::process::id()));

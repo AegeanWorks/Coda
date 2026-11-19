@@ -22,6 +22,7 @@ pub mod extract;
 pub mod fade;
 pub mod fade_presets;
 pub mod gain;
+pub mod gate;
 pub mod gen;
 pub mod harmonize;
 pub mod humanize;
