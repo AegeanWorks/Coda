@@ -90,6 +90,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Distortion** — `distort --drive 0..1` adds bounded soft saturation; drive 0 is an identity.
 - **Band-pass** — `bandpass --high-alpha N --low-alpha N` removes rumble and hiss in one pass.
 - **Interval analysis** — `intervals` prints signed semitone steps and up/down counts for a melody.
+- **Region reversal** — `reverse-region --start S --end S` flips a time window, keeping the head and tail.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -162,6 +163,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `distort <in.wav> --drive 0..1` | Apply soft-clip saturation. |
 | `bandpass <in.wav> --high-alpha N --low-alpha N` | Apply a cascaded band-pass filter. |
 | `intervals <score.coda>` | Report melodic interval steps. |
+| `reverse-region <in.wav> --start S --end S` | Reverse a time window. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-intervals",
+    "task_id": "coda-reverse-region",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795093988.9964418,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795094251.662837,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795101188.9964418,
+    "lease_until": 1795101451.662837,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795093995.56531,
-    "completed_head": "44264b86a044a859e6d211e197e9ed9a4c985750",
-    "completed_tree": "ba15b22645484b28c5f4227202861ab3626c5f00"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-speed",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 364 tests green; unit identity, interpolation, rate preservation and factor validation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795091990.280639,
-      "timestamp_str": "2026-11-19 15:39:50",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-speed",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-speed' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795091997.4721768,
-      "timestamp_str": "2026-11-19 15:39:57",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "1f42c2f1095210fe754ad484e9ca795acaa02114",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-velocity",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-reverse-region",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV region reversal",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795094061.9282985,
+      "timestamp_str": "2026-11-19 16:14:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "reverse-wav flips an entire file, but reversing only a selected time span requires an external editor.",
+        "benefits": "reverse-region reverses frames inside an exact time window, leaving the head and tail byte-identical and preserving rate and length.",
+        "risks": "contract: 0 <= start < end finite, frame rounding exact, head/tail unchanged, out-of-range windows handled, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for middle/full windows, identity cases and validation, a CLI command reusing --start/--end, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "6b7874f38ff4cbfeb54bca18c4222e5dff9efe2e9e25d003053ff448342074fa",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-reverse-region",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 396 tests green; window reversal, head/tail preservation and validation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795094251.662837,
+      "timestamp_str": "2026-11-19 16:17:31",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

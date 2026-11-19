@@ -571,3 +571,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: stats reported pitch range and density but not the contour between consecutive notes.
 - **Decision**: Print signed semitone steps between consecutive sounding pitches, with extremes and up/down/level counts, skipping rests and handling single-note scores.
 - **Consequences**: Exact step sequences, rest handling, single-note output and empty-score rejection are pinned by byte tests.
+
+### ADR-081: Reverse-region flips an exact time window
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: reverse-wav flipped whole files, with no way to reverse just one phrase inside a WAV.
+- **Decision**: Round the window to frames at the source rate and reverse only that slice, leaving head and tail unchanged and out-of-range windows as no-ops.
+- **Consequences**: Window reversal, head/tail preservation, full-file equivalence and range validation are pinned by byte tests.

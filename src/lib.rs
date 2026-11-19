@@ -57,6 +57,7 @@ pub mod render;
 pub mod report;
 pub mod resample;
 pub mod reverse;
+pub mod reverse_region;
 pub mod ring;
 pub mod score;
 pub mod snap_scale;

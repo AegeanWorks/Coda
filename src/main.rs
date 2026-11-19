@@ -50,6 +50,7 @@ use coda::render::{render, wav_bytes, Frame};
 use coda::report;
 use coda::resample;
 use coda::reverse;
+use coda::reverse_region;
 use coda::ring;
 use coda::score;
 use coda::snap_scale;
@@ -129,6 +130,7 @@ USAGE
   coda distort <in.wav> --drive 0..1 [-o out.wav]
   coda bandpass <in.wav> --high-alpha 0..1 --low-alpha 0..1 [-o out.wav]
   coda intervals <score.coda>
+  coda reverse-region <in.wav> --start S --end S [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -165,7 +167,7 @@ OPTIONS
       --ratio 0..1     Swing amount (default: 0.6)
       --factor F       Time-stretch factor (default: 1)
       --crossfade S    Overlap between joined sections in seconds (default: 0)
-      --start S / --end S  Time range for trim
+      --start S / --end S  Time range for trim / reverse-region
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim and gate (default: -60 dBFS)
       --preset NAME    Fade preset: short|gentle|long|tail|attack
@@ -1248,6 +1250,55 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "reverse-region" {
+        if positional.is_empty() {
+            return fail(
+                "reverse-region needs an input WAV",
+                "coda reverse-region in.wav --start 0.5 --end 1.0",
+            );
+        }
+        let end = match trim_end {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "reverse-region needs --end",
+                    "coda reverse-region in.wav --start 0.5 --end 1.0",
+                )
+            }
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let reversed = match reverse_region::reverse_region(&bytes, trim_start, end) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use 0 <= start < end in seconds"),
+        };
+        let path = if output == "out.wav" {
+            "reversed-region.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &reversed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {trim_start}s..{end}s)",
+                    reversed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

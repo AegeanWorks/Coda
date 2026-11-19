@@ -2087,6 +2087,47 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_reverse_region_flips_only_the_window() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-revreg-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("reverse-region")
+        .arg(&input)
+        .args(["--start", "0.000125", "--end", "0.000375", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    let before = std::fs::read(&input).unwrap();
+    assert_eq!(after.len(), before.len());
+    assert_eq!(after[44..48], before[44..48], "head unchanged");
+    assert_eq!(after[56..], before[56..], "tail unchanged");
+    assert_eq!(after[48..52], before[52..56], "middle reversed");
+
+    let missing = Command::new(exe)
+        .arg("reverse-region")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_intervals_reports_melodic_steps() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-intervals-{}", std::process::id()));
