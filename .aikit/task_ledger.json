@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-album-manifest",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795065973.0183685,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,7 +14,10 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795065984.4551277,
+    "completed_head": "24484132db039d458ab8b78df164a61cecdc2f03",
+    "completed_tree": "5b2a0b0fc89bceab6b5d5a6794e5dc287a72ada7"
   },
   "checkpoints": [
     {
@@ -201,6 +204,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-album-manifest",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-album-manifest' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795065984.59576,
+      "timestamp_str": "2026-11-19 08:26:24",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "24484132db039d458ab8b78df164a61cecdc2f03",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
