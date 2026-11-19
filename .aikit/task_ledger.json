@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-pingpong",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795101784.3264008,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795108984.3264008,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795101789.5499098,
+    "completed_head": "593cbc3d61098f21cb69b82f32dda76ad4b368e9",
+    "completed_tree": "961303e0a1746db0e9ea6e8e0a34105fedcaa051"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-concat-wav",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add lossless WAV concatenation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795099242.5164356,
-      "timestamp_str": "2026-11-19 17:40:42",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "crossfade overlaps files and repeat-wav tiles one file, but there is no way to append several different WAVs losslessly.",
-        "benefits": "concat-wav appends the frames of two or more matching-rate WAVs byte-for-byte, preserving sample rate and length sum; a single input is an identity.",
-        "risks": "contract: rates must match, frames appended in order, no overlap or gain change, single input identity, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for ordered concatenation, exact frames, rate check and single-input identity, a multi-WAV CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "f637a594d27f4875a9f92af4938c2e49c27fa23cf672e3855fbbb00076339601",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-concat-wav",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-pingpong",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-pingpong' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795101789.6158667,
+      "timestamp_str": "2026-11-19 18:23:09",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "593cbc3d61098f21cb69b82f32dda76ad4b368e9",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
