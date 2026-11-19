@@ -1815,6 +1815,48 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_echo_to_adds_a_delayed_tail() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-echoto-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let mut frames = vec![(0.0_f64, 0.0_f64); 12];
+    frames[0] = (1.0, 0.5);
+    std::fs::write(&input, wav_bytes(&frames, 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("echo-to")
+        .arg(&input)
+        .args(["--echo-delay", "0.001", "--echo-feedback", "0.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let delayed = i16::from_le_bytes([after[44 + 8 * 4], after[45 + 8 * 4]]);
+    assert!((delayed as f64 / 32767.0 - 0.5).abs() < 0.01, "{delayed}");
+    assert_eq!(
+        i16::from_le_bytes([after[48], after[49]]),
+        0,
+        "no early tail"
+    );
+
+    let missing = Command::new(exe)
+        .arg("echo-to")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_ring_multiplies_two_wavs() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-ring-{}", std::process::id()));

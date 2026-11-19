@@ -13,6 +13,7 @@ use coda::dc;
 use coda::diatonic;
 use coda::digest;
 use coda::echo;
+use coda::echo_wav;
 use coda::extract;
 use coda::fade;
 use coda::fade_presets;
@@ -93,6 +94,7 @@ USAGE
   coda gate <in.wav> [--threshold DB] [-o out.wav]
   coda crush <in.wav> [--crush-bits 1..16] [--hold N] [-o out.wav]
   coda ring <a.wav> <b.wav> [-o out.wav]
+  coda echo-to <in.wav> [--echo-delay S] [--echo-feedback 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1054,6 +1056,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "echo-to" {
+        if positional.is_empty() {
+            return fail(
+                "echo-to needs an input WAV",
+                "coda echo-to in.wav --echo-delay 0.12 [--echo-feedback 0.4]",
+            );
+        }
+        if echo_delay <= 0.0 {
+            return fail(
+                "echo-to needs a positive --echo-delay",
+                "coda echo-to in.wav --echo-delay 0.12 [--echo-feedback 0.4]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let echoed = match echo_wav::apply_echo_wav(&bytes, echo_delay, echo_feedback) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "echoed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &echoed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {echo_delay}s delay, {echo_feedback} feedback)",
+                    echoed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

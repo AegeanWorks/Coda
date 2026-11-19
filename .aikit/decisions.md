@@ -445,3 +445,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: mix overlays WAVs by addition but could not multiply them for amplitude modulation or lo-fi timbres.
 - **Decision**: Multiply matching-rate WAVs per channel and per frame, zero-pad the shorter input to the longer length, clamp products, and treat full scale as an exact identity.
 - **Consequences**: Per-channel products, identity, zero padding, commutativity and rate validation are pinned by byte tests.
+
+### ADR-063: Echo-to applies the shared feedback delay to existing WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Echo was only available at render time, so processed WAVs could not receive a feedback delay.
+- **Decision**: Reuse the bounded comb echo on decoded Coda WAV frames with the existing --echo-delay and --echo-feedback options, requiring a positive delay and preserving frame count and rate.
+- **Consequences**: Delayed tail, zero-delay identity, determinism, length preservation and missing-delay failure are pinned by byte tests.

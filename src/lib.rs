@@ -18,6 +18,7 @@ pub mod dc;
 pub mod diatonic;
 pub mod digest;
 pub mod echo;
+pub mod echo_wav;
 pub mod envelope;
 pub mod extract;
 pub mod fade;

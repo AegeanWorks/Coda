@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-ring",
+    "task_id": "coda-echo-wav",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795088339.8668208,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795088564.6024976,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,54 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795088350.0301461,
-    "completed_head": "b3e6567eb1e32978d850cf0972fd456efaebabb0",
-    "completed_tree": "5535852c6aaeb26133aebf0a13ab1ad56bb78540"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-extract",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add score range extraction",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795085941.4524775,
-      "timestamp_str": "2026-11-19 13:59:01",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "WAVs can be trimmed but scores cannot; pulling a phrase out of a longer score requires a source-level extract.",
-        "benefits": "extract keeps and clips notes overlapping a beat range, producing editable canonical source with all other fields intact.",
-        "risks": "contract: ranges must be valid, clipped starts and durations must be exact, and output must round-trip; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for clipping and preservation, a CLI command reusing the time options, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "0593156734d9190a0c92885d61af91522f4d9271ccc39e30879f0140a87b6897",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-extract",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 275 tests green; range clipping, preservation and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795086269.0400488,
-      "timestamp_str": "2026-11-19 14:04:29",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-extract",
       "phase": "completed",
@@ -408,6 +363,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-echo-wav",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add an echo transform for existing WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088453.107835,
+      "timestamp_str": "2026-11-19 14:40:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Echo is available only as a render option, so a WAV that has been trimmed, crushed or mixed cannot receive a feedback delay.",
+        "benefits": "echo-to reuses the existing bounded comb echo on any Coda WAV, preserving frame count and rate, with zero delay byte-identical.",
+        "risks": "contract: invalid WAVs fail, zero delay is an identity, the delayed tail is exact and frames stay clamped; dependency: std only, reuse echo::apply_echo; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for impulse tail, identity and length preservation, a CLI command reusing --echo-delay/--echo-feedback, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "ccb8a9296c6c6d3ea2ba450184cf685542c791e7af5f7c704c0473a4cf5c25e2",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-echo-wav",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 309 tests green; delayed tail, zero-delay identity, determinism and length preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088564.6024976,
+      "timestamp_str": "2026-11-19 14:42:44",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
