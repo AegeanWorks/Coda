@@ -13,6 +13,7 @@ pub mod join;
 pub mod lint;
 pub mod midi;
 pub mod midi_import;
+pub mod normalize;
 pub mod notes;
 pub mod render;
 pub mod score;

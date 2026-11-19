@@ -144,3 +144,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Generated, varied and imported scores need a quick comparison that does not require reading source or audio.
 - **Decision**: Add a pure stats reporter with a fixed line order and safe empty-score behavior, exposed as a read-only stats command.
 - **Consequences**: Exact-output tests pin the format; no score or output file changes; the command reuses the same score loader as info and lint.
+
+### ADR-020: Normalization is a deterministic post-render WAV transform
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Quiet renders and joined sections need usable levels without another audio tool.
+- **Decision**: Decode 16-bit stereo Coda WAV frames, scale by target peak divided by the measured peak, clamp, and re-encode with the original sample rate; silence is returned unchanged.
+- **Consequences**: The transform is idempotent and byte-deterministic; invalid WAVs and out-of-range peaks fail clearly; individual render golden vectors are unchanged.

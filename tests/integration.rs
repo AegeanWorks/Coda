@@ -611,6 +611,52 @@ fn cli_midi_export_then_import_preserves_audio() {
 }
 
 #[test]
+fn cli_normalize_raises_peak_and_is_idempotent() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-normalize-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("quiet.coda");
+    let input = root.join("quiet.wav");
+    let once = root.join("once.wav");
+    let twice = root.join("twice.wav");
+    std::fs::write(&source, "gain 0.05\nnote A4 1\n").unwrap();
+
+    let rendered = Command::new(exe)
+        .arg("render")
+        .arg(&source)
+        .arg("-o")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+
+    for (from, to) in [(&input, &once), (&once, &twice)] {
+        let result = Command::new(exe)
+            .arg("normalize")
+            .arg(from)
+            .args(["--peak", "0.9", "-o"])
+            .arg(to)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    }
+    let bytes = std::fs::read(&once).unwrap();
+    let peak = bytes[44..]
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|c| (i16::from_le_bytes([c[0], c[1]]) as f64 / 32767.0).abs())
+        .fold(0.0_f64, f64::max);
+    assert!((peak - 0.9).abs() < 0.001, "{peak}");
+    assert_eq!(bytes, std::fs::read(&twice).unwrap());
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_join_concatenates_sections_byte_for_byte() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-join-{}", std::process::id()));

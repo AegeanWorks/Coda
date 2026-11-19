@@ -47,6 +47,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Comparison** — `compare` reports ordered structural differences between two scores and whether their rendered audio is byte-identical.
 - **Joining** — `join` renders several scores at one sample rate and concatenates their PCM data with a corrected RIFF header.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
+- **Normalization** — `normalize` scales a Coda WAV to a chosen peak with deterministic clamping; it is idempotent and leaves silence untouched.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -65,10 +66,11 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
 | `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
 | `join <a.coda> <b.coda> [...]` | Render sections and concatenate them into one WAV. |
+| `normalize <in.wav>` | Scale a Coda WAV to a target peak. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 
-Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
+Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`, `--peak`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
 
 ## Score language
 

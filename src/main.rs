@@ -6,6 +6,7 @@ use coda::gen::{self, GenOptions, Scale, Style};
 use coda::join;
 use coda::lint;
 use coda::midi_import;
+use coda::normalize;
 use coda::render::{render, wav_bytes};
 use coda::score;
 use coda::stats;
@@ -28,6 +29,7 @@ USAGE
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
+  coda normalize <in.wav> [-o out.wav] [--peak 0..1]
   coda import-midi <file.mid> [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
@@ -45,6 +47,7 @@ OPTIONS
       --semitones N    Transpose every pitched note by N semitones
       --seed N         Variation seed for `vary`
       --amount 0..1    Variation strength (default: 0.5)
+      --peak 0..1      Target peak for normalize (default: 0.95)
 
 SCORE DIRECTIVES
   tempo <bpm>          wave <name>          gain <0..1>
@@ -99,6 +102,7 @@ fn main() -> ExitCode {
     let mut semitones = 0_i32;
     let mut variation_seed = 0_u64;
     let mut variation_amount = 0.5_f64;
+    let mut peak = 0.95_f64;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -227,6 +231,18 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--peak" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v <= 1.0 => {
+                    peak = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--peak must be between 0 and 1",
+                        "coda normalize in.wav --peak 0.9",
+                    )
+                }
+            },
             flag if flag.starts_with('-') => {
                 return fail(&format!("unknown option '{flag}'"), "coda help")
             }
@@ -235,6 +251,43 @@ fn main() -> ExitCode {
                 i += 1;
             }
         }
+    }
+
+    if command == "normalize" {
+        if positional.is_empty() {
+            return fail(
+                "normalize needs an input WAV",
+                "coda normalize in.wav [-o out.wav]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let scaled = match normalize::normalize(&bytes, peak) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "normalized.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &scaled) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, peak {peak})", scaled.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "join" {
