@@ -599,3 +599,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: gain trimmed uniformly and distort saturated smoothly, but no tool imposed a hard symmetric ceiling on every sample.
 - **Decision**: Clamp each sample to [-limit, limit] with a bounded coefficient, preserving frame count and rate; full scale is byte-identical on ordinary signals.
 - **Consequences**: Full-scale identity, exact capping, determinism and validation are pinned by byte tests.
+
+### ADR-085: Sequence appends transposed phrase copies
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: loop repeated a phrase exactly and transposed shifted it once, but building a transposed sequence needed both steps manually.
+- **Decision**: Append one copy per requested semitone shift at successive phrase endings, transposing sounding pitches when in range and preserving rhythm, velocity and timbre.
+- **Consequences**: Offset placement, transposition, exact repeats, round-trip and shift validation are pinned by byte tests.

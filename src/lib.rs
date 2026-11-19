@@ -63,6 +63,7 @@ pub mod reverse;
 pub mod reverse_region;
 pub mod ring;
 pub mod score;
+pub mod sequence;
 pub mod snap_scale;
 pub mod speed;
 pub mod splice;

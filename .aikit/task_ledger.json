@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-limit",
+    "task_id": "coda-sequence",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795095064.1631594,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795095473.2635653,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795102264.1631594,
+    "lease_until": 1795102673.2635653,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795095073.6358855,
-    "completed_head": "eb4a1ebf80de641ce84b1211930cb81f5e3bd03c",
-    "completed_tree": "6d83eefef825ffba000daf57c5cf8f0a3dcd1fa0"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-distort",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 381 tests green; identity, bounded saturation, monotonic magnitude and determinism pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795093407.724305,
-      "timestamp_str": "2026-11-19 16:03:27",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-distort",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-distort' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795093415.9234593,
-      "timestamp_str": "2026-11-19 16:03:35",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "ebe8892acf0c39fd398d0c3a098fd7665ed3f079",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-bandpass",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-sequence",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add transposed phrase sequencing",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795095179.829954,
+      "timestamp_str": "2026-11-19 16:32:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "loop repeats exactly and transpose shifts once, but building a sequence of transposed repetitions needs both operations manually.",
+        "benefits": "sequence appends one transposed copy per requested semitone shift at successive phrase offsets, preserving rhythm and timbre as canonical source.",
+        "risks": "contract: shifts non-empty and bounded, offsets exact, out-of-range pitches skipped, output round-trips, invalid input fails; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for offsets, transposition, preservation and round-trip, a CLI command with --shifts, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "e00e4f8413396ca750744c48c29f92384ccd2782407540a278dfd8d3491ce532",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-sequence",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 414 tests green; offsets, transposition, exact repeats and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795095473.2635653,
+      "timestamp_str": "2026-11-19 16:37:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

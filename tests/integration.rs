@@ -2087,6 +2087,46 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_sequence_transposes_phrase_copies() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-seq-{}-{}", std::process::id(), 11));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote E4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("sequence")
+        .arg(&source)
+        .args(["--shifts", "0,12", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("C5 1 1"), "{text}");
+    assert!(text.contains("E5 1 1"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let summary = String::from_utf8_lossy(&stats.stdout);
+    assert!(summary.contains("notes       6 sounding"), "{summary}");
+    assert!(summary.contains("pitch range C4..E5"), "{summary}");
+
+    let bad = Command::new(exe)
+        .arg("sequence")
+        .arg(&source)
+        .args(["--shifts", "99"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_limit_caps_every_sample() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-limit-{}", std::process::id()));

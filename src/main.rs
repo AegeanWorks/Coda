@@ -56,6 +56,7 @@ use coda::reverse;
 use coda::reverse_region;
 use coda::ring;
 use coda::score;
+use coda::sequence;
 use coda::snap_scale;
 use coda::speed;
 use coda::splice;
@@ -137,6 +138,7 @@ USAGE
   coda repeat-wav <in.wav> --times N [-o out.wav]
   coda crossfade <a.wav> <b.wav> --crossfade S [-o out.wav]
   coda limit <in.wav> --limit 0..1 [-o out.wav]
+  coda sequence <score.coda> --shifts 0,12,7 [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -174,6 +176,7 @@ OPTIONS
       --factor F       Time-stretch factor (default: 1)
       --crossfade S    Overlap for join or crossfade in seconds (default: 0)
       --limit 0..1     Ceiling for limit (1 = identity)
+      --shifts LIST    Comma-separated semitones for sequence
       --start S / --end S  Time range for trim / reverse-region
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim and gate (default: -60 dBFS)
@@ -302,6 +305,7 @@ fn main() -> ExitCode {
     let mut crossfade = 0.0_f64;
     let mut crossfade_seen = false;
     let mut limit_amount: Option<f64> = None;
+    let mut shifts: Vec<i32> = Vec::new();
     let mut trim_start = 0.0_f64;
     let mut trim_end: Option<f64> = None;
     let mut trim_silence = false;
@@ -532,6 +536,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--factor must be a positive finite number",
                         "coda stretch score.coda --factor 2",
+                    )
+                }
+            },
+            "--shifts" => match need(i) {
+                Some(list) => match list
+                    .split(',')
+                    .map(|part| part.trim().parse::<i32>())
+                    .collect::<Result<Vec<i32>, _>>()
+                {
+                    Ok(values) => {
+                        shifts = values;
+                        i += 2;
+                    }
+                    Err(_) => {
+                        return fail(
+                            "--shifts must be comma-separated integers",
+                            "coda sequence score.coda --shifts 0,12,7",
+                        )
+                    }
+                },
+                None => {
+                    return fail(
+                        "--shifts needs a list",
+                        "coda sequence score.coda --shifts 0,12,7",
                     )
                 }
             },
@@ -2865,7 +2893,8 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "digest" => {
+        | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
+        | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -3597,6 +3626,34 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "sequence" {
+        let arranged = match sequence::sequence(&composed, &shifts) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use semitone shifts between -24 and 24"),
+        };
+        let path = if output == "out.wav" {
+            "sequenced.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&arranged);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} shifts)",
+                    text.len(),
+                    arranged.notes.len(),
+                    shifts.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "intervals" {
