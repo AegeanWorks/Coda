@@ -1,0 +1,19 @@
+# Accented arpeggio with breathing rests.
+tempo 132
+wave square
+gain 0.22
+attack 0.002
+decay 0.04
+sustain 0.35
+release 0.08
+
+note C4 0.25 0.9
+note E4 0.25 0.5
+note G4 0.25 0.7
+note B4 0.25 0.5
+note C5 0.25 1.0
+rest 0.25
+note G4 0.25 0.6
+note E4 0.25 0.4
+rest 0.5
+at 3 C4 1 0.8

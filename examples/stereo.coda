@@ -1,0 +1,19 @@
+# A stereo call-and-response: left, centre, right.
+tempo 96
+wave triangle
+gain 0.3
+attack 0.01
+decay 0.08
+sustain 0.5
+release 0.2
+
+pan -0.8
+note C4 0.5
+note E4 0.5
+pan 0
+note G4 0.5
+note B4 0.5
+pan 0.8
+note C5 1
+at 3 E4 1 0.6 -0.6
+at 3 G4 1 0.6 0.6

@@ -8,3 +8,10 @@
 __pycache__/
 *.py[cod]
 node_modules/
+
+# Coda build output and generated audio
+/target/
+Cargo.lock
+*.wav
+album/
+

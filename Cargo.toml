@@ -1,0 +1,17 @@
+[package]
+name = "coda"
+version = "0.1.0"
+edition = "2021"
+description = "A deterministic, dependency-free sound compiler: score text in, WAV out."
+license = "LicenseRef-ALU-1.0"
+publish = false
+
+[dependencies]
+
+[lib]
+name = "coda"
+path = "src/lib.rs"
+
+[[bin]]
+name = "coda"
+path = "src/main.rs"

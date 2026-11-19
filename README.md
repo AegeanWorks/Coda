@@ -2,17 +2,28 @@
 
 [![Built with AIKit](https://img.shields.io/badge/built%20with-AIKit-6f42c1)](https://github.com/AegeanWorks/AIKit)
 
-Coda is a deterministic, dependency-free Rust sound compiler that turns a small textual score into reproducible stereo WAV audio, with seeded arrangement styles for locally generated music.
+Coda is a deterministic, dependency-free Rust sound compiler that turns a small textual score into reproducible stereo WAV audio, with seeded arrangement styles for locally generated music. It is a local-only project: no remote and no GitHub publication.
 
 ## ⚡ 30-Second Cold-Start Quick Reference
 
-- **Runtime Prerequisites**: <FILL: each runtime this project needs and its minimum version>
+- **Runtime Prerequisites**: Rust 1.70+ with Cargo. No crates, no audio libraries, no network.
 - **Canonical Regression Shield Gate**:
   ```bash
   cargo test
   ```
+- **One-command verifier** (finds Cargo and a working linker):
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts/verify.ps1
+  ```
+- **Try it**:
+  ```bash
+  cargo run -- render examples/scale.coda -o scale.wav
+  cargo run -- seed 2026 --bars 4 --style chords --wave saw -o generated.wav
+  cargo run -- album 42 --tracks 3 -o album/
+  ```
 
 ### 🛠️ AIKit Commands (run from the AIKit folder)
+
 | Role | Command |
 |---|---|
 | Status, task and gates | `python aikit.py status coda` |
@@ -20,19 +31,67 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 | Repair memory and map, then check | `python aikit.py fix coda` |
 | Resume an interrupted task | `python aikit.py resume coda` |
 
+## What it does
+
+- **Score compiler** — tempo, waveform, gain, ADSR, vibrato, per-note velocity, per-note ADSR overrides, equal-power stereo pan, `repeat` expansion, explicit beat placement (polyphony via stacked `at`).
+- **Generative composition** — `seed` plus scale (major/minor/pentatonic/chromatic), tempo, bar count, waveform and arrangement style (`flow`, `arp`, `chords`). A seed always yields the same piece.
+- **Album mode** — deterministic multi-track output with a single album fingerprint.
+- **Audio fingerprint** — `digest` prints a stable FNV-1a 64-bit ID for any rendered piece; golden vectors pin the renderer at two sample rates.
+- **Score inspector** — `info` reports waveform, timing, note/rest counts and duration without writing audio.
+
+Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
+
+## Command reference
+
+| Command | Purpose |
+|---|---|
+| `render <score.coda>` | Compile a score to WAV. |
+| `seed <n>` | Compose and render deterministically from a seed. |
+| `album <n>` | Write a directory of deterministic tracks. |
+| `info <score.coda>` | Inspect a score without rendering. |
+| `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
+| `help` | Show built-in help. |
+
+Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`. Exit codes: `0` success, `2` usage/IO error.
+
+## Score language
+
+One directive per line; `#` starts a comment. Durations are in beats, envelopes in seconds.
+
+| Directive | Meaning |
+|---|---|
+| `tempo <bpm>` | Beats per minute (default 120). |
+| `wave <name>` | `sine`, `square`, `triangle`, `saw`, `noise`, `pulse`, `organ`, `pluck`. |
+| `gain <0..1>` | Master gain before soft clipping (default 0.3). |
+| `attack/decay/sustain/release <s>` | Score-wide ADSR envelope. |
+| `env <a> <d> <s> <r>` | Per-note ADSR override; `env default` restores the score envelope. |
+| `vibrato <rate_hz> <cents>` | Pitch oscillation; `0 0` disables it. |
+| `pan <-1..1>` | Running stereo position: -1 left, 0 centre, 1 right. |
+| `repeat <n>` | Repeat the following `note`/`rest` events `n` times. |
+| `note <pitch> <beats> [velocity] [pan]` | Note at the running cursor; advances it. |
+| `at <beat> <pitch> <beats> [velocity] [pan]` | Note at an explicit beat; stack for chords. |
+| `rest <beats>` | Silence that advances the cursor. |
+
+Pitches are `C4`, `A#4`, `Bb3`, etc. (A4 = 440 Hz, equal temperament). Examples: `examples/scale.coda`, `arp.coda`, `chords.coda`, `pulse.coda`, `stereo.coda`.
+
 ## 📦 What's Inside
 
 ```text
 coda/
 ├── .gitattributes            <- LF line endings on every platform
-├── .gitignore                <- transient AIKit state excluded
+├── .gitignore                <- transient AIKit state plus build/audio output
 ├── LICENSE                   <- Aegean License 1.1 (AL-1.1): free personal use
 ├── COMMERCIAL.md             <- Commercial licensing terms
 ├── LICENSES/                 <- REUSE license texts
 ├── REUSE.toml                <- Machine-readable SPDX metadata
 ├── README.md
+├── Cargo.toml                <- Zero dependencies
+├── scripts/verify.ps1        <- One-command cross-toolchain test runner
 ├── inventory.py              <- AI-compat inventory: kind|name|locator lines (ADR-315)
 ├── demo.py                   <- AI-compat scripted drive: WORLD-DELTA lines (ADR-315)
+├── examples/                 <- Five example scores
+├── src/                      <- Nine Rust modules (DSP, parser, CLI)
+├── tests/integration.rs      <- Pipeline, golden vectors and CLI tests
 └── .aikit/                   <- this project's memory: record, ledger, decisions
 ```
 

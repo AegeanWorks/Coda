@@ -1,0 +1,15 @@
+# Layered notes at the same beat form chords.
+tempo 84
+wave sine
+gain 0.26
+attack 0.04
+decay 0.2
+sustain 0.55
+release 0.4
+
+at 0 C4 2 0.7
+at 0 E4 2 0.55
+at 0 G4 2 0.55
+at 2 F4 2 0.7
+at 2 A4 2 0.55
+at 2 C5 2 0.5
