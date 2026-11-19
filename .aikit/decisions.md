@@ -333,3 +333,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: MIDI files carried tempo but no meter, so DAWs assumed 4/4.
 - **Decision**: Add an optional N/D time signature that writes FF 58 04 with a power-of-two denominator exponent at tick 0; omitting it preserves previous MIDI bytes.
 - **Consequences**: The meta event bytes and invalid-meter rejection are pinned by byte tests; existing golden MIDI vectors are unchanged.
+
+### ADR-047: Report composes existing analyses into one deterministic document
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Score, lint, fingerprint and audio facts were scattered across commands, making a piece hard to summarize.
+- **Decision**: Build a Markdown report from the existing pure analyzers with a fixed section order, including audio analysis only when a WAV is supplied.
+- **Consequences**: The document is byte-stable, warnings and stats are reused verbatim, and invalid audio fails clearly.

@@ -822,6 +822,52 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_report_writes_a_deterministic_document() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-report-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let wav = root.join("audio.wav");
+    let report = root.join("report.md");
+    let rendered = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&wav)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+
+    let result = Command::new(exe)
+        .args(["report", "examples/scale.coda", "--audio"])
+        .arg(&wav)
+        .arg("-o")
+        .arg(&report)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&report).unwrap();
+    assert!(text.starts_with("# Coda report\n"));
+    assert!(text.contains("## Score\n"));
+    assert!(text.contains("## Lint\n\nno warnings"));
+    assert!(text.contains("## Fingerprint\n\n"));
+    assert!(text.contains("## Audio\n\nframes      111132"));
+
+    let again = root.join("again.md");
+    let second = Command::new(exe)
+        .args(["report", "examples/scale.coda", "--audio"])
+        .arg(&wav)
+        .arg("-o")
+        .arg(&again)
+        .output()
+        .unwrap();
+    assert!(second.status.success());
+    assert_eq!(text, std::fs::read_to_string(&again).unwrap());
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_midi_time_signature_writes_meta_event() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-timesig-{}", std::process::id()));

@@ -57,6 +57,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Verification** — `verify` re-renders a score and compares bytes to a WAV, locating the first difference.
 - **Provenance** — `stamp` appends a CODA chunk with the source digest and note count; `stamp-info` reads it back.
 - **MIDI meter** — `--time-signature N/D` writes a standard time-signature meta event into exported MIDI.
+- **Reports** — `report` writes one deterministic Markdown document with score stats, lint findings, fingerprint and optional audio analysis.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -102,6 +103,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `bitdepth <in.wav> --bits 8|16` | Export 8-bit or keep 16-bit PCM. |
 | `verify <score.coda> <in.wav>` | Confirm a WAV matches its source. |
 | `stamp` / `stamp-info` | Write or read a provenance chunk. |
+| `report <score.coda> [--audio in.wav]` | Write a Markdown report. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

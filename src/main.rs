@@ -22,6 +22,7 @@ use coda::normalize;
 use coda::notes;
 use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
+use coda::report;
 use coda::resample;
 use coda::reverse;
 use coda::score;
@@ -70,6 +71,7 @@ USAGE
   coda verify <score.coda> <in.wav> [--sample-rate N]
   coda stamp <score.coda> <in.wav> [-o out.wav]
   coda stamp-info <in.wav>
+  coda report <score.coda> [--audio in.wav] [-o report.md]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -108,6 +110,7 @@ OPTIONS
       --scale <name>   major | minor | pentatonic | chromatic (seed only)
       --root <note>    Root note for seed (default: C4)
       --time-signature N/D  Meter for MIDI export (e.g. 3/4)
+      --audio FILE     WAV to include in report
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -211,6 +214,7 @@ fn main() -> ExitCode {
     let mut bits: u16 = 8;
     let mut root_note: Option<String> = None;
     let mut time_signature: Option<(u8, u8)> = None;
+    let mut audio_path: Option<String> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -500,6 +504,18 @@ fn main() -> ExitCode {
                     }
                 }
             }
+            "--audio" => match need(i) {
+                Some(path) => {
+                    audio_path = Some(path.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--audio needs a WAV path",
+                        "coda report score.coda --audio out.wav",
+                    )
+                }
+            },
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
                     bits = n;
@@ -1381,7 +1397,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "digest" => {
+        | "report" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1446,6 +1462,40 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "report" {
+        let audio = match &audio_path {
+            Some(path) => match fs::read(path) {
+                Ok(bytes) => Some(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that the WAV file exists and is readable",
+                    )
+                }
+            },
+            None => None,
+        };
+        let text = match report::report(&composed, audio.as_deref()) {
+            Ok(text) => text,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "report.md".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes)", text.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "verify" {
         if positional.len() < 2 {

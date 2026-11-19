@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-midi-timesig",
+    "task_id": "coda-report",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795076764.4040315,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795077093.8218806,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795076771.3184118,
-    "completed_head": "8dc74d6f94c54f9f1007c6d8cb953120053cfb8c",
-    "completed_tree": "e66753cc2bf68ed7bf1dc0ff63c0cd9956a41595"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-resample",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 208 tests green; same-rate identity, ratio-based frame counts and interpolation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795074986.8250184,
-      "timestamp_str": "2026-11-19 10:56:26",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-resample",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-resample' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795074995.727926,
-      "timestamp_str": "2026-11-19 10:56:35",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "7f1657d944678c937c5f8d4514b78ebf2e415152",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-channels",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-report",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a deterministic Markdown report command",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795076834.1374557,
+      "timestamp_str": "2026-11-19 11:27:14",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Score stats, lint, fingerprint and audio analysis live in separate commands; a single report makes a piece explain itself in one artifact.",
+        "benefits": "report combines score digest, stats, lint findings and optional audio analysis into a byte-stable Markdown document.",
+        "risks": "contract: the report format must be exactly reproducible, missing audio must be handled cleanly, and invalid inputs must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure report module with exact golden-string tests, a CLI command reusing existing analyzers, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "78924d22efffc473e8c48ca8061484f30fa911df74438edb9f50df5d40569cc1",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-report",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 236 tests green; report sections, lint wording and determinism pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795077093.8218806,
+      "timestamp_str": "2026-11-19 11:31:33",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
