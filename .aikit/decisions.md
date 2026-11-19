@@ -46,3 +46,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Album digests were printed to stdout only, so generated tracks had no inspectable record of their seed and settings.
 - **Decision**: Write manifest.json into the album directory with seed, track count, bars, scale, style, wave, tempo, sample rate, album digest and per-track digests.
 - **Consequences**: Generated albums are self-describing and byte-identical across runs; no WAV bytes changed; album/ stays gitignored.
+
+### ADR-006: Symbolic output: type-0 MIDI export by file extension
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A sound compiler that only writes audio cannot hand the score to a DAW or synthesizer.
+- **Decision**: Encode the same Score as a single-track Standard MIDI File (480 ticks/quarter, tempo meta, note on/off, velocity, end of track), selected by a .mid/.midi output extension.
+- **Consequences**: No new dependency; WAV bytes and golden vectors unchanged; VLQ and header byte tests pin the format; a chosen extension is the only routing rule.

@@ -1,8 +1,8 @@
 //! Note-name to frequency conversion (equal temperament, A4 = 440 Hz).
 
-/// Convert a note name such as `C4`, `A#4` or `Bb3` into Hz.
-/// Returns `None` for malformed input.
-pub fn frequency(name: &str) -> Option<f64> {
+/// Convert a note name such as `C4`, `A#4` or `Bb3` into a MIDI note number
+/// (A4 = 69). Returns `None` for malformed input.
+pub fn midi(name: &str) -> Option<i32> {
     let s = name.trim();
     let b = s.as_bytes();
     if b.is_empty() {
@@ -37,8 +37,14 @@ pub fn frequency(name: &str) -> Option<f64> {
     }
 
     let octave: i32 = s.get(i..)?.parse().ok()?;
-    let midi = (octave + 1) * 12 + semitone;
-    Some(440.0 * 2.0_f64.powf((midi - 69) as f64 / 12.0))
+    Some((octave + 1) * 12 + semitone)
+}
+
+/// Convert a note name such as `C4`, `A#4` or `Bb3` into Hz.
+/// Returns `None` for malformed input.
+pub fn frequency(name: &str) -> Option<f64> {
+    let number = midi(name)?;
+    Some(440.0 * 2.0_f64.powf((number - 69) as f64 / 12.0))
 }
 
 /// Convert a MIDI note number into a note name (`60` -> `C4`).
@@ -54,6 +60,14 @@ pub fn name(midi: i32) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn midi_numbers() {
+        assert_eq!(midi("A4"), Some(69));
+        assert_eq!(midi("C4"), Some(60));
+        assert_eq!(midi("Bb3"), Some(58));
+        assert_eq!(midi("-"), None);
+    }
 
     #[test]
     fn reference_pitches() {

@@ -2,6 +2,7 @@
 
 use coda::digest;
 use coda::gen::{self, GenOptions, Scale};
+use coda::midi::midi_bytes;
 use coda::notes;
 use coda::render::{render, wav_bytes, Frame};
 use coda::score;
@@ -236,6 +237,59 @@ fn cli_style_flag_changes_the_composition() {
         .output()
         .expect("coda binary should run");
     assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
+fn midi_export_is_deterministic_and_well_formed() {
+    let score = score::parse("tempo 120\nnote C4 1\nat 2 G4 1\n").unwrap();
+    let a = midi_bytes(&score);
+    assert_eq!(&a[0..4], b"MThd");
+    assert_eq!(&a[14..18], b"MTrk");
+    assert!(a.ends_with(&[0xff, 0x2f, 0x00]));
+    assert_eq!(a, midi_bytes(&score));
+    assert_ne!(
+        a,
+        midi_bytes(&score::parse("tempo 90\nnote C4 1\nat 2 G4 1\n").unwrap())
+    );
+}
+
+#[test]
+fn cli_extension_routes_midi_and_wav() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-midi-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let midi_path = root.join("scale.mid");
+    let wav_path = root.join("scale.wav");
+
+    for path in [&midi_path, &wav_path] {
+        let out = Command::new(exe)
+            .args(["render", "examples/scale.coda", "-o"])
+            .arg(path)
+            .output()
+            .expect("coda binary should run");
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+
+    assert_eq!(&std::fs::read(&midi_path).unwrap()[0..4], b"MThd");
+    assert_eq!(&std::fs::read(&wav_path).unwrap()[0..4], b"RIFF");
+
+    let seed_midi = root.join("seed.midi");
+    let out = Command::new(exe)
+        .args(["seed", "42", "--bars", "1", "-o"])
+        .arg(&seed_midi)
+        .output()
+        .expect("coda binary should run");
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert_eq!(&std::fs::read(&seed_midi).unwrap()[0..4], b"MThd");
     std::fs::remove_dir_all(&root).unwrap();
 }
 

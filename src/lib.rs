@@ -8,6 +8,7 @@
 pub mod digest;
 pub mod envelope;
 pub mod gen;
+pub mod midi;
 pub mod notes;
 pub mod render;
 pub mod score;

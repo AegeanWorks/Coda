@@ -20,7 +20,7 @@ USAGE
   coda help
 
 OPTIONS
-  -o, --out <file>     Output WAV path (default: out.wav)
+  -o, --out <file>     Output path (default: out.wav); .mid/.midi writes MIDI
       --sample-rate N  Samples per second (default: 44100)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
@@ -41,7 +41,7 @@ SCORE DIRECTIVES
 EXIT CODES
   0 success    2 usage or IO error
 
-No dependencies, no network. Identical inputs produce identical WAV bytes.
+No dependencies, no network. Identical inputs produce identical WAV or MIDI bytes.
 ";
 
 fn fail(message: &str, fix: &str) -> ExitCode {
@@ -333,11 +333,10 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let samples = render(&composed, sample_rate);
-    let bytes = wav_bytes(&samples, sample_rate);
-    let fingerprint = digest::fingerprint(&bytes);
-
     if command == "digest" {
+        let samples = render(&composed, sample_rate);
+        let bytes = wav_bytes(&samples, sample_rate);
+        let fingerprint = digest::fingerprint(&bytes);
         println!(
             "{fingerprint}  {} bytes  {} samples",
             bytes.len(),
@@ -346,15 +345,32 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
+    let lowered = output.to_ascii_lowercase();
+    let is_midi = lowered.ends_with(".mid") || lowered.ends_with(".midi");
+    let (bytes, summary) = if is_midi {
+        let bytes = coda::midi::midi_bytes(&composed);
+        let summary = format!(
+            "{} bytes, {} notes, MIDI",
+            bytes.len(),
+            composed.notes.len()
+        );
+        (bytes, summary)
+    } else {
+        let samples = render(&composed, sample_rate);
+        let bytes = wav_bytes(&samples, sample_rate);
+        let fingerprint = digest::fingerprint(&bytes);
+        let summary = format!(
+            "{} bytes, {} samples, {} notes, digest {fingerprint}",
+            bytes.len(),
+            samples.len(),
+            composed.notes.len()
+        );
+        (bytes, summary)
+    };
+
     match fs::write(&output, &bytes) {
         Ok(()) => {
-            println!(
-                "wrote {} ({} bytes, {} samples, {} notes, digest {fingerprint})",
-                output,
-                bytes.len(),
-                samples.len(),
-                composed.notes.len()
-            );
+            println!("wrote {output} ({summary})");
             ExitCode::SUCCESS
         }
         Err(e) => fail(

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-album-manifest",
+    "task_id": "coda-midi-export",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795065973.0183685,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795066347.5827122,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,10 +14,7 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795065984.4551277,
-    "completed_head": "24484132db039d458ab8b78df164a61cecdc2f03",
-    "completed_tree": "5b2a0b0fc89bceab6b5d5a6794e5dc287a72ada7"
+    ]
   },
   "checkpoints": [
     {
@@ -221,6 +218,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-midi-export",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and implement dependency-free Standard MIDI File export",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795066120.6890237,
+      "timestamp_str": "2026-11-19 08:28:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Coda compiles scores to audio but cannot hand them to a DAW or synthesizer; MIDI makes the symbolic score portable without adding a dependency.",
+        "benefits": "render/seed can write .mid as well as .wav; the same deterministic score drives both; no crates or external tools.",
+        "risks": "contract: WAV bytes and golden vectors must not change; dependency: std only; concurrency: none; state: output routing by file extension must stay explicit in help and README.",
+        "mitigation": "Add a pure midi.rs encoder with VLQ and byte-vector tests, route by output extension only, run cargo test plus all AIKit gates before commit."
+      },
+      "plan_digest": "3a638d0ae8c11e573c1766b924a6e0ae7865b3880382efe0ed0f9bdebbeb6eb0",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-midi-export",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 56 tests green; MIDI header/VLQ/byte tests and CLI extension routing verified; WAV golden vectors unchanged",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795066347.5827122,
+      "timestamp_str": "2026-11-19 08:32:27",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
