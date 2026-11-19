@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-limit",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795095064.1631594,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795102264.1631594,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795095073.6358855,
+    "completed_head": "eb4a1ebf80de641ce84b1211930cb81f5e3bd03c",
+    "completed_tree": "6d83eefef825ffba000daf57c5cf8f0a3dcd1fa0"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-distort",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add soft-clip distortion for WAVs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795093060.7400517,
-      "timestamp_str": "2026-11-19 15:57:40",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "gain applies linear trim with a hard clamp and crush reduces resolution, but there is no smooth saturation effect to add warmth or glue.",
-        "benefits": "distort applies a deterministic soft-saturation curve with a drive control, staying bounded and byte-identical at drive 0.",
-        "risks": "contract: drive 0..1, drive 0 identity, all samples within range, monotonic curve, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for identity, bounded saturation, monotonicity and determinism, a CLI command with --drive, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "771252be9d826cbfd1485714c17b6228a53faee9182f73aee349a53f5e87df27",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-distort",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-limit",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-limit' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795095073.7209356,
+      "timestamp_str": "2026-11-19 16:31:13",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "eb4a1ebf80de641ce84b1211930cb81f5e3bd03c",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
