@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-humanize",
+    "task_id": "coda-diatonic",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795072190.66362,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795072437.708626,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795072197.7579734,
-    "completed_head": "e261cc3caf96de33beecd13823d47978a022aa54",
-    "completed_tree": "01a82f53226abf5a357dd92d9dc859d9e173b812"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-echo",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 127 tests green; echo impulse tail, clamping and zero-delay identity pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795070607.2188256,
-      "timestamp_str": "2026-11-19 09:43:27",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-echo",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-echo' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795070613.6276076,
-      "timestamp_str": "2026-11-19 09:43:33",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "7bf87fb9b3f855e4c5ea83a50d530a85f83cd344",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-reverse",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-diatonic",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add scale-degree transposition",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072253.4764924,
+      "timestamp_str": "2026-11-19 10:10:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Chromatic transposition shifts every note by semitones; moving a melody by scale degrees within a key needs a different transform to stay diatonic.",
+        "benefits": "diatonic transposes notes by scale steps in major/minor/pentatonic/chromatic scales, preserving key membership and all non-pitch fields.",
+        "risks": "contract: steps 0 must be an identity, notes outside the scale must map deterministically, and output must remain in range; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure diatonic module with identity, octave and key-membership tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "009273bac0e8de253566940ab1fab8ff32e37e1d8d2841728af5171a334f2e4e",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-diatonic",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 163 tests green; diatonic identity, octave walk, key membership and scale flag pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072437.708626,
+      "timestamp_str": "2026-11-19 10:13:57",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

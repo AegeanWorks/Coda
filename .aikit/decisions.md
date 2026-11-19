@@ -214,3 +214,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Jittering a rest's start broke the round-trip because rest was always written at the running cursor; jittering only pitched notes was not enough once t events leave the cursor behind.
 - **Decision**: Leave rests untouched by humanize, and let the serializer emit t <beat> - <beats> when a rest's start differs from its cursor.
 - **Consequences**: Every Score still round-trips exactly; the score language gains an explicit-rest form without a new directive; humanized output remains editable canonical source.
+
+### ADR-030: Diatonic transposition reuses scale degrees
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Chromatic transposition can leave a melody outside its intended key; degree-based movement preserves key membership.
+- **Decision**: Map each pitch to the nearest degree of the chosen scale, shift by an integer number of degrees with octave wrap, and reuse the existing scale definitions and note-name helpers.
+- **Consequences**: Zero steps is byte-identical, a full scale walks an octave, and non-scale notes resolve deterministically to the nearest lower degree.

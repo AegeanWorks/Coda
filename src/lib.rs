@@ -7,6 +7,7 @@
 
 pub mod autopan;
 pub mod compare;
+pub mod diatonic;
 pub mod digest;
 pub mod echo;
 pub mod envelope;

@@ -2,6 +2,7 @@
 
 use coda::autopan;
 use coda::compare;
+use coda::diatonic;
 use coda::digest;
 use coda::echo;
 use coda::fade;
@@ -41,6 +42,7 @@ USAGE
   coda reverse <score.coda> [-o out.coda]
   coda quantize <score.coda> [--grid 0..1 beats] [-o out.coda]
   coda humanize <score.coda> --seed N [--amount 0..1] [-o out.coda]
+  coda diatonic <score.coda> --steps N [--scale name] [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -62,6 +64,7 @@ OPTIONS
       --autopan-depth  Pan depth 0..1 (default: 0)
       --grid B         Quantization grid in beats (default: 0.25)
       --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
+      --steps N        Scale degrees to move in diatonic (default: 0)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -152,6 +155,7 @@ fn main() -> ExitCode {
     let mut pan_depth = 0.0_f64;
     let mut grid = 0.25_f64;
     let mut gain_b = 0.5_f64;
+    let mut steps = 0_i32;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -283,6 +287,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--gain-b must be between 0 and 1",
                         "coda mix a.wav b.wav --gain-b 0.5",
+                    )
+                }
+            },
+            "--steps" => match need(i).and_then(|v| v.parse::<i32>().ok()) {
+                Some(n) => {
+                    steps = n;
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--steps must be an integer",
+                        "coda diatonic score.coda --steps 2",
                     )
                 }
             },
@@ -797,8 +813,8 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize" | "reverse"
-        | "quantize" | "digest" => {
+        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
+        | "diatonic" | "reverse" | "quantize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -849,6 +865,31 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "diatonic" {
+        let shifted = diatonic::diatonic(&composed, steps, options.scale);
+        let path = if output == "out.wav" {
+            "diatonic.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&shifted);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {steps} steps, {})",
+                    text.len(),
+                    shifted.notes.len(),
+                    options.scale.name()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "humanize" {
         let adjusted = match humanize::humanize(&composed, variation_seed, variation_amount) {
