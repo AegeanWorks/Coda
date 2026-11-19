@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-mswidth",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795096792.0667818,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795103992.0667818,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795096799.179661,
+    "completed_head": "4a64e96f6496649a171a7e4ad7995241575ae922",
+    "completed_tree": "3d043f2dad73512cc1c07090127239c7bd4de58b"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-limit",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a brick-wall WAV limiter",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795094897.4974926,
-      "timestamp_str": "2026-11-19 16:28:17",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "gain trims a whole file and distort saturates smoothly, but there is no hard ceiling that caps every sample at a chosen level.",
-        "benefits": "limit clamps each sample to a symmetric threshold, preserving rate and length, with full-scale identity on ordinary signals.",
-        "risks": "contract: limit 0..1, all samples bounded, deterministic, full-scale identity on normal input, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for identity, clamping, determinism and validation, a CLI command with --limit, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "9bc51889e7f4a12fcf85f24e8b4589f663aaa233a28eca6bac303bb84354050e",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-limit",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-mswidth",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-mswidth' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795096799.2703407,
+      "timestamp_str": "2026-11-19 16:59:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "4a64e96f6496649a171a7e4ad7995241575ae922",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
