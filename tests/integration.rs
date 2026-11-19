@@ -1778,6 +1778,56 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_tremolo_modulates_amplitude() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-tremolo-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.8, -0.6); 200], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("tremolo")
+        .arg(&input)
+        .args(["--lfo-rate", "40", "--lfo-depth", "1", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let original = std::fs::read(&input).unwrap();
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(original.len(), after.len());
+    let source = i16::from_le_bytes([original[44], original[45]]);
+    let changed = i16::from_le_bytes([after[44], after[45]]);
+    assert_eq!(source, changed, "starts at unity gain");
+    let mut dipped = false;
+    for chunk in after[44..].as_chunks::<4>().0 {
+        let value = i16::from_le_bytes([chunk[0], chunk[1]]);
+        if value.abs() < source.abs() - 2000 {
+            dipped = true;
+            break;
+        }
+    }
+    assert!(dipped, "amplitude should dip below the source");
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("tremolo")
+        .arg(&input)
+        .args(["--lfo-depth", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), original);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_gain_trims_level_in_db() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-gain-{}", std::process::id()));

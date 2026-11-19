@@ -40,6 +40,7 @@ use coda::stretch;
 use coda::swing;
 use coda::templates;
 use coda::transpose;
+use coda::tremolo;
 use coda::trim;
 use coda::vary;
 use coda::verify;
@@ -84,6 +85,7 @@ USAGE
   coda report <score.coda> [--audio in.wav] [-o report.md]
   coda width <in.wav> --width 0..2 [-o out.wav]
   coda gain <in.wav> --db N [-o out.wav]
+  coda tremolo <in.wav> [--lfo-rate HZ] [--lfo-depth 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -109,6 +111,8 @@ OPTIONS
       --echo-feedback  Echo gain 0..1 (default: 0.35)
       --autopan-rate   Pan LFO rate in Hz (default: 0)
       --autopan-depth  Pan depth 0..1 (default: 0)
+      --lfo-rate HZ    Tremolo LFO rate in Hz (default: 5)
+      --lfo-depth 0..1 Tremolo depth (default: 0.5)
       --grid B         Quantization grid in beats (default: 0.25)
       --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
       --steps N        Scale degrees to move in diatonic (default: 0)
@@ -247,6 +251,8 @@ fn main() -> ExitCode {
     let mut intervals: Vec<i32> = Vec::new();
     let mut center_note = "C4".to_string();
     let mut accent_pattern: Vec<f64> = Vec::new();
+    let mut lfo_rate = 5.0_f64;
+    let mut lfo_depth = 0.5_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -354,6 +360,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--autopan-depth must be between 0 and 1",
                         "coda render score.coda --autopan-depth 0.6",
+                    )
+                }
+            },
+            "--lfo-rate" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    lfo_rate = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--lfo-rate must be a positive number",
+                        "coda tremolo in.wav --lfo-rate 5",
+                    )
+                }
+            },
+            "--lfo-depth" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    lfo_depth = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--lfo-depth must be between 0 and 1",
+                        "coda tremolo in.wav --lfo-depth 0.5",
                     )
                 }
             },
@@ -966,6 +996,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "tremolo" {
+        if positional.is_empty() {
+            return fail(
+                "tremolo needs an input WAV",
+                "coda tremolo in.wav --lfo-rate 5 --lfo-depth 0.5",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let changed = match tremolo::apply_tremolo(&bytes, lfo_rate, lfo_depth) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "tremolo.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &changed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {lfo_rate} Hz, depth {lfo_depth})",
+                    changed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

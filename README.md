@@ -68,6 +68,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Inversion** — `invert` mirrors pitches around a center note, keeping rhythm and timbre.
 - **Extraction** — `extract` clips a score to a beat range, trimming overlapping notes.
 - **Accents** — `accent --pattern 1.0,0.5` cycles velocities across sounding notes.
+- **Tremolo** — `tremolo --lfo-rate HZ --lfo-depth 0..1` applies a sine LFO to amplitude; depth 0 is an identity.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -116,6 +117,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `report <score.coda> [--audio in.wav]` | Write a Markdown report. |
 | `width <in.wav> --width 0..2` | Narrow or widen the stereo image. |
 | `gain <in.wav> --db N` | Trim level in decibels. |
+| `tremolo <in.wav> [--lfo-rate HZ] [--lfo-depth 0..1]` | Modulate amplitude with a sine LFO. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

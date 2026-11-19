@@ -47,6 +47,7 @@ pub mod stretch;
 pub mod swing;
 pub mod templates;
 pub mod transpose;
+pub mod tremolo;
 pub mod trim;
 pub mod vary;
 pub mod verify;

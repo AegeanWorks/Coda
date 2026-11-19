@@ -410,3 +410,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Per-note velocities could be set but not cycled as a groove pattern.
 - **Decision**: Apply a list of velocities cyclically to sounding notes only, preserving all other fields and rejecting invalid patterns.
 - **Consequences**: Pattern cycling, rest skipping and round-trip are pinned by byte tests; invalid inputs fail clearly.
+
+### ADR-058: Tremolo applies a cosine amplitude LFO to WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Auto-pan modulated the stereo image at render time but there was no way to apply a repeating amplitude swell to an existing WAV.
+- **Decision**: Expose tremolo as a WAV transform with --lfo-rate and --lfo-depth, using gain = 1 - depth/2 + (depth/2)*cos(2*pi*rate*t) so it starts at unity, stays within [1-depth,1], and depth 0 is byte-identical.
+- **Consequences**: Unity start, bounded modulation, determinism and zero-depth identity are pinned by byte tests; invalid rates or depths fail clearly.
