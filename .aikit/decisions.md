@@ -585,3 +585,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: loop repeated scores but there was no way to repeat an already-processed WAV without external editing.
 - **Decision**: Append the source frame buffer N times with a bounded count, preserving the sample rate and all audio bytes; N=1 is byte-identical.
 - **Consequences**: Exact tiling, frame scaling, rate preservation and count validation are pinned by byte tests.
+
+### ADR-083: Crossfade blends two rendered WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: join crossfaded scores before rendering, with no way to overlap two already-rendered files.
+- **Decision**: Match rates, overlap the tail of the first and head of the second over a frame-rounded duration with linear weights, cap the overlap to the shorter input, and concatenate at zero duration.
+- **Consequences**: Zero-overlap concatenation, exact midpoint blending, length and rate preservation, and validation are pinned by byte tests.

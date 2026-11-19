@@ -2087,6 +2087,45 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_crossfade_blends_two_wavs() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-xfade-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let out = root.join("out.wav");
+    std::fs::write(&a, wav_bytes(&[(0.0, 0.0); 4], 8_000)).unwrap();
+    std::fs::write(&b, wav_bytes(&[(1.0, 1.0); 4], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("crossfade")
+        .arg(&a)
+        .arg(&b)
+        .args(["--crossfade", "0.00025", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&out).unwrap();
+    assert_eq!(after.len(), 44 + 6 * 4, "4 + 4 - 2 overlap");
+    let middle = i16::from_le_bytes([after[44 + 3 * 4], after[45 + 3 * 4]]);
+    assert!((middle as f64 / 32767.0 - 0.5).abs() < 0.01, "{middle}");
+
+    let missing = Command::new(exe)
+        .arg("crossfade")
+        .arg(&a)
+        .arg(&b)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_repeat_wav_tiles_exactly() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-repwav-{}", std::process::id()));

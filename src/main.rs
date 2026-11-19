@@ -11,6 +11,7 @@ use coda::channels;
 use coda::chord;
 use coda::compare;
 use coda::concat;
+use coda::crossfade;
 use coda::crush;
 use coda::dc;
 use coda::diatonic;
@@ -133,6 +134,7 @@ USAGE
   coda intervals <score.coda>
   coda reverse-region <in.wav> --start S --end S [-o out.wav]
   coda repeat-wav <in.wav> --times N [-o out.wav]
+  coda crossfade <a.wav> <b.wav> --crossfade S [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -168,7 +170,7 @@ OPTIONS
       --steps N        Scale degrees to move in diatonic (default: 0)
       --ratio 0..1     Swing amount (default: 0.6)
       --factor F       Time-stretch factor (default: 1)
-      --crossfade S    Overlap between joined sections in seconds (default: 0)
+      --crossfade S    Overlap for join or crossfade in seconds (default: 0)
       --start S / --end S  Time range for trim / reverse-region
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim and gate (default: -60 dBFS)
@@ -295,6 +297,7 @@ fn main() -> ExitCode {
     let mut factor_seen = false;
     let mut rms_target: Option<f64> = None;
     let mut crossfade = 0.0_f64;
+    let mut crossfade_seen = false;
     let mut trim_start = 0.0_f64;
     let mut trim_end: Option<f64> = None;
     let mut trim_silence = false;
@@ -531,6 +534,7 @@ fn main() -> ExitCode {
             "--crossfade" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
                 Some(v) if v >= 0.0 && v.is_finite() => {
                     crossfade = v;
+                    crossfade_seen = true;
                     i += 2;
                 }
                 _ => {
@@ -1254,6 +1258,56 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "crossfade" {
+        if positional.len() < 2 {
+            return fail(
+                "crossfade needs two WAV files",
+                "coda crossfade a.wav b.wav --crossfade 0.05",
+            );
+        }
+        if !crossfade_seen {
+            return fail(
+                "crossfade needs --crossfade",
+                "coda crossfade a.wav b.wav --crossfade 0.05",
+            );
+        }
+        let mut inputs = Vec::new();
+        for path in positional.iter().take(2) {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that both WAV files exist and are readable",
+                    )
+                }
+            }
+        }
+        let blended = match crossfade::crossfade_wavs(&inputs[0], &inputs[1], crossfade) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "both inputs must be Coda WAVs at the same sample rate"),
+        };
+        let path = if output == "out.wav" {
+            "crossfaded.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &blended) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, {crossfade}s overlap)",
+                    blended.len(),
+                    (blended.len() - 44) / 4
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

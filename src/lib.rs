@@ -16,6 +16,7 @@ pub mod channels;
 pub mod chord;
 pub mod compare;
 pub mod concat;
+pub mod crossfade;
 pub mod crush;
 pub mod dc;
 pub mod diatonic;

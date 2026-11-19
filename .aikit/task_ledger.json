@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-repeat-wav",
+    "task_id": "coda-crossfade",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795094507.752598,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795094815.58647,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795101707.752598,
+    "lease_until": 1795102015.58647,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795094514.4700031,
-    "completed_head": "c79260f1fc994de072d9450e4db959e79960a17a",
-    "completed_tree": "22fa2dff727e577f57fbd35cde9134d71e08c226"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-info",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 372 tests green; header fields and recovered metrics pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795092597.6919217,
-      "timestamp_str": "2026-11-19 15:49:57",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-midi-info",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-midi-info' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795092604.7703388,
-      "timestamp_str": "2026-11-19 15:50:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "9a0aaab5c180fa6c13899358850a15075fa4a5b2",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-chord",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-crossfade",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add crossfading of two WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795094579.5831954,
+      "timestamp_str": "2026-11-19 16:22:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "join crossfades scores before rendering, but there is no way to crossfade two already-rendered WAVs.",
+        "benefits": "crossfade overlaps the tail of one WAV with the head of another over an exact duration using deterministic linear gains.",
+        "risks": "contract: rates must match, overlap rounded to frames and bounded by both lengths, zero overlap is plain concatenation, output clamped, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for zero overlap, exact midpoint blending and length, a two-WAV CLI command with --crossfade, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "0f33fa89ec98f0d62104513d2291e03af035443ced22c8d5583ad28f21e29ce1",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-crossfade",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 405 tests green; zero-overlap, midpoint blending and length preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795094815.58647,
+      "timestamp_str": "2026-11-19 16:26:55",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
