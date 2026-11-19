@@ -753,6 +753,78 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_fades_change_edges_but_preserve_length() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-fades-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let plain = root.join("plain.wav");
+    let faded = root.join("faded.wav");
+
+    let base = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&plain)
+        .output()
+        .unwrap();
+    assert!(base.status.success());
+    let with_fades = Command::new(exe)
+        .args([
+            "render",
+            "examples/scale.coda",
+            "--fade-in",
+            "0.02",
+            "--fade-out",
+            "0.05",
+            "-o",
+        ])
+        .arg(&faded)
+        .output()
+        .unwrap();
+    assert!(
+        with_fades.status.success(),
+        "{}",
+        String::from_utf8_lossy(&with_fades.stderr)
+    );
+
+    let before = std::fs::read(&plain).unwrap();
+    let after = std::fs::read(&faded).unwrap();
+    assert_eq!(before.len(), after.len());
+    assert_ne!(before, after);
+    // Exact edge samples are already silent because of ADSR, so compare
+    // frames inside the fade regions instead.
+    let sample = |wav: &[u8], frame: usize| {
+        let offset = 44 + frame * 4;
+        i16::from_le_bytes([wav[offset], wav[offset + 1]]).abs()
+    };
+    let frames = (after.len() - 44) / 4;
+    assert!(
+        sample(&after, 441) <= sample(&before, 441),
+        "fade-in should soften early frames"
+    );
+    assert!(
+        sample(&after, frames - 441) <= sample(&before, frames - 441),
+        "fade-out should soften late frames"
+    );
+
+    let zero = Command::new(exe)
+        .args([
+            "digest",
+            "examples/scale.coda",
+            "--fade-in",
+            "0",
+            "--fade-out",
+            "0",
+        ])
+        .output()
+        .unwrap();
+    let plain_digest = Command::new(exe)
+        .args(["digest", "examples/scale.coda"])
+        .output()
+        .unwrap();
+    assert_eq!(zero.stdout, plain_digest.stdout);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_templates_list_and_materialize() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let list = Command::new(exe).arg("templates").output().unwrap();

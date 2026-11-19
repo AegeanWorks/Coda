@@ -8,6 +8,7 @@
 pub mod compare;
 pub mod digest;
 pub mod envelope;
+pub mod fade;
 pub mod gen;
 pub mod join;
 pub mod lint;

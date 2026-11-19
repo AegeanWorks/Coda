@@ -158,3 +158,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Built-in starting points must stay in sync with the score language instead of becoming a parallel representation.
 - **Decision**: Store each template as ordinary score source and parse it with the existing parser; template materializes the parsed result through the canonical serializer.
 - **Consequences**: Every template automatically gains new directives; round-trip and listing tests pin behavior; no production unwrap because the parser reports errors normally.
+
+### ADR-022: Fades are linear, clamped and applied only to audio output
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Hard starts and stops make rendered sections and joins sound unfinished.
+- **Decision**: Apply a linear envelope over --fade-in/--fade-out seconds to both channels before WAV encoding, clamping each fade to half the buffer; zero fades leave bytes unchanged.
+- **Consequences**: Audio paths (render, seed, album, join, digest) share one helper, while MIDI and score export are unaffected; golden vectors remain valid when fades are absent.
