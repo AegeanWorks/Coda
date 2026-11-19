@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "name": "coda",
+  "repo": "Coda",
+  "has_ui": false,
+  "ui_kind": "library",
+  "palette": [
+    "#120712",
+    "#301223",
+    "#f566f0",
+    "#f5a08e"
+  ],
+  "motif": "grid",
+  "layout": "wave",
+  "assets": {
+    "logo": {
+      "path": "assets/logo.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-11-19T21:57:12",
+      "review": {
+        "status": "approved",
+        "reviewer": "agent:opencode",
+        "method": "structural",
+        "notes": "Valid 512x512 SVG with title, desc, grid-wave motif and AEGEANWORKS attribution; renders the CO monogram cleanly.",
+        "score": null,
+        "reviewed_at": "2026-11-19T21:57:56"
+      }
+    },
+    "social_preview": {
+      "path": "assets/social-preview.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-11-19T21:57:12",
+      "review": {
+        "status": "approved",
+        "reviewer": "agent:opencode",
+        "method": "structural",
+        "notes": "Valid 1280x640 SVG: Coda title, full description, AegeanWorks footer and three topic chips from project.json; no control characters.",
+        "score": null,
+        "reviewed_at": "2026-11-19T21:57:57"
+      }
+    }
+  },
+  "screenshots": []
+}

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-publish",
-    "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795114499.5892577,
+    "task_id": "coda-brand-publish",
+    "last_phase": "phase 1",
+    "active_phase": 1,
+    "status": "in_progress",
+    "updated_at": 1795114675.732025,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795121699.5892577,
+    "lease_until": 1795121875.732025,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -16,23 +16,14 @@
         "path": "projects/coda"
       }
     ],
-    "completed_at": 1795114535.9198592,
-    "completed_head": "3433d9b81ef5dd72e6fbac97f971ae4d992695c4",
-    "completed_tree": "4937f793783feae3a954baa712f5d99d8a32aed7"
+    "impact_assessment": {
+      "why": "The initial push was commit-only: GitHub topics were null, no brand manifest existed and there is no release tag, so the public repo is not fully delivered.",
+      "benefits": "Full AIKit publish syncs description, topics and dossier; a v0.1.0 release tag pins the first public release.",
+      "risks": "Publish has external side effects (catalogue sync); a wrong tag name or asset would be visible publicly.",
+      "mitigation": "Dry-run publish first, review generated SVGs structurally, verify remote metadata and tag after, and keep all gates passing."
+    }
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 99",
-      "phase_num": 3,
-      "description": "Reforge stage 99: window 297, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795113278.084668,
-      "timestamp_str": "2026-11-19 21:34:38",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 99",
@@ -287,6 +278,29 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-brand-publish",
+      "phase": "phase 1",
+      "phase_num": 1,
+      "description": "[1/1] Complete Coda publication: brand assets, repo topics and release tag",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795114675.732025,
+      "timestamp_str": "2026-11-19 21:57:55",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "The initial push was commit-only: GitHub topics were null, no brand manifest existed and there is no release tag, so the public repo is not fully delivered.",
+        "benefits": "Full AIKit publish syncs description, topics and dossier; a v0.1.0 release tag pins the first public release.",
+        "risks": "Publish has external side effects (catalogue sync); a wrong tag name or asset would be visible publicly.",
+        "mitigation": "Dry-run publish first, review generated SVGs structurally, verify remote metadata and tag after, and keep all gates passing."
+      },
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
