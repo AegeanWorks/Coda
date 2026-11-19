@@ -11,6 +11,7 @@ use coda::digest;
 use coda::echo;
 use coda::fade;
 use coda::fade_presets;
+use coda::gain;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::humanize;
 use coda::join;
@@ -74,6 +75,7 @@ USAGE
   coda stamp-info <in.wav>
   coda report <score.coda> [--audio in.wav] [-o report.md]
   coda width <in.wav> --width 0..2 [-o out.wav]
+  coda gain <in.wav> --db N [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -114,6 +116,7 @@ OPTIONS
       --time-signature N/D  Meter for MIDI export (e.g. 3/4)
       --audio FILE     WAV to include in report
       --width 0..2     Stereo width for width (0 mono, 1 identity)
+      --db N           Gain in dB for gain (-100..6)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -219,6 +222,7 @@ fn main() -> ExitCode {
     let mut time_signature: Option<(u8, u8)> = None;
     let mut audio_path: Option<String> = None;
     let mut width_amount = 1.0_f64;
+    let mut db_gain: Option<f64> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -532,6 +536,18 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--db" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (-100.0..=6.0).contains(&v) => {
+                    db_gain = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--db must be between -100 and +6",
+                        "coda gain in.wav --db -6",
+                    )
+                }
+            },
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
                     bits = n;
@@ -768,6 +784,44 @@ fn main() -> ExitCode {
         return match fs::write(&path, &converted) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, {bits}-bit)", converted.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "gain" {
+        if positional.is_empty() {
+            return fail("gain needs an input WAV", "coda gain in.wav --db -6");
+        }
+        let db = match db_gain {
+            Some(value) => value,
+            None => return fail("gain needs --db", "coda gain in.wav --db -6"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let changed = match gain::change_gain(&bytes, db) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "gained.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &changed) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, {db} dB)", changed.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

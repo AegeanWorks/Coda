@@ -347,3 +347,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Pan and channel operations could not change the width of an existing stereo image.
 - **Decision**: Scale the side component by an amount in 0..2 while keeping mid fixed, clamping to range; amount 1 is byte-identical and 0 folds to mono.
 - **Consequences**: Width changes are deterministic and length-preserving; widening may clamp peaks, which is pinned by byte tests.
+
+### ADR-049: Gain is an exact dB-to-linear WAV transform
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Peak and RMS normalization target a level; a simple relative dB trim was missing.
+- **Decision**: Apply a 10^(dB/20) factor to decoded frames with clamping, limiting the range to -100..+6 dB; 0 dB returns byte-identical audio.
+- **Consequences**: Halving at -6.0206 dB and unity identity are pinned by byte tests; invalid WAVs and out-of-range dB fail clearly.

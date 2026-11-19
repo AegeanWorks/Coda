@@ -59,6 +59,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **MIDI meter** — `--time-signature N/D` writes a standard time-signature meta event into exported MIDI.
 - **Reports** — `report` writes one deterministic Markdown document with score stats, lint findings, fingerprint and optional audio analysis.
 - **Width** — `width --width 0..2` folds to mono at 0, preserves audio at 1, and widens above 1.
+- **Gain** — `gain --db N` trims level in decibels with 0 dB byte-identical.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -106,6 +107,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `stamp` / `stamp-info` | Write or read a provenance chunk. |
 | `report <score.coda> [--audio in.wav]` | Write a Markdown report. |
 | `width <in.wav> --width 0..2` | Narrow or widen the stereo image. |
+| `gain <in.wav> --db N` | Trim level in decibels. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

@@ -17,6 +17,7 @@ pub mod echo;
 pub mod envelope;
 pub mod fade;
 pub mod fade_presets;
+pub mod gain;
 pub mod gen;
 pub mod humanize;
 pub mod join;

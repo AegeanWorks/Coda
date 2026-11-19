@@ -1510,6 +1510,47 @@ fn cli_join_crossfade_shortens_the_result() {
 }
 
 #[test]
+fn cli_gain_trims_level_in_db() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-gain-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let quieter = root.join("quiet.wav");
+    std::fs::write(&input, wav_bytes(&[(0.8, -0.4); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("gain")
+        .arg(&input)
+        .args(["--db", "-6.0206", "-o"])
+        .arg(&quieter)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let original = std::fs::read(&input).unwrap();
+    let after = std::fs::read(&quieter).unwrap();
+    assert_eq!(original.len(), after.len());
+    let before_peak = i16::from_le_bytes([original[44], original[45]]).abs();
+    let after_peak = i16::from_le_bytes([after[44], after[45]]).abs();
+    assert!((after_peak as f64 / before_peak as f64 - 0.5).abs() < 0.01);
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("gain")
+        .arg(&input)
+        .args(["--db", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), original);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_width_controls_stereo_image() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-width-{}", std::process::id()));
