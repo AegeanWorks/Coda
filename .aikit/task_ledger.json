@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-autopan",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795071191.9806237,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795071201.8946483,
+    "completed_head": "8986af3ad161fdffd617fbc8b3dd94c241e575ab",
+    "completed_tree": "a730fea31408a6c63bf4fbd451757b21340429b0"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-stats",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a deterministic score statistics command",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795069468.0391603,
-      "timestamp_str": "2026-11-19 09:24:28",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Scores are now generated, varied, imported and joined; a quick summary is needed to compare them without reading the source.",
-        "benefits": "stats reports counts, duration, pitch range, distinct pitches, density, waveforms and pan span in a stable format suitable for scripts and tests.",
-        "risks": "contract: stats must be read-only with exact, ordered output and safe behavior on empty scores; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure stats module with exact-string tests including the empty case, a CLI command reusing score loading, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "18878bcf5f89214feb4c7b2d5d15a3e3fc3e0ed172d07b461fe4d98d8817057a",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-stats",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-autopan",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-autopan' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795071202.143487,
+      "timestamp_str": "2026-11-19 09:53:22",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "8986af3ad161fdffd617fbc8b3dd94c241e575ab",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
