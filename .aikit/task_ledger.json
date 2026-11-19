@@ -62,30 +62,6 @@
     },
     {
       "task_id": "reforge:run-1",
-      "phase": "reforge stage 38",
-      "phase_num": 3,
-      "description": "Reforge stage 38: window 114, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795110666.3352482,
-      "timestamp_str": "2026-11-19 20:51:06",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 38",
-      "phase_num": 3,
-      "description": "Reforge stage 38: stage 38 host review reviewed; run active; coverage 11/11",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795110673.7614157,
-      "timestamp_str": "2026-11-19 20:51:13",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
-    {
-      "task_id": "reforge:run-1",
       "phase": "reforge stage 39",
       "phase_num": 3,
       "description": "Reforge stage 39: window 117, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
@@ -273,6 +249,30 @@
       "status": "in_progress",
       "timestamp": 1795110934.4554272,
       "timestamp_str": "2026-11-19 20:55:34",
+      "agent": "opencode",
+      "operator_task": "coda-reforge-run1"
+    },
+    {
+      "task_id": "reforge:run-1",
+      "phase": "reforge stage 47",
+      "phase_num": 3,
+      "description": "Reforge stage 47: window 141, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795110958.6817248,
+      "timestamp_str": "2026-11-19 20:55:58",
+      "agent": "opencode",
+      "operator_task": "coda-reforge-run1"
+    },
+    {
+      "task_id": "reforge:run-1",
+      "phase": "reforge stage 47",
+      "phase_num": 3,
+      "description": "Reforge stage 47: stage 47 host review reviewed; run active; coverage 11/11",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795110965.982612,
+      "timestamp_str": "2026-11-19 20:56:05",
       "agent": "opencode",
       "operator_task": "coda-reforge-run1"
     }
