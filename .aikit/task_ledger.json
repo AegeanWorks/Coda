@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-rotate",
-    "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795103046.2563186,
+    "task_id": "coda-reforge-run1",
+    "last_phase": "phase 2",
+    "active_phase": 2,
+    "status": "in_progress",
+    "updated_at": 1795108604.2989094,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795110246.2563186,
+    "lease_until": 1795115804.2989094,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -16,28 +16,14 @@
         "path": "projects/coda"
       }
     ],
-    "completed_at": 1795103051.9600637,
-    "completed_head": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-    "completed_tree": "05d8e3bc97e5fcfcb00facf27cdc494f82d079fc"
+    "impact_assessment": {
+      "why": "Coda has 212 commits with no systematic historical audit; Reforge attributes findings to the commits that introduced them.",
+      "benefits": "Stage-by-stage host review plus validated repairs improve code and tests while every gate and byte test stays green.",
+      "risks": "contract: reviewed patches must pass cargo test/clippy/fmt and strict gate; dependency: std only; concurrency: no other coda work during the run; state: reforge state and ledger are committed bookkeeping.",
+      "mitigation": "Audit a window, review every packet hunk with a verbatim quote and distinct note, dry-run fixes, apply, verify, commit locally without push, repeat."
+    }
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pingpong",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-pingpong' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795101789.6158667,
-      "timestamp_str": "2026-11-19 18:23:09",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "593cbc3d61098f21cb69b82f32dda76ad4b368e9",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-thin",
       "phase": "phase 2",
@@ -359,6 +345,30 @@
       "timestamp_str": "2026-11-19 20:15:56",
       "agent": "opencode",
       "operator_task": "coda-rotate"
+    },
+    {
+      "task_id": "coda-reforge-run1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Run Reforge audit-and-repair over coda history",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795108604.2989094,
+      "timestamp_str": "2026-11-19 20:16:44",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Coda has 212 commits with no systematic historical audit; Reforge attributes findings to the commits that introduced them.",
+        "benefits": "Stage-by-stage host review plus validated repairs improve code and tests while every gate and byte test stays green.",
+        "risks": "contract: reviewed patches must pass cargo test/clippy/fmt and strict gate; dependency: std only; concurrency: no other coda work during the run; state: reforge state and ledger are committed bookkeeping.",
+        "mitigation": "Audit a window, review every packet hunk with a verbatim quote and distinct note, dry-run fixes, apply, verify, commit locally without push, repeat."
+      },
+      "plan_digest": "03a8d7b91a1c6196c85e5e7f8ac9ccfc90207c28755ec816305b24cfc56e62f9",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
