@@ -86,12 +86,14 @@ coda/
 ├── REUSE.toml                <- Machine-readable SPDX metadata
 ├── README.md
 ├── Cargo.toml                <- Zero dependencies
-├── scripts/verify.ps1        <- One-command cross-toolchain test runner
+├── scripts/                  <- One-command cross-toolchain test runner
+│   └── verify.ps1
 ├── inventory.py              <- AI-compat inventory: kind|name|locator lines (ADR-315)
 ├── demo.py                   <- AI-compat scripted drive: WORLD-DELTA lines (ADR-315)
 ├── examples/                 <- Five example scores
 ├── src/                      <- Nine Rust modules (DSP, parser, CLI)
-├── tests/integration.rs      <- Pipeline, golden vectors and CLI tests
+├── tests/                    <- Pipeline, golden vectors and CLI tests
+│   └── integration.rs
 └── .aikit/                   <- this project's memory: record, ledger, decisions
 ```
 
