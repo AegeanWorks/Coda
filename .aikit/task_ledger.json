@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-pedal",
+    "task_id": "coda-snap-scale",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795090337.8793538,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795090545.8631477,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795097537.8793538,
+    "lease_until": 1795097745.8631477,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795090347.3896012,
-    "completed_head": "aa2186fb0da025701f0cbb875b032d1de9e9a6ae",
-    "completed_tree": "8361a49d71d888929477789aa1b2d5927c4812a0"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-ring",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 304 tests green; per-channel products, identity, zero padding and rate validation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795088339.8668208,
-      "timestamp_str": "2026-11-19 14:38:59",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-ring",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-ring' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795088350.3016455,
-      "timestamp_str": "2026-11-19 14:39:10",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "b3e6567eb1e32978d850cf0972fd456efaebabb0",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-echo-wav",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-snap-scale",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add pitch snapping to a scale",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795090433.7053492,
+      "timestamp_str": "2026-11-19 15:13:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "quantize snaps note timing to a grid but there is no way to snap pitches into a key, so hand-written melodies cannot be made diatonic.",
+        "benefits": "snap-scale moves every sounding pitch to the nearest degree of the chosen scale and root, preserving rhythm and timbre as editable source.",
+        "risks": "contract: root must parse, scale must be valid, nearest degree with lower-on-tie, results in MIDI range, round-trip and rests skipped; dependency: std only, reuse gen::Scale; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for degree snapping, tie-breaking, preservation and round-trip, a CLI command reusing --scale/--root, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "731447a08a929975c4f3a12e2ef28c69e1f59601217a80b3040aa2df680f39a4",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-snap-scale",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 339 tests green; nearest-degree snapping, tie-breaking and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795090545.8631477,
+      "timestamp_str": "2026-11-19 15:15:45",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

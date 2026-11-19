@@ -487,3 +487,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Harmonize spawned a voice per note but there was no way to anchor a whole passage with one sustained bass note.
 - **Decision**: Append a single note at beat zero whose duration is the score's maximum note end, using the requested pitch and velocity and the score's default timbre, preserving all existing notes.
 - **Consequences**: Span, pitch, velocity, preservation and exact round-trip are pinned by byte tests; empty scores and invalid arguments fail.
+
+### ADR-069: Snap-scale moves pitches to the nearest scale degree
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: quantize aligned note timing but no tool made an existing melody diatonic to a chosen key.
+- **Decision**: For each sounding pitch choose the scale degree nearest its pitch class relative to the root, keeping the lower degree on ties and preserving all other note fields.
+- **Consequences**: Nearest-degree snapping, tie-breaking, preservation, round-trip and root validation are pinned by byte tests.

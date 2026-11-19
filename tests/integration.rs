@@ -1849,6 +1849,48 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_snap_scale_makes_a_score_diatonic() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-snap-{}-{}", std::process::id(), 7));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote C#4 1\nnote D#4 1\nnote F#4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("snap-scale")
+        .arg(&source)
+        .args(["--root", "C4", "--scale", "major", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4"), "{text}");
+    assert!(text.contains("note D4"), "{text}");
+    assert!(text.contains("note F4"), "{text}");
+    assert!(!text.contains("C#4"), "{text}");
+    assert!(!text.contains("D#4"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let summary = String::from_utf8_lossy(&stats.stdout);
+    assert!(summary.contains("pitch range C4..F4"), "{summary}");
+
+    let bad = Command::new(exe)
+        .arg("snap-scale")
+        .arg(&source)
+        .args(["--root", "H9"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_pedal_adds_a_spanning_drone() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-pedal-{}", std::process::id()));

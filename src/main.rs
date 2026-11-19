@@ -44,6 +44,7 @@ use coda::resample;
 use coda::reverse;
 use coda::ring;
 use coda::score;
+use coda::snap_scale;
 use coda::stamp;
 use coda::stats;
 use coda::stretch;
@@ -105,6 +106,7 @@ USAGE
   coda overlay <a.coda> <b.coda> [...] [-o out.coda]
   coda health <in.wav>
   coda pedal <score.coda> --note C2 [--velocity 0..1] [-o out.coda]
+  coda snap-scale <score.coda> --root NOTE [--scale NAME] [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -2173,7 +2175,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "pedal" | "digest" => {
+        | "augment" | "pedal" | "snap-scale" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -2238,6 +2240,43 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "snap-scale" {
+        let root = match root_note {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "snap-scale needs --root",
+                    "coda snap-scale score.coda --root C4 [--scale major]",
+                )
+            }
+        };
+        let snapped = match snap_scale::snap_scale(&composed, &root, options.scale) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a note name like C4 for --root"),
+        };
+        let path = if output == "out.wav" {
+            "snapped.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&snapped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} on {root})",
+                    text.len(),
+                    snapped.notes.len(),
+                    options.scale.name()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "pedal" {
         let note = match pedal_note {

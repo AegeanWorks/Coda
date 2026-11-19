@@ -51,6 +51,7 @@ pub mod resample;
 pub mod reverse;
 pub mod ring;
 pub mod score;
+pub mod snap_scale;
 pub mod stamp;
 pub mod stats;
 pub mod stretch;
