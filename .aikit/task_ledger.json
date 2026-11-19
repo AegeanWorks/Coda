@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-chorus",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795097421.738086,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795104621.738086,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795097427.9499812,
+    "completed_head": "fe2324135e4ad49cdd0fff38c95cfda9fc5b7a38",
+    "completed_tree": "55352463c7405bb9e4d8e4bf959fa5a2fefbfdad"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midside",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add mid/side stereo transform",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795095547.4917138,
-      "timestamp_str": "2026-11-19 16:39:07",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "channels and width can fold or widen stereo but cannot store a stereo image as mid and side components for processing.",
-        "benefits": "midside encodes a stereo pair into mid/side and decodes it back, with exact mono-to-side-zero behaviour and a bounded round-trip.",
-        "risks": "contract: mode encode/decode, mono input yields zero side, mid-only decodes to dual mono, round-trip within quantization, invalid inputs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for encode, decode, round-trip and validation, a CLI command reusing --mode, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "2e9e4ce8deb71541f6aa7bf8691cb3b28fe3254bd066077b1d1267e17b3a8f36",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-midside",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-chorus",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-chorus' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795097428.0224793,
+      "timestamp_str": "2026-11-19 17:10:28",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "fe2324135e4ad49cdd0fff38c95cfda9fc5b7a38",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
