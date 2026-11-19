@@ -2087,6 +2087,55 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_chord_inserts_a_triad() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-chord-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("chord")
+        .arg(&source)
+        .args([
+            "--at",
+            "1",
+            "--pitch",
+            "C4",
+            "--quality",
+            "major",
+            "--beats",
+            "2",
+            "-o",
+        ])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 2 0.7"), "{text}");
+    assert!(text.contains("at 1 E4 2 0.7"), "{text}");
+    assert!(text.contains("at 1 G4 2 0.7"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    assert!(String::from_utf8_lossy(&stats.stdout).contains("notes       4 sounding"));
+
+    let bad = Command::new(exe)
+        .arg("chord")
+        .arg(&source)
+        .args(["--at", "0", "--pitch", "C4", "--quality", "seventh"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_midi_info_describes_a_generated_file() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-mi-{}-{}", std::process::id(), 3));

@@ -12,6 +12,7 @@ pub mod augment;
 pub mod autopan;
 pub mod bitdepth;
 pub mod channels;
+pub mod chord;
 pub mod compare;
 pub mod concat;
 pub mod crush;

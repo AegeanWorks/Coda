@@ -7,6 +7,7 @@ use coda::augment;
 use coda::autopan;
 use coda::bitdepth;
 use coda::channels;
+use coda::chord;
 use coda::compare;
 use coda::concat;
 use coda::crush;
@@ -121,6 +122,7 @@ USAGE
   coda speed <in.wav> --factor F [-o out.wav]
   coda velocity <score.coda> --peak 0..1 [-o out.coda]
   coda midi-info <file.mid>
+  coda chord <score.coda> --at B --pitch NOTE --quality NAME --beats B [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -175,7 +177,10 @@ OPTIONS
       --width 0..2     Stereo width for width (0 mono, 1 identity)
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
-      --at S           Insertion time in seconds for splice
+      --at S           Time position for splice (seconds) or chord (beats)
+      --pitch NOTE     Root pitch for chord
+      --quality NAME   major | minor | dim | aug for chord
+      --beats B        Duration of the chord triad
       --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
       --intervals LIST Comma-separated semitones for harmonize
@@ -316,6 +321,9 @@ fn main() -> ExitCode {
     let mut variation_amount = 0.5_f64;
     let mut peak = 0.95_f64;
     let mut peak_seen = false;
+    let mut chord_pitch: Option<String> = None;
+    let mut chord_quality: Option<String> = None;
+    let mut chord_beats = 1.0_f64;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -727,6 +735,42 @@ fn main() -> ExitCode {
                     return fail(
                         "--alpha must be between 0 and 1",
                         "coda lowpass in.wav --alpha 0.2",
+                    )
+                }
+            },
+            "--pitch" => match need(i) {
+                Some(name) => {
+                    chord_pitch = Some(name.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--pitch needs a note name",
+                        "coda chord score.coda --at 0 --pitch C4 --quality major",
+                    )
+                }
+            },
+            "--quality" => match need(i) {
+                Some(name) => {
+                    chord_quality = Some(name.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--quality needs a name",
+                        "coda chord score.coda --at 0 --pitch C4 --quality major",
+                    )
+                }
+            },
+            "--beats" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    chord_beats = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--beats must be a positive number",
+                        "coda chord score.coda --at 0 --pitch C4 --quality major --beats 2",
                     )
                 }
             },
@@ -2464,7 +2508,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "pedal" | "snap-scale" | "velocity" | "digest" => {
+        | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -2529,6 +2573,60 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "chord" {
+        let at = match splice_at {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "chord needs --at",
+                    "coda chord score.coda --at 0 --pitch C4 --quality major",
+                )
+            }
+        };
+        let pitch = match chord_pitch {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "chord needs --pitch",
+                    "coda chord score.coda --at 0 --pitch C4 --quality major",
+                )
+            }
+        };
+        let quality = match chord_quality {
+            Some(name) => name,
+            None => {
+                return fail(
+                    "chord needs --quality",
+                    "coda chord score.coda --at 0 --pitch C4 --quality major",
+                )
+            }
+        };
+        let voiced = match chord::add_chord(&composed, at, &pitch, &quality, chord_beats) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use major, minor, dim or aug with a valid root"),
+        };
+        let path = if output == "out.wav" {
+            "chord.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&voiced);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {pitch} {quality} at {at})",
+                    text.len(),
+                    voiced.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "velocity" {
         if !peak_seen {
