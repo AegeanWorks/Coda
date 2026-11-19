@@ -9,8 +9,8 @@
       "start": 3,
       "step": 3,
       "stop": null,
-      "stage": 20,
-      "window": 60,
+      "stage": 21,
+      "window": 63,
       "audited_commits": [
         "f90c3b61a38554ac0c69bccc91939271043ed734",
         "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
@@ -71,16 +71,20 @@
         "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
         "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
         "902ae0739e824b00f01beacead63c16c84bb2c16",
-        "2871ace9186612bdf94f0546237aec13b833130f"
+        "2871ace9186612bdf94f0546237aec13b833130f",
+        "8f4290e96574cc31e414a2192a8876a7252417a0",
+        "2d8d453a4c85be7e8ba406664620294b8fa46947",
+        "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
       ],
       "status": "active",
       "created": "2026-11-19T20:05:25",
-      "updated": "2026-11-19T20:36:24",
+      "updated": "2026-11-19T20:37:12",
       "last_audit": {
         "run": "run-1",
-        "stage": 20,
-        "window": 60,
+        "stage": 21,
+        "window": 63,
         "commits": [
+          "8f4290e96574cc31e414a2192a8876a7252417a0",
           "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
           "57926ead12824c7de15f6ec6049b1925f9282a58",
           "bb8f7c38039b94789e1bf5b9c50b6010b2e692a1",
@@ -140,12 +144,14 @@
           "fdfe0664ac7470e2671e3731213b3795affa5ea2",
           "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
           "902ae0739e824b00f01beacead63c16c84bb2c16",
-          "2871ace9186612bdf94f0546237aec13b833130f"
+          "2871ace9186612bdf94f0546237aec13b833130f",
+          "2d8d453a4c85be7e8ba406664620294b8fa46947",
+          "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
         ],
         "new_commits": [
-          "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
-          "902ae0739e824b00f01beacead63c16c84bb2c16",
-          "2871ace9186612bdf94f0546237aec13b833130f"
+          "8f4290e96574cc31e414a2192a8876a7252417a0",
+          "2d8d453a4c85be7e8ba406664620294b8fa46947",
+          "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
         ],
         "prior_commits": [
           "f90c3b61a38554ac0c69bccc91939271043ed734",
@@ -204,7 +210,10 @@
           "a9b3210a67177daff3623640f82295a3778d73fd",
           "57926ead12824c7de15f6ec6049b1925f9282a58",
           "fdfe0664ac7470e2671e3731213b3795affa5ea2",
-          "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4"
+          "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
+          "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
+          "902ae0739e824b00f01beacead63c16c84bb2c16",
+          "2871ace9186612bdf94f0546237aec13b833130f"
         ],
         "findings": [],
         "repairs": [],
@@ -219,14 +228,14 @@
             "README.md",
             "src/lib.rs",
             "src/main.rs",
-            "src/noise.rs",
+            "src/midside.rs",
             "tests/integration.rs"
           ],
-          "packet": ".aikit/reforge.reviews/stage-run-1-20-f5dda7cfef44.md",
+          "packet": ".aikit/reforge.reviews/stage-run-1-21-8f4290e96574.md",
           "redacted": 0,
           "coverage": {
-            "reported": 10,
-            "total": 10,
+            "reported": 11,
+            "total": 11,
             "carried": [],
             "missing": [],
             "unknown": [],
@@ -244,133 +253,11 @@
           "pushed": false,
           "push_error": null,
           "empty": true,
-          "timestamp": "2026-11-19T20:36:13"
+          "timestamp": "2026-11-19T20:37:01"
         },
-        "timestamp": "2026-11-19T20:36:13"
+        "timestamp": "2026-11-19T20:37:01"
       },
       "history": [
-        {
-          "run": "run-1",
-          "stage": 1,
-          "window": 3,
-          "commits": [
-            "f90c3b61a38554ac0c69bccc91939271043ed734",
-            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-            "c8bc300044bd087109e3f31db929323162d2ba06"
-          ],
-          "new_commits": [
-            "f90c3b61a38554ac0c69bccc91939271043ed734",
-            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-            "c8bc300044bd087109e3f31db929323162d2ba06"
-          ],
-          "prior_commits": [],
-          "findings": [
-            {
-              "code": "review-cli-accepts-negative-rotate",
-              "category": "improvement",
-              "severity": "low",
-              "path": "src/main.rs",
-              "line": 864,
-              "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-              "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-              "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-              "hunk": "eb4aaea0595b:src/main.rs#5",
-              "symbol": "",
-              "introduced": true,
-              "reproducible": false,
-              "fixable": false,
-              "interaction": "",
-              "repaired": false,
-              "source": "review",
-              "patch_old": "",
-              "patch_new": ""
-            }
-          ],
-          "repairs": [
-            {
-              "code": "review-cli-accepts-negative-rotate",
-              "path": "src/main.rs",
-              "line": 864,
-              "summary": "applied review suggestion: The CLI parser admits any finite --rotate-by value, including negatives the rend",
-              "test_name": "",
-              "applied": true
-            },
-            {
-              "code": "review-negative-offset-silently-identity",
-              "path": "src/rotate.rs",
-              "line": 35,
-              "summary": "applied review suggestion: A negative rotation offset is accepted, but casting a negative f64 to usize satu",
-              "test_name": "",
-              "applied": true
-            }
-          ],
-          "counts": {
-            "improvement": 1
-          },
-          "reviewed": 7,
-          "review": {
-            "status": "reviewed",
-            "rejected": [
-              "src/rotate.rs:35: the evidence is not in the current file (it may quote a removed line)",
-              "src/main.rs:864: suggestion dropped (the quoted text occurs 0 times in the file)"
-            ],
-            "files": [
-              ".aikit/codebase_map.md",
-              ".aikit/decisions.md",
-              "README.md",
-              "src/lib.rs",
-              "src/main.rs",
-              "src/rotate.rs",
-              "tests/integration.rs"
-            ],
-            "packet": ".aikit/reforge.reviews/stage-run-1-1-f90c3b61a385.md",
-            "redacted": 0,
-            "coverage": {
-              "reported": 13,
-              "total": 13,
-              "carried": [],
-              "missing": [],
-              "unknown": [],
-              "invalid": []
-            },
-            "findings": [
-              {
-                "code": "review-cli-accepts-negative-rotate",
-                "category": "improvement",
-                "severity": "low",
-                "path": "src/main.rs",
-                "line": 864,
-                "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-                "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-                "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-                "hunk": "eb4aaea0595b:src/main.rs#5",
-                "symbol": "",
-                "introduced": true,
-                "reproducible": false,
-                "fixable": false,
-                "interaction": "",
-                "repaired": false,
-                "source": "review",
-                "patch_old": "",
-                "patch_new": ""
-              }
-            ],
-            "attestations": []
-          },
-          "skipped": [],
-          "tests": {},
-          "gates": {},
-          "delivery": {
-            "commit": "7772432c4c2694999b4f4a1c583df3473b1bff6b",
-            "short": "7772432",
-            "pushed": false,
-            "push_error": null,
-            "empty": false,
-            "timestamp": "2026-11-19T20:15:23"
-          },
-          "timestamp": "2026-11-19T20:05:31",
-          "dirty_targets": []
-        },
         {
           "run": "run-1",
           "stage": 2,
@@ -2603,13 +2490,191 @@
             "timestamp": "2026-11-19T20:36:13"
           },
           "timestamp": "2026-11-19T20:36:13"
+        },
+        {
+          "run": "run-1",
+          "stage": 21,
+          "window": 63,
+          "commits": [
+            "8f4290e96574cc31e414a2192a8876a7252417a0",
+            "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
+            "57926ead12824c7de15f6ec6049b1925f9282a58",
+            "bb8f7c38039b94789e1bf5b9c50b6010b2e692a1",
+            "7a60991a41641c63b8a2bcda938fb7a5ffc40b69",
+            "6cb91d7ae7fa59b09c155a57aa75c2c098050aa7",
+            "71501c90ee4b050c1d0a849aa33b237272d71735",
+            "aec840c252d52df56da681af9bdb3dbbff8521ff",
+            "733d7983bddc3ef19b0fc4e3b796e9675e4d8218",
+            "7018659cab9f84815e87a4d12018b2ee7b784bd9",
+            "7eefa83e4f0f9c53791cb98d0f50d489bbe2e0b7",
+            "7a4958d7d844fd74cc60551c25ab2dbf5f9641da",
+            "2c6a4f7337ec28c103f7b187231e244a8252e068",
+            "dfe67424acc82b6129a77ca89dff45c61081c411",
+            "e1ba8e77608c593178cf79ebb9cce8fc9afc27fa",
+            "43d357a00cc1386cae36cb329a37b6cb8fa467f4",
+            "0879a8250ddbcf335fd7c7e402b0b903bd70f57e",
+            "512e40cd59b17bacbed3316ba0e54f42f8e67cfc",
+            "039fa85b530338d728093656eeabdc6c1c43a36c",
+            "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+            "f90c3b61a38554ac0c69bccc91939271043ed734",
+            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
+            "c8bc300044bd087109e3f31db929323162d2ba06",
+            "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+            "000f77a34534f535621e53308d763dbe9787d133",
+            "0e728129e8a7253f822da48fd415014c2cbc1ce7",
+            "ded95f53f3d35486dab87d29d175354e7f724147",
+            "342e19fb860bfd683c10ce4ba3786102fa416d19",
+            "af47e5c6ca22d20866caa8ffd9cdfe0eae2b2321",
+            "593cbc3d61098f21cb69b82f32dda76ad4b368e9",
+            "ae4c4fea6fa3d777db045c98f1733d9e83c3d540",
+            "d7d55207dd64d5d5ce2b0ebb73d8e7daee9f8896",
+            "6494e8098641bd369a12dfa7128037f0f47a2f3c",
+            "87edada0aa7a651fb37ae823fb151f4486363cbc",
+            "3a3f744a4cb6ede799036dcad0d7cac734270dfa",
+            "3317494f5b6ed4961e788955137c2c02f9b216a9",
+            "1211a1c7f2a4fb03a110014dcee86a6f81bd354b",
+            "5ba6a57ed1a54888d9026563103e424c40625dfa",
+            "6888167048e66073e30cebac1f7834c2c6475ab3",
+            "f1a60a2e0776fe92d83ac8705aa99454c31a4f74",
+            "133b7ee886338aa29f31eef5ba0ae2039af03ae3",
+            "38ffb8d1f8b5c30337affbbfdcf26816a32be681",
+            "e27e8c1a89892cb90dcf61c6b96730e59c85abc3",
+            "1ee8660e58da259f0ffd6f83f4fbf5093dcc404b",
+            "2e3e025180337c9651d9483d5dae17823e41dcb8",
+            "1a1c1f4fb5d72af649889e62cf47ef5f6c07e8d0",
+            "5fc006147cc2ec3559b06f8ed2ee5ef4af4d22ba",
+            "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
+            "f4c46f772b074702a35ed598a5926f6d4e8649f5",
+            "fe2324135e4ad49cdd0fff38c95cfda9fc5b7a38",
+            "9b91efd9d864ed1efe43b32213ba401213ea1472",
+            "a8ac82062d59f4d11c162044e0d482eca46c07a2",
+            "4d041e7ab5dd2ba6b4fe2a4541690ef9223349a8",
+            "4a64e96f6496649a171a7e4ad7995241575ae922",
+            "1035cee727da74526b8842d0a5ed9f9e81b8b997",
+            "27d59e6840e33b8a59dd5f2fab11880209a37afc",
+            "a9b3210a67177daff3623640f82295a3778d73fd",
+            "fdfe0664ac7470e2671e3731213b3795affa5ea2",
+            "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
+            "902ae0739e824b00f01beacead63c16c84bb2c16",
+            "2871ace9186612bdf94f0546237aec13b833130f",
+            "2d8d453a4c85be7e8ba406664620294b8fa46947",
+            "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
+          ],
+          "new_commits": [
+            "8f4290e96574cc31e414a2192a8876a7252417a0",
+            "2d8d453a4c85be7e8ba406664620294b8fa46947",
+            "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
+          ],
+          "prior_commits": [
+            "f90c3b61a38554ac0c69bccc91939271043ed734",
+            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
+            "c8bc300044bd087109e3f31db929323162d2ba06",
+            "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+            "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+            "000f77a34534f535621e53308d763dbe9787d133",
+            "0879a8250ddbcf335fd7c7e402b0b903bd70f57e",
+            "512e40cd59b17bacbed3316ba0e54f42f8e67cfc",
+            "039fa85b530338d728093656eeabdc6c1c43a36c",
+            "0e728129e8a7253f822da48fd415014c2cbc1ce7",
+            "ded95f53f3d35486dab87d29d175354e7f724147",
+            "342e19fb860bfd683c10ce4ba3786102fa416d19",
+            "af47e5c6ca22d20866caa8ffd9cdfe0eae2b2321",
+            "593cbc3d61098f21cb69b82f32dda76ad4b368e9",
+            "ae4c4fea6fa3d777db045c98f1733d9e83c3d540",
+            "43d357a00cc1386cae36cb329a37b6cb8fa467f4",
+            "d7d55207dd64d5d5ce2b0ebb73d8e7daee9f8896",
+            "6494e8098641bd369a12dfa7128037f0f47a2f3c",
+            "e1ba8e77608c593178cf79ebb9cce8fc9afc27fa",
+            "87edada0aa7a651fb37ae823fb151f4486363cbc",
+            "3a3f744a4cb6ede799036dcad0d7cac734270dfa",
+            "dfe67424acc82b6129a77ca89dff45c61081c411",
+            "3317494f5b6ed4961e788955137c2c02f9b216a9",
+            "1211a1c7f2a4fb03a110014dcee86a6f81bd354b",
+            "2c6a4f7337ec28c103f7b187231e244a8252e068",
+            "5ba6a57ed1a54888d9026563103e424c40625dfa",
+            "6888167048e66073e30cebac1f7834c2c6475ab3",
+            "7a4958d7d844fd74cc60551c25ab2dbf5f9641da",
+            "f1a60a2e0776fe92d83ac8705aa99454c31a4f74",
+            "133b7ee886338aa29f31eef5ba0ae2039af03ae3",
+            "7eefa83e4f0f9c53791cb98d0f50d489bbe2e0b7",
+            "38ffb8d1f8b5c30337affbbfdcf26816a32be681",
+            "e27e8c1a89892cb90dcf61c6b96730e59c85abc3",
+            "7018659cab9f84815e87a4d12018b2ee7b784bd9",
+            "1ee8660e58da259f0ffd6f83f4fbf5093dcc404b",
+            "2e3e025180337c9651d9483d5dae17823e41dcb8",
+            "733d7983bddc3ef19b0fc4e3b796e9675e4d8218",
+            "1a1c1f4fb5d72af649889e62cf47ef5f6c07e8d0",
+            "5fc006147cc2ec3559b06f8ed2ee5ef4af4d22ba",
+            "aec840c252d52df56da681af9bdb3dbbff8521ff",
+            "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
+            "f4c46f772b074702a35ed598a5926f6d4e8649f5",
+            "71501c90ee4b050c1d0a849aa33b237272d71735",
+            "fe2324135e4ad49cdd0fff38c95cfda9fc5b7a38",
+            "9b91efd9d864ed1efe43b32213ba401213ea1472",
+            "6cb91d7ae7fa59b09c155a57aa75c2c098050aa7",
+            "a8ac82062d59f4d11c162044e0d482eca46c07a2",
+            "4d041e7ab5dd2ba6b4fe2a4541690ef9223349a8",
+            "7a60991a41641c63b8a2bcda938fb7a5ffc40b69",
+            "4a64e96f6496649a171a7e4ad7995241575ae922",
+            "1035cee727da74526b8842d0a5ed9f9e81b8b997",
+            "bb8f7c38039b94789e1bf5b9c50b6010b2e692a1",
+            "27d59e6840e33b8a59dd5f2fab11880209a37afc",
+            "a9b3210a67177daff3623640f82295a3778d73fd",
+            "57926ead12824c7de15f6ec6049b1925f9282a58",
+            "fdfe0664ac7470e2671e3731213b3795affa5ea2",
+            "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
+            "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
+            "902ae0739e824b00f01beacead63c16c84bb2c16",
+            "2871ace9186612bdf94f0546237aec13b833130f"
+          ],
+          "findings": [],
+          "repairs": [],
+          "counts": {},
+          "reviewed": 7,
+          "review": {
+            "status": "reviewed",
+            "rejected": [],
+            "files": [
+              ".aikit/codebase_map.md",
+              ".aikit/decisions.md",
+              "README.md",
+              "src/lib.rs",
+              "src/main.rs",
+              "src/midside.rs",
+              "tests/integration.rs"
+            ],
+            "packet": ".aikit/reforge.reviews/stage-run-1-21-8f4290e96574.md",
+            "redacted": 0,
+            "coverage": {
+              "reported": 11,
+              "total": 11,
+              "carried": [],
+              "missing": [],
+              "unknown": [],
+              "invalid": []
+            },
+            "findings": [],
+            "attestations": []
+          },
+          "skipped": [],
+          "tests": {},
+          "gates": {},
+          "delivery": {
+            "commit": "",
+            "short": "",
+            "pushed": false,
+            "push_error": null,
+            "empty": true,
+            "timestamp": "2026-11-19T20:37:01"
+          },
+          "timestamp": "2026-11-19T20:37:01"
         }
       ],
-      "total_commits": 231
+      "total_commits": 232
     }
   ],
-  "stage": 20,
-  "window": 60,
+  "stage": 21,
+  "window": 63,
   "audited_commits": [
     "f90c3b61a38554ac0c69bccc91939271043ed734",
     "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
@@ -2670,13 +2735,17 @@
     "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
     "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
     "902ae0739e824b00f01beacead63c16c84bb2c16",
-    "2871ace9186612bdf94f0546237aec13b833130f"
+    "2871ace9186612bdf94f0546237aec13b833130f",
+    "8f4290e96574cc31e414a2192a8876a7252417a0",
+    "2d8d453a4c85be7e8ba406664620294b8fa46947",
+    "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
   ],
   "last_audit": {
     "run": "run-1",
-    "stage": 20,
-    "window": 60,
+    "stage": 21,
+    "window": 63,
     "commits": [
+      "8f4290e96574cc31e414a2192a8876a7252417a0",
       "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
       "57926ead12824c7de15f6ec6049b1925f9282a58",
       "bb8f7c38039b94789e1bf5b9c50b6010b2e692a1",
@@ -2736,12 +2805,14 @@
       "fdfe0664ac7470e2671e3731213b3795affa5ea2",
       "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
       "902ae0739e824b00f01beacead63c16c84bb2c16",
-      "2871ace9186612bdf94f0546237aec13b833130f"
+      "2871ace9186612bdf94f0546237aec13b833130f",
+      "2d8d453a4c85be7e8ba406664620294b8fa46947",
+      "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
     ],
     "new_commits": [
-      "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
-      "902ae0739e824b00f01beacead63c16c84bb2c16",
-      "2871ace9186612bdf94f0546237aec13b833130f"
+      "8f4290e96574cc31e414a2192a8876a7252417a0",
+      "2d8d453a4c85be7e8ba406664620294b8fa46947",
+      "cb2bd4b4f7b5d12d7a1fd21497b8d5edc6767a4a"
     ],
     "prior_commits": [
       "f90c3b61a38554ac0c69bccc91939271043ed734",
@@ -2800,7 +2871,10 @@
       "a9b3210a67177daff3623640f82295a3778d73fd",
       "57926ead12824c7de15f6ec6049b1925f9282a58",
       "fdfe0664ac7470e2671e3731213b3795affa5ea2",
-      "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4"
+      "a2bf00cc27cdf2f1e96bcc4f3c07ec9b1389cea4",
+      "f5dda7cfef444a956503cf4b1e75e84cfb7211d7",
+      "902ae0739e824b00f01beacead63c16c84bb2c16",
+      "2871ace9186612bdf94f0546237aec13b833130f"
     ],
     "findings": [],
     "repairs": [],
@@ -2815,14 +2889,14 @@
         "README.md",
         "src/lib.rs",
         "src/main.rs",
-        "src/noise.rs",
+        "src/midside.rs",
         "tests/integration.rs"
       ],
-      "packet": ".aikit/reforge.reviews/stage-run-1-20-f5dda7cfef44.md",
+      "packet": ".aikit/reforge.reviews/stage-run-1-21-8f4290e96574.md",
       "redacted": 0,
       "coverage": {
-        "reported": 10,
-        "total": 10,
+        "reported": 11,
+        "total": 11,
         "carried": [],
         "missing": [],
         "unknown": [],
@@ -2840,9 +2914,9 @@
       "pushed": false,
       "push_error": null,
       "empty": true,
-      "timestamp": "2026-11-19T20:36:13"
+      "timestamp": "2026-11-19T20:37:01"
     },
-    "timestamp": "2026-11-19T20:36:13"
+    "timestamp": "2026-11-19T20:37:01"
   },
   "history": []
 }
