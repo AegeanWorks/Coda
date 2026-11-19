@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-harmonize",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795078575.0806713,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795078581.3755386,
+    "completed_head": "fa64d43a927b6562c0d3a688fbcadfa3e93e5e1f",
+    "completed_tree": "e5cd4a0db8d7f906195f184434c3a2d5c36fcb30"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-report",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a deterministic Markdown report command",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795076834.1374557,
-      "timestamp_str": "2026-11-19 11:27:14",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Score stats, lint, fingerprint and audio analysis live in separate commands; a single report makes a piece explain itself in one artifact.",
-        "benefits": "report combines score digest, stats, lint findings and optional audio analysis into a byte-stable Markdown document.",
-        "risks": "contract: the report format must be exactly reproducible, missing audio must be handled cleanly, and invalid inputs must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure report module with exact golden-string tests, a CLI command reusing existing analyzers, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "78924d22efffc473e8c48ca8061484f30fa911df74438edb9f50df5d40569cc1",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-report",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-harmonize",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-harmonize' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795078581.4371328,
+      "timestamp_str": "2026-11-19 11:56:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "fa64d43a927b6562c0d3a688fbcadfa3e93e5e1f",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
