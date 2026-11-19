@@ -480,3 +480,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: analyze covered peak and RMS only, leaving clipping, silence, DC offset, zero crossings and crest factor unmeasured.
 - **Decision**: Print a fixed-format health report with exact silent-frame and clipped-sample counts, per-channel zero crossings and DC offset, and a finite-or--inf crest factor.
 - **Consequences**: Exact counts, stable formatting, silence handling and invalid-WAV rejection are pinned by byte tests.
+
+### ADR-068: Pedal adds a spanning drone to a score
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Harmonize spawned a voice per note but there was no way to anchor a whole passage with one sustained bass note.
+- **Decision**: Append a single note at beat zero whose duration is the score's maximum note end, using the requested pitch and velocity and the score's default timbre, preserving all existing notes.
+- **Consequences**: Span, pitch, velocity, preservation and exact round-trip are pinned by byte tests; empty scores and invalid arguments fail.

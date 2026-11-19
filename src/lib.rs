@@ -41,6 +41,7 @@ pub mod normalize;
 pub mod notes;
 pub mod overlay;
 pub mod pad;
+pub mod pedal;
 pub mod polarity;
 pub mod quantize;
 pub mod register;

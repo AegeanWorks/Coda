@@ -34,6 +34,7 @@ use coda::normalize;
 use coda::notes;
 use coda::overlay;
 use coda::pad;
+use coda::pedal;
 use coda::polarity;
 use coda::quantize;
 use coda::register;
@@ -103,6 +104,7 @@ USAGE
   coda polarity <in.wav> [-o out.wav]
   coda overlay <a.coda> <b.coda> [...] [-o out.coda]
   coda health <in.wav>
+  coda pedal <score.coda> --note C2 [--velocity 0..1] [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -159,6 +161,8 @@ OPTIONS
       --before S / --after S  Silence seconds for pad
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
+      --note NOTE      Pedal pitch for pedal
+      --velocity 0..1  Velocity of the pedal drone (default: 0.5)
       --pattern LIST   Velocities 0..1 for accent
       --low NOTE / --high NOTE  Register bounds for register
       --style <name>   flow | arp | chords (seed and album)
@@ -272,6 +276,8 @@ fn main() -> ExitCode {
     let mut pad_after = 0.0_f64;
     let mut intervals: Vec<i32> = Vec::new();
     let mut center_note = "C4".to_string();
+    let mut pedal_note: Option<String> = None;
+    let mut pedal_velocity = 0.5_f64;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -674,6 +680,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--note" => match need(i) {
+                Some(name) => {
+                    pedal_note = Some(name.to_string());
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--note needs a pitch name",
+                        "coda pedal score.coda --note C2",
+                    )
+                }
+            },
+            "--velocity" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    pedal_velocity = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--velocity must be between 0 and 1",
+                        "coda pedal score.coda --note C2 --velocity 0.4",
                     )
                 }
             },
@@ -2143,7 +2173,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "digest" => {
+        | "augment" | "pedal" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -2208,6 +2238,37 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "pedal" {
+        let note = match pedal_note {
+            Some(name) => name,
+            None => return fail("pedal needs --note", "coda pedal score.coda --note C2"),
+        };
+        let grounded = match pedal::pedal(&composed, &note, pedal_velocity) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a note name like C2 and velocity 0..1"),
+        };
+        let path = if output == "out.wav" {
+            "pedal.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&grounded);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, pedal {note} @ {pedal_velocity})",
+                    text.len(),
+                    grounded.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "augment" {
         if !factor_seen {
