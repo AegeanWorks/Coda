@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-reforge-run1",
+    "task_id": "coda-publish",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795108709.2934887,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795114499.5892577,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795115909.2934887,
+    "lease_until": 1795121699.5892577,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,54 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795113876.4390209,
-    "completed_head": "4137e4bbcfa0bd44c8d72808a966b80c9c65519c",
-    "completed_tree": "a0ce20a0eef763c7199759bcd43bf58ee3165505"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-reforge-run1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Run Reforge audit-and-repair over coda history",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795108604.2989094,
-      "timestamp_str": "2026-11-19 20:16:44",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Coda has 212 commits with no systematic historical audit; Reforge attributes findings to the commits that introduced them.",
-        "benefits": "Stage-by-stage host review plus validated repairs improve code and tests while every gate and byte test stays green.",
-        "risks": "contract: reviewed patches must pass cargo test/clippy/fmt and strict gate; dependency: std only; concurrency: no other coda work during the run; state: reforge state and ledger are committed bookkeeping.",
-        "mitigation": "Audit a window, review every packet hunk with a verbatim quote and distinct note, dry-run fixes, apply, verify, commit locally without push, repeat."
-      },
-      "plan_digest": "03a8d7b91a1c6196c85e5e7f8ac9ccfc90207c28755ec816305b24cfc56e62f9",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-reforge-run1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Reforge stage 1 reviewed and repaired locally; 5/5 AIKit gates passed; 515 tests green",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795108709.2934887,
-      "timestamp_str": "2026-11-19 20:18:29",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 98",
@@ -283,6 +238,47 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-publish",
+      "phase": "phase 1",
+      "phase_num": 1,
+      "description": "[1/1] Publish Coda publicly as AegeanWorks/Coda",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795114493.0113244,
+      "timestamp_str": "2026-11-19 21:54:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "The user reversed the earlier local-only decision and asked for a public GitHub release with a capital C.",
+        "benefits": "Public reproducible sound compiler; README and ADR register reflect the actual delivery state.",
+        "risks": "Public history exposes all reforge bookkeeping; a stale local-only claim would mislead readers.",
+        "mitigation": "Read README and ADR-107 before push; AIKit push gates must pass and remote HEAD must match local."
+      },
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-publish",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Phase 4 passed: 5/5 gates (hygiene, guidelines, secrets, compat, cargo test); README and ADR-107 match the public repo.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795114499.5892577,
+      "timestamp_str": "2026-11-19 21:54:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
