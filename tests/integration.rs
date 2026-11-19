@@ -2087,6 +2087,48 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_noise_is_seeded_and_bounded() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-noise-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.0, 0.0); 32], 8_000)).unwrap();
+
+    for (path, seed) in [(&a, "42"), (&b, "43")] {
+        let result = Command::new(exe)
+            .arg("noise")
+            .arg(&input)
+            .args(["--seed", seed, "--amount", "0.3", "-o"])
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+    }
+    assert_ne!(std::fs::read(&a).unwrap(), std::fs::read(&b).unwrap());
+
+    let result = Command::new(exe)
+        .arg("noise")
+        .arg(&input)
+        .args(["--seed", "42", "--amount", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_midside_roundtrips_a_stereo_wav() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-ms-{}-{}", std::process::id(), 13));

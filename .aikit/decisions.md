@@ -613,3 +613,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: channels and width could fold or widen stereo but not represent it as mid and side signals.
 - **Decision**: Apply the √2-normalized sum/difference butterfly, which is self-inverse for both encode and decode, with mode validated for caller clarity.
 - **Consequences**: Mono-to-zero-side, mid-only dual-mono, bounded round-trip and mode validation are pinned by byte tests.
+
+### ADR-087: Noise adds seeded bounded samples to a WAV
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: seed generation and humanize used randomness in scores, but no effect added reproducible noise to an existing WAV.
+- **Decision**: Generate xorshift64* samples from the seed, scale by amount, add to each channel and clamp; amount 0 is byte-identical and equal seeds reproduce equal output.
+- **Consequences**: Identity, determinism, seed variation, bounded output and validation are pinned by byte tests.

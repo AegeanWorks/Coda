@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-midside",
+    "task_id": "coda-noise",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795095793.6225855,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795096016.1014068,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795102993.6225855,
+    "lease_until": 1795103216.1014068,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795095799.7001216,
-    "completed_head": "2d8d453a4c85be7e8ba406664620294b8fa46947",
-    "completed_tree": "297a5e9da9e216eada2c2fb2b1553efa4ba56542"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-intervals",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 391 tests green; step sequences, rest handling and single-note output pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795093988.9964418,
-      "timestamp_str": "2026-11-19 16:13:08",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-intervals",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-intervals' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795093995.6623204,
-      "timestamp_str": "2026-11-19 16:13:15",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "44264b86a044a859e6d211e197e9ed9a4c985750",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-reverse-region",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-noise",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add deterministic noise overlay for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795095867.239277,
+      "timestamp_str": "2026-11-19 16:44:27",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "the project generates seeded scores but has no way to add a reproducible noise floor to an existing WAV.",
+        "benefits": "noise adds seeded, bounded pseudo-random samples at a chosen amount, with amount 0 byte-identical and identical seeds giving identical output.",
+        "risks": "contract: amount 0..1, seed deterministic, different seeds differ, samples clamped, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, determinism, seed variation and bounds, a CLI command reusing --seed/--amount, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "c4e5b657dad6ed03ba5cf26e7dbf99d7a85fb70931620b07ebbd775da63cceeb",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-noise",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 424 tests green; identity, determinism, seed variation and bounds pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795096016.1014068,
+      "timestamp_str": "2026-11-19 16:46:56",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

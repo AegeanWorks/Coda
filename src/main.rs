@@ -40,6 +40,7 @@ use coda::midi_import;
 use coda::midi_info;
 use coda::midside;
 use coda::mix;
+use coda::noise;
 use coda::normalize;
 use coda::notes;
 use coda::overlay;
@@ -141,6 +142,7 @@ USAGE
   coda limit <in.wav> --limit 0..1 [-o out.wav]
   coda sequence <score.coda> --shifts 0,12,7 [-o out.coda]
   coda midside <in.wav> --mode encode|decode [-o out.wav]
+  coda noise <in.wav> [--seed N] [--amount 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1304,6 +1306,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "noise" {
+        if positional.is_empty() {
+            return fail(
+                "noise needs an input WAV",
+                "coda noise in.wav --seed 42 --amount 0.1",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let noisy = match noise::add_noise(&bytes, variation_seed, variation_amount) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use an amount between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "noisy.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &noisy) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, seed {variation_seed}, amount {variation_amount})",
+                    noisy.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
