@@ -2087,6 +2087,46 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_mswidth_adjusts_the_side_component() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-msw-{}-{}", std::process::id(), 19));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let mono = root.join("mono.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.6, 0.2), (-0.3, 0.8)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("mswidth")
+        .arg(&input)
+        .args(["--side", "0", "-o"])
+        .arg(&mono)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&mono).unwrap();
+    assert_eq!(after[44..46], after[46..48], "first frame is dual mono");
+
+    let result = Command::new(exe)
+        .arg("mswidth")
+        .arg(&input)
+        .args(["--side", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_pan_sweep_moves_the_stereo_image() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-psweep-{}", std::process::id()));

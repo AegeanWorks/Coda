@@ -634,3 +634,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: autopan was render-time only, so processed WAVs could not receive a moving stereo image.
 - **Decision**: Reuse the shared equal-power sine LFO on decoded frames with --autopan-rate and --autopan-depth, requiring a positive rate; depth 0 is byte-identical.
 - **Consequences**: Zero-depth identity, sweep, determinism, bounded gains and validation are pinned by byte tests.
+
+### ADR-090: Mswidth scales the mid/side side component
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: width folded or widened with L/R mixing but could not scale the side component of a mid/side image.
+- **Decision**: Scale the side component by a bounded factor, with 0 collapsing to dual mono, 1 byte-identical, and values above 1 widening the image within clamped bounds.
+- **Consequences**: Mono collapse, identity, widening, bounded output and validation are pinned by byte tests.

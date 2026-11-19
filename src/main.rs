@@ -40,6 +40,7 @@ use coda::midi_import;
 use coda::midi_info;
 use coda::midside;
 use coda::mix;
+use coda::mswidth;
 use coda::noise;
 use coda::normalize;
 use coda::notes;
@@ -146,6 +147,7 @@ USAGE
   coda noise <in.wav> [--seed N] [--amount 0..1] [-o out.wav]
   coda midi-render <file.mid> [--sample-rate N] [-o out.wav]
   coda pan-sweep <in.wav> [--autopan-rate HZ] [--autopan-depth 0..1] [-o out.wav]
+  coda mswidth <in.wav> --side 0..2 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -211,6 +213,7 @@ OPTIONS
       --low-alpha N    Low-pass coefficient for bandpass
       --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
+      --side 0..2      Side gain for mswidth (1 = identity)
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -337,6 +340,7 @@ fn main() -> ExitCode {
     let mut splice_at: Option<f64> = None;
     let mut lp_alpha: Option<f64> = None;
     let mut static_pan: Option<f64> = None;
+    let mut side_gain: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -784,6 +788,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--side" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=2.0).contains(&v) => {
+                    side_gain = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--side must be between 0 and 2",
+                        "coda mswidth in.wav --side 1.5",
                     )
                 }
             },
@@ -1309,6 +1325,47 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "mswidth" {
+        if positional.is_empty() {
+            return fail(
+                "mswidth needs an input WAV",
+                "coda mswidth in.wav --side 1.5",
+            );
+        }
+        let side = match side_gain {
+            Some(value) => value,
+            None => return fail("mswidth needs --side", "coda mswidth in.wav --side 1.5"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let widened = match mswidth::mswidth(&bytes, side) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "mswidth.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &widened) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, side {side})", widened.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
