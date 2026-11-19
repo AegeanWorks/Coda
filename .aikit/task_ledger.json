@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-midi-import",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795068937.6653254,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795068945.791003,
+    "completed_head": "af500fa90af051f7adf20d9f480fd61fdffc6014",
+    "completed_tree": "eba32a00756fd1fd18757cc58f15d537fa776edc"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-env-presets",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add named ADSR envelope presets",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795067364.299783,
-      "timestamp_str": "2026-11-19 08:49:24",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Writing four envelope numbers for every voice is tedious; common shapes deserve a name.",
-        "benefits": "pluck/pad/organ/stab/bow presets make scores readable and let one score mix articulation styles without four numbers per note.",
-        "risks": "contract: WAV/MIDI golden vectors must not change when no preset is used; dependency: std only; concurrency: none; state: preset default must restore the score envelope exactly.",
-        "mitigation": "Add Envelope::preset with unit tests, wire a running preset directive into the parser alongside env, add byte-comparison tests, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "f8ab234bcdade405ca8d7874e4c452e39e2ca4d5939f6408c0bb18d063028a21",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-env-presets",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-midi-import",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-midi-import' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795068945.8655682,
+      "timestamp_str": "2026-11-19 09:15:45",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "af500fa90af051f7adf20d9f480fd61fdffc6014",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
