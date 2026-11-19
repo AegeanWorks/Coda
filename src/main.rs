@@ -10,6 +10,7 @@ use coda::normalize;
 use coda::render::{render, wav_bytes};
 use coda::score;
 use coda::stats;
+use coda::templates;
 use coda::transpose;
 use coda::vary;
 use coda::wave::Wave;
@@ -24,6 +25,8 @@ USAGE
   coda seed <number> [options]
   coda info <score.coda>
   coda stats <score.coda>
+  coda templates
+  coda template <name> [-o out.coda]
   coda lint <score.coda>
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
@@ -251,6 +254,65 @@ fn main() -> ExitCode {
                 i += 1;
             }
         }
+    }
+
+    if command == "templates" {
+        for name in templates::names() {
+            println!("{name}");
+        }
+        return ExitCode::SUCCESS;
+    }
+
+    if command == "template" {
+        if positional.is_empty() {
+            return fail("template needs a name", "coda templates lists the choices");
+        }
+        let source = match templates::source(&positional[0]) {
+            Some(text) => text,
+            None => {
+                return fail(
+                    &format!("unknown template '{}'", positional[0]),
+                    "coda templates lists the choices",
+                )
+            }
+        };
+        let mut composed = match score::parse(source) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "a built-in template is invalid"),
+        };
+        if let Some(w) = wave_override {
+            composed.wave = w;
+            for note in &mut composed.notes {
+                note.wave = w;
+            }
+        }
+        if let Some(t) = tempo_override {
+            composed.tempo = t;
+        }
+        if semitones != 0 {
+            composed = transpose::transpose(&composed, semitones);
+        }
+        let path = if output == "out.wav" {
+            format!("{}.coda", positional[0])
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&composed);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, template {})",
+                    text.len(),
+                    composed.notes.len(),
+                    positional[0]
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "normalize" {

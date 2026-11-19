@@ -753,6 +753,43 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_templates_list_and_materialize() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let list = Command::new(exe).arg("templates").output().unwrap();
+    assert!(list.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&list.stdout),
+        "waltz\nmarch\narp\nlullaby\ndrone\n"
+    );
+
+    let root = std::env::temp_dir().join(format!("coda-templates-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let path = root.join("waltz.coda");
+    let out = Command::new(exe)
+        .args(["template", "waltz", "-o"])
+        .arg(&path)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let check = Command::new(exe).arg("stats").arg(&path).output().unwrap();
+    let stats = String::from_utf8_lossy(&check.stdout);
+    assert!(stats.contains("notes       8 sounding, 0 rests"), "{stats}");
+
+    let bad = Command::new(exe)
+        .arg("template")
+        .arg("nope")
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_stats_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-stats-{}", std::process::id()));

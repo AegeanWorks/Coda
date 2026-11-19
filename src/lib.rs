@@ -18,6 +18,7 @@ pub mod notes;
 pub mod render;
 pub mod score;
 pub mod stats;
+pub mod templates;
 pub mod transpose;
 pub mod vary;
 pub mod wave;

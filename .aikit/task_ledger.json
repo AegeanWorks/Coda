@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-normalize",
+    "task_id": "coda-templates",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795069844.147593,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795070016.598666,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795069852.4504237,
-    "completed_head": "7cb909cf7c1f7e87e83e6f15d42d7fa02bbfe5fa",
-    "completed_tree": "b5b374511d81e7d9e8fb5729f8b72fb41d1a9aeb"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-vary",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 85 tests green; seeded variation is byte-identical for equal seeds, identity at amount 0, and output re-parses cleanly",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795068443.3618739,
-      "timestamp_str": "2026-11-19 09:07:23",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-vary",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-vary' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795068456.0796685,
-      "timestamp_str": "2026-11-19 09:07:36",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "e1118522fbc18f01e0e7022dd974b813b620c36b",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-compare",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-templates",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add built-in score templates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795069917.477886,
+      "timestamp_str": "2026-11-19 09:31:57",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "A blank score is a slow starting point; named templates give composers a deterministic sketch to render, vary or edit.",
+        "benefits": "templates lists the sketches and template <name> materializes one as canonical source, reusing the parser and serializer.",
+        "risks": "contract: every template must parse and re-serialize exactly; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Store templates as parseable source strings with a lookup API, add exact-list and round-trip tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "d2418603723c66a0b264b09cf526fc5bee0391793140b0b49cc448a4e2dd72de",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-templates",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 117 tests green; template listing exact and every template parses, renders and re-serializes identically",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070016.598666,
+      "timestamp_str": "2026-11-19 09:33:36",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

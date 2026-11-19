@@ -151,3 +151,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Quiet renders and joined sections need usable levels without another audio tool.
 - **Decision**: Decode 16-bit stereo Coda WAV frames, scale by target peak divided by the measured peak, clamp, and re-encode with the original sample rate; silence is returned unchanged.
 - **Consequences**: The transform is idempotent and byte-deterministic; invalid WAVs and out-of-range peaks fail clearly; individual render golden vectors are unchanged.
+
+### ADR-021: Templates are source strings, not a second score format
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Built-in starting points must stay in sync with the score language instead of becoming a parallel representation.
+- **Decision**: Store each template as ordinary score source and parse it with the existing parser; template materializes the parsed result through the canonical serializer.
+- **Consequences**: Every template automatically gains new directives; round-trip and listing tests pin behavior; no production unwrap because the parser reports errors normally.
