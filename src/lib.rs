@@ -13,6 +13,7 @@ pub mod bitdepth;
 pub mod channels;
 pub mod compare;
 pub mod concat;
+pub mod crush;
 pub mod dc;
 pub mod diatonic;
 pub mod digest;

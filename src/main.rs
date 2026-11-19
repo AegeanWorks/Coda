@@ -8,6 +8,7 @@ use coda::bitdepth;
 use coda::channels;
 use coda::compare;
 use coda::concat;
+use coda::crush;
 use coda::dc;
 use coda::diatonic;
 use coda::digest;
@@ -89,6 +90,7 @@ USAGE
   coda gain <in.wav> --db N [-o out.wav]
   coda tremolo <in.wav> [--lfo-rate HZ] [--lfo-depth 0..1] [-o out.wav]
   coda gate <in.wav> [--threshold DB] [-o out.wav]
+  coda crush <in.wav> [--crush-bits 1..16] [--hold N] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -117,6 +119,8 @@ OPTIONS
       --autopan-depth  Pan depth 0..1 (default: 0)
       --lfo-rate HZ    Tremolo LFO rate in Hz (default: 5)
       --lfo-depth 0..1 Tremolo depth (default: 0.5)
+      --crush-bits N   Effective bit depth 1..16 for crush (default: 16)
+      --hold N         Sample-and-hold factor for crush (default: 1)
       --grid B         Quantization grid in beats (default: 0.25)
       --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
       --steps N        Scale degrees to move in diatonic (default: 0)
@@ -260,6 +264,8 @@ fn main() -> ExitCode {
     let mut lfo_depth = 0.5_f64;
     let mut low_note: Option<String> = None;
     let mut high_note: Option<String> = None;
+    let mut crush_bits: u8 = 16;
+    let mut hold: usize = 1;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -693,6 +699,25 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--crush-bits" => match need(i).and_then(|v| v.parse::<u8>().ok()) {
+                Some(n) if (1..=16).contains(&n) => {
+                    crush_bits = n;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--crush-bits must be between 1 and 16",
+                        "coda crush in.wav --crush-bits 8",
+                    )
+                }
+            },
+            "--hold" => match need(i).and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n >= 1 => {
+                    hold = n;
+                    i += 2;
+                }
+                _ => return fail("--hold must be at least 1", "coda crush in.wav --hold 4"),
+            },
             "--low" => match need(i) {
                 Some(name) => {
                     low_note = Some(name.to_string());
@@ -1027,6 +1052,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "crush" {
+        if positional.is_empty() {
+            return fail(
+                "crush needs an input WAV",
+                "coda crush in.wav --crush-bits 8 --hold 4",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let crushed = match crush::apply_crush(&bytes, crush_bits, hold) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "crushed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &crushed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {crush_bits} bits, hold {hold})",
+                    crushed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

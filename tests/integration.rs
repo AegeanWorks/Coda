@@ -1815,6 +1815,52 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_crush_reduces_resolution_and_holds_samples() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-crush-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.5, -0.25), (0.1, 0.9), (-0.8, 0.3), (0.6, -0.6)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("crush")
+        .arg(&input)
+        .args(["--crush-bits", "8", "--hold", "2", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    let before = std::fs::read(&input).unwrap();
+    assert_eq!(before.len(), after.len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    let second = i16::from_le_bytes([after[48], after[49]]);
+    assert_eq!(first, second, "held pair must match");
+    assert_eq!(first & 0x00FF, 0, "8-bit grid clears low byte");
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("crush")
+        .arg(&input)
+        .args(["--crush-bits", "16", "--hold", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), before);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_gate_silences_quiet_frames() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-gate-{}-{}", std::process::id(), 1));

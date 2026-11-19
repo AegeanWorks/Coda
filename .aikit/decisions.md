@@ -431,3 +431,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Trim removes edge silence only; quiet frames inside a WAV had no tool to silence them.
 - **Decision**: Gate each frame on its peak amplitude against a linear threshold derived from --threshold dBFS, zeroing frames below it and passing louder frames unchanged.
 - **Consequences**: Selective gating, pass-through identity at -100 dBFS, all-frame gating at 0 dBFS and bound validation are pinned by byte tests.
+
+### ADR-061: Crush reduces WAV resolution and holds samples
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Bitdepth changed the container format and resample interpolated smoothly, leaving no lo-fi effect inside a 16-bit WAV.
+- **Decision**: Quantize each sample by masking its 16-bit integer to the requested bit depth and repeat it for a hold factor, with 16 bits and hold 1 byte-identical.
+- **Consequences**: Full-resolution identity, exact quantization grid, sample-and-hold behaviour and argument validation are pinned by byte tests.
