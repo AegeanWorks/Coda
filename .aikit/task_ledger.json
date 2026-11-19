@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-resample",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795074986.8250184,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795074995.6588829,
+    "completed_head": "7f1657d944678c937c5f8d4514b78ebf2e415152",
+    "completed_tree": "20689ac6b0357333a25ea3aef05a2440d02a6559"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-rms-normalize",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add RMS-targeted normalization",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795073203.4599142,
-      "timestamp_str": "2026-11-19 10:26:43",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Peak normalization can leave a quiet-sounding track at full peak; loudness work needs an RMS target mode.",
-        "benefits": "normalize --rms-target <dBFS> scales a Coda WAV to a chosen RMS level with deterministic clamping, complementing peak mode.",
-        "risks": "contract: silence must be left unchanged, invalid dBFS targets must fail clearly, and peak mode must stay byte-identical; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure RMS gain function with known-vector and silence tests, extend the normalize CLI, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "1047ac0d715ab79da87b500b388d7b10fc3128e8f567ceab93064e97222fca1f",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-rms-normalize",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-resample",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-resample' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795074995.727926,
+      "timestamp_str": "2026-11-19 10:56:35",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "7f1657d944678c937c5f8d4514b78ebf2e415152",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
