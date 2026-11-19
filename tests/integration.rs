@@ -1510,6 +1510,38 @@ fn cli_join_crossfade_shortens_the_result() {
 }
 
 #[test]
+fn cli_pad_adds_exact_silence() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-pad-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, 0.5); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("pad")
+        .arg(&input)
+        .args(["--before", "0.01", "--after", "0.005", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let analysis = Command::new(exe)
+        .arg("analyze")
+        .arg(&output)
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&analysis.stdout);
+    assert!(text.contains("frames      220"), "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_dc_removes_a_constant_offset() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-dc-{}", std::process::id()));

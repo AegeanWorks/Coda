@@ -361,3 +361,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Constant offsets waste headroom and are inaudible; no Coda tool removed them.
 - **Decision**: Compute the mean of each channel across all frames and subtract it, clamping to range; zero-mean input returns byte-identical audio.
 - **Consequences**: Known-offset removal and zero-mean identity are pinned by byte tests; invalid WAVs fail clearly.
+
+### ADR-051: Padding inserts exact silent frames around audio
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Assembling sections needs precise silence gaps without external tools.
+- **Decision**: Round before/after seconds to whole frames at the source rate and emit zero frames around unchanged audio; zero padding is byte-identical.
+- **Consequences**: Frame counts, byte shifting and zero-padding identity are pinned by byte tests; invalid WAVs fail clearly.

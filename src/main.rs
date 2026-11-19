@@ -22,6 +22,7 @@ use coda::midi_import;
 use coda::mix;
 use coda::normalize;
 use coda::notes;
+use coda::pad;
 use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
 use coda::report;
@@ -78,6 +79,7 @@ USAGE
   coda width <in.wav> --width 0..2 [-o out.wav]
   coda gain <in.wav> --db N [-o out.wav]
   coda dc <in.wav> [-o out.wav]
+  coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -119,6 +121,7 @@ OPTIONS
       --audio FILE     WAV to include in report
       --width 0..2     Stereo width for width (0 mono, 1 identity)
       --db N           Gain in dB for gain (-100..6)
+      --before S / --after S  Silence seconds for pad
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -225,6 +228,8 @@ fn main() -> ExitCode {
     let mut audio_path: Option<String> = None;
     let mut width_amount = 1.0_f64;
     let mut db_gain: Option<f64> = None;
+    let mut pad_before = 0.0_f64;
+    let mut pad_after = 0.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -550,6 +555,30 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--before" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    pad_before = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--before must be a non-negative number",
+                        "coda pad in.wav --before 0.5",
+                    )
+                }
+            },
+            "--after" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    pad_after = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--after must be a non-negative number",
+                        "coda pad in.wav --after 0.5",
+                    )
+                }
+            },
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
                     bits = n;
@@ -786,6 +815,46 @@ fn main() -> ExitCode {
         return match fs::write(&path, &converted) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, {bits}-bit)", converted.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "pad" {
+        if positional.is_empty() {
+            return fail(
+                "pad needs an input WAV",
+                "coda pad in.wav --before 0.5 [--after 0.5]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let padded = match pad::pad(&bytes, pad_before, pad_after) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "padded.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &padded) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, +{pad_before}s/-{pad_after}s)",
+                    padded.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
