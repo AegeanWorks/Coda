@@ -9,6 +9,7 @@ use coda::gen::{self, GenOptions, Scale, Style};
 use coda::join;
 use coda::lint;
 use coda::midi_import;
+use coda::mix;
 use coda::normalize;
 use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
@@ -42,6 +43,7 @@ USAGE
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
   coda reverse-wav <in.wav> [-o out.wav]
+  coda mix <a.wav> <b.wav> [-o out.wav] [--gain-b 0..1]
   coda import-midi <file.mid> [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
@@ -57,6 +59,7 @@ OPTIONS
       --autopan-rate   Pan LFO rate in Hz (default: 0)
       --autopan-depth  Pan depth 0..1 (default: 0)
       --grid B         Quantization grid in beats (default: 0.25)
+      --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -146,6 +149,7 @@ fn main() -> ExitCode {
     let mut pan_rate = 0.0_f64;
     let mut pan_depth = 0.0_f64;
     let mut grid = 0.25_f64;
+    let mut gain_b = 0.5_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -265,6 +269,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--grid must be a positive finite number",
                         "coda quantize score.coda --grid 0.25",
+                    )
+                }
+            },
+            "--gain-b" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    gain_b = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--gain-b must be between 0 and 1",
+                        "coda mix a.wav b.wav --gain-b 0.5",
                     )
                 }
             },
@@ -452,6 +468,45 @@ fn main() -> ExitCode {
             }
             Err(e) => fail(
                 &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "mix" {
+        if positional.len() < 2 {
+            return fail(
+                "mix needs two WAV files",
+                "coda mix a.wav b.wav [-o out.wav]",
+            );
+        }
+        let mut inputs = Vec::new();
+        for path in positional.iter().take(2) {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that both WAV files exist and are readable",
+                    )
+                }
+            }
+        }
+        let merged = match mix::mix_wavs(&inputs[0], &inputs[1], gain_b) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "both inputs must be Coda WAVs at the same sample rate"),
+        };
+        return match fs::write(&output, &merged) {
+            Ok(()) => {
+                println!(
+                    "wrote {output} ({} bytes, {} frames, gain {gain_b})",
+                    merged.len(),
+                    (merged.len() - 44) / 4
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{output}': {e}"),
                 "check that the output directory exists and is writable",
             ),
         };

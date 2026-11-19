@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-wav-reverse",
+    "task_id": "coda-mix",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795071617.4428155,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795071834.1537397,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795071623.8199162,
-    "completed_head": "5b76d0346f709b59ac96dd4473e90593c78ae02c",
-    "completed_tree": "dac43a18f7a68dd0d67c202f70a1cec4ed931e66"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-templates",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 117 tests green; template listing exact and every template parses, renders and re-serializes identically",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795070016.598666,
-      "timestamp_str": "2026-11-19 09:33:36",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-templates",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-templates' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795070024.0970304,
-      "timestamp_str": "2026-11-19 09:33:44",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "1677b18e255d7a450681af38a0c25985b7393c8d",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-fades",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-mix",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add deterministic WAV mixing",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071679.8778563,
+      "timestamp_str": "2026-11-19 10:01:19",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "join composes sections sequentially; layering tracks in parallel needs a mixer to be useful as a small studio tool.",
+        "benefits": "mix overlays two Coda WAVs with a gain on the second input, clamping safely and producing deterministic bytes.",
+        "risks": "contract: sample rates must match or fail clearly, silence plus a track with zero gain must be an identity, and output length must be the longer input; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure mix module with identity, length and clamping byte tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "8bab849258aaf740b85be9d6e2757e1838fa086b457cf663403cd6072f25d4e3",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-mix",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 151 tests green; mixing gain, clamping, longer-length and zero-gain identity pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071834.1537397,
+      "timestamp_str": "2026-11-19 10:03:54",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

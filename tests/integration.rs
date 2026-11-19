@@ -753,6 +753,65 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_mix_layers_wavs_with_gain_control() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-mix-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let mixed = root.join("mixed.wav");
+    let identity = root.join("identity.wav");
+
+    for (score, path) in [("note C4 1\n", &a), ("note E4 0.5\n", &b)] {
+        let source = root.join(format!(
+            "{}.coda",
+            path.file_stem().unwrap().to_string_lossy()
+        ));
+        std::fs::write(&source, score).unwrap();
+        let out = Command::new(exe)
+            .arg("render")
+            .arg(&source)
+            .arg("-o")
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(out.status.success());
+    }
+
+    let result = Command::new(exe)
+        .arg("mix")
+        .arg(&a)
+        .arg(&b)
+        .args(["--gain-b", "0.5", "-o"])
+        .arg(&mixed)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let result_bytes = std::fs::read(&mixed).unwrap();
+    let first = std::fs::read(&a).unwrap();
+    assert_eq!(
+        result_bytes.len(),
+        first.len().max(std::fs::read(&b).unwrap().len())
+    );
+
+    let zero = Command::new(exe)
+        .arg("mix")
+        .arg(&a)
+        .arg(&b)
+        .args(["--gain-b", "0", "-o"])
+        .arg(&identity)
+        .output()
+        .unwrap();
+    assert!(zero.status.success());
+    assert_eq!(std::fs::read(&identity).unwrap(), first);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_reverse_wav_is_byte_invertible() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-rev-wav-{}", std::process::id()));

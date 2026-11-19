@@ -200,3 +200,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Sound design often needs backward audio; the score-level reverse does not reverse the rendered waveform.
 - **Decision**: Decode 16-bit stereo Coda WAV frames, reverse their order and re-encode with the original sample rate; expose it as reverse-wav.
 - **Consequences**: Double reversal is byte-identical; invalid WAVs fail clearly; score reversal and WAV reversal remain distinct operations.
+
+### ADR-028: Mixing overlays WAVs at the longer length with bounded gain
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Join handles sequential sections but layering generated tracks needs a parallel composition operation.
+- **Decision**: Decode two Coda WAVs, sum their frames with a gain on the second input, clamp to range and emit the longer length; reject sample-rate mismatches.
+- **Consequences**: Zero gain is an identity on the first input; invalid inputs fail clearly; mix and join remain distinct composition tools.

@@ -16,6 +16,7 @@ pub mod join;
 pub mod lint;
 pub mod midi;
 pub mod midi_import;
+pub mod mix;
 pub mod normalize;
 pub mod notes;
 pub mod quantize;
