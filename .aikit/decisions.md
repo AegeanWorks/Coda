@@ -753,3 +753,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: splice and reverse-region moved or reversed frames, but no tool wrapped the tail of a WAV to the front.
 - **Decision**: Shift frames left by a rounded offset with wraparound, preserving length, rate and all audio bytes; a zero offset is byte-identical.
 - **Consequences**: Wraparound, identity, length preservation and validation are pinned by byte tests.
+
+### ADR-107: Coda is published publicly as AegeanWorks/Coda
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: The user reversed ADR-004 and asked for the project to be pushed as a public GitHub repository with a capital C; repository names are case-insensitive, so only the displayed casing and docs needed to change.
+- **Decision**: Publish as github.com/AegeanWorks/Coda (public), keep the AIKit project name and CLI commands lowercase `coda`, and supersede ADR-004. ADR-004 stays in the register as the historical decision it replaced.
+- **Consequences**: The README no longer claims local-only; the public history includes the full reforge run; every future publication must still pass the AIKit push gates.
