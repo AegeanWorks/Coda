@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-noise",
+    "task_id": "coda-midi-render",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795096016.1014068,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795096251.2947838,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795103216.1014068,
+    "lease_until": 1795103451.2947838,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795096023.9577081,
-    "completed_head": "902ae0739e824b00f01beacead63c16c84bb2c16",
-    "completed_tree": "b7b118e54ae01aa23d472d7b2f7e5216ffabe7de"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-reverse-region",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 396 tests green; window reversal, head/tail preservation and validation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795094251.662837,
-      "timestamp_str": "2026-11-19 16:17:31",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-reverse-region",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-reverse-region' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795094258.7934287,
-      "timestamp_str": "2026-11-19 16:17:38",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "40a2fe9054dd2a632427ff0437169b9b8dcd4fcf",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-repeat-wav",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-midi-render",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add MIDI-to-WAV rendering",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795096100.578606,
+      "timestamp_str": "2026-11-19 16:48:20",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "import-midi writes a score and render reads one, but turning a MIDI file straight into audio requires two manual steps.",
+        "benefits": "midi-render imports a Standard MIDI File and renders it directly to a deterministic Coda WAV at the chosen sample rate.",
+        "risks": "contract: invalid MIDI fails, recovered score renders byte-identically to rendering that score, default rate 44100, output routing by extension; dependency: std only, reuse import + render; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests comparing midi-render output with direct render of the source score, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "89c31c7ba0a220f758c3d606a3a2a1cefb79e15b3ca7d96cad6f553aa738dae5",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-midi-render",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 425 tests green; byte-equality with direct render and rate control pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795096251.2947838,
+      "timestamp_str": "2026-11-19 16:50:51",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

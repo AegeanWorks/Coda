@@ -2087,6 +2087,54 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_midi_render_matches_direct_render() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-mr-{}-{}", std::process::id(), 17));
+    let _ = std::fs::create_dir_all(&root);
+    let score = root.join("source.coda");
+    let midi = root.join("song.mid");
+    let direct = root.join("direct.wav");
+    let via = root.join("via.wav");
+    std::fs::write(&score, "tempo 120\nnote C4 1\nnote E4 1\nnote G4 2\n").unwrap();
+
+    let r = Command::new(exe)
+        .arg("render")
+        .arg(&score)
+        .args(["--sample-rate", "8000", "-o"])
+        .arg(&direct)
+        .output()
+        .unwrap();
+    assert!(r.status.success());
+
+    let r = Command::new(exe)
+        .arg("render")
+        .arg(&score)
+        .args(["-o"])
+        .arg(&midi)
+        .output()
+        .unwrap();
+    assert!(r.status.success());
+
+    let r = Command::new(exe)
+        .arg("midi-render")
+        .arg(&midi)
+        .args(["--sample-rate", "8000", "-o"])
+        .arg(&via)
+        .output()
+        .unwrap();
+    assert!(r.status.success(), "{}", String::from_utf8_lossy(&r.stderr));
+
+    assert_eq!(
+        std::fs::read(&via).unwrap(),
+        std::fs::read(&direct).unwrap()
+    );
+
+    let bad = Command::new(exe).arg("midi-render").output().unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_noise_is_seeded_and_bounded() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-noise-{}", std::process::id()));

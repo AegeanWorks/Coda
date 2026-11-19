@@ -143,6 +143,7 @@ USAGE
   coda sequence <score.coda> --shifts 0,12,7 [-o out.coda]
   coda midside <in.wav> --mode encode|decode [-o out.wav]
   coda noise <in.wav> [--seed N] [--amount 0..1] [-o out.wav]
+  coda midi-render <file.mid> [--sample-rate N] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -2656,6 +2657,50 @@ fn main() -> ExitCode {
             }
             Err(e) => fail(
                 &format!("cannot write '{output}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "midi-render" {
+        if positional.is_empty() {
+            return fail(
+                "midi-render needs a MIDI file",
+                "coda midi-render song.mid -o song.wav",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the MIDI file exists and is readable",
+                )
+            }
+        };
+        let imported = match midi_import::import_midi(&bytes) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "only format-0 or format-1 MIDI files are supported"),
+        };
+        let (samples, wav) = rendered_wav(&imported, &audio);
+        let path = if output == "out.wav" {
+            "midi.wav".to_string()
+        } else {
+            output.clone()
+        };
+        let fingerprint = digest::fingerprint(&wav);
+        return match fs::write(&path, &wav) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} samples, {} notes, digest {fingerprint})",
+                    wav.len(),
+                    samples.len(),
+                    imported.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
                 "check that the output directory exists and is writable",
             ),
         };

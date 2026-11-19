@@ -620,3 +620,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: seed generation and humanize used randomness in scores, but no effect added reproducible noise to an existing WAV.
 - **Decision**: Generate xorshift64* samples from the seed, scale by amount, add to each channel and clamp; amount 0 is byte-identical and equal seeds reproduce equal output.
 - **Consequences**: Identity, determinism, seed variation, bounded output and validation are pinned by byte tests.
+
+### ADR-088: Midi-render turns a MIDI file directly into WAV
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: import-midi and render were separate steps, so playing a MIDI file required writing and re-reading an intermediate score.
+- **Decision**: Import the MIDI file to a Score and feed it through the shared render pipeline at the chosen sample rate, producing a deterministic WAV with a digest.
+- **Consequences**: Byte-equality with direct rendering of the source score, sample-rate control and invalid-file rejection are pinned by byte tests.
