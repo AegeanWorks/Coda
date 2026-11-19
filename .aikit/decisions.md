@@ -186,3 +186,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Stereo output was static unless each note set its own pan; a sweep adds motion without editing scores.
 - **Decision**: Apply a sine LFO to pan with equal-power gains normalised at centre, so depth 0 is an identity; group all audio-effect settings into AudioOptions to keep the render helper small.
 - **Consequences**: Zero-depth renders stay byte-identical; gains are bounded; CLI wiring uses one options struct across render, seed, album, join and digest.
+
+### ADR-026: Quantization changes starts only and is idempotent
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Off-grid note starts from variation or live input need a deterministic snapping tool.
+- **Decision**: Round each note start to the nearest multiple of a positive grid, leaving duration, pitch and all timbral fields unchanged; expose it as quantize writing canonical source.
+- **Consequences**: Re-quantizing an already snapped score is byte-identical; invalid grids fail clearly; the CLI test verifies snap positions through the canonical serializer.

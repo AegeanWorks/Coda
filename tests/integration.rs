@@ -753,6 +753,57 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_quantize_snaps_starts_and_is_exact_on_grid() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-quantize-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let off = root.join("off.coda");
+    let snapped = root.join("snapped.coda");
+    std::fs::write(&off, "at 0.11 C4 0.5\nat 0.62 E4 0.5\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("quantize")
+        .arg(&off)
+        .args(["--grid", "0.25", "-o"])
+        .arg(&snapped)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let source = std::fs::read_to_string(&snapped).unwrap();
+    // Serialization uses sequential `note` lines because the snapped starts
+    // land exactly on the running cursor.
+    assert!(source.contains("note C4 0.5 1"), "{source}");
+    assert!(source.contains("note E4 0.5 1"), "{source}");
+
+    let before = Command::new(exe).arg("digest").arg(&off).output().unwrap();
+    let after = Command::new(exe)
+        .arg("digest")
+        .arg(&snapped)
+        .output()
+        .unwrap();
+    assert_ne!(before.stdout, after.stdout);
+
+    let again = root.join("again.coda");
+    let second = Command::new(exe)
+        .arg("quantize")
+        .arg(&snapped)
+        .args(["--grid", "0.25", "-o"])
+        .arg(&again)
+        .output()
+        .unwrap();
+    assert!(second.status.success());
+    assert_eq!(
+        std::fs::read(&snapped).unwrap(),
+        std::fs::read(&again).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_autopan_changes_balance_with_zero_depth_identity() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-autopan-{}", std::process::id()));

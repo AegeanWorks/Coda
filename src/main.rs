@@ -10,6 +10,7 @@ use coda::join;
 use coda::lint;
 use coda::midi_import;
 use coda::normalize;
+use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
 use coda::reverse;
 use coda::score;
@@ -35,6 +36,7 @@ USAGE
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda reverse <score.coda> [-o out.coda]
+  coda quantize <score.coda> [--grid 0..1 beats] [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -52,6 +54,7 @@ OPTIONS
       --echo-feedback  Echo gain 0..1 (default: 0.35)
       --autopan-rate   Pan LFO rate in Hz (default: 0)
       --autopan-depth  Pan depth 0..1 (default: 0)
+      --grid B         Quantization grid in beats (default: 0.25)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -140,6 +143,7 @@ fn main() -> ExitCode {
     let mut echo_feedback = 0.35_f64;
     let mut pan_rate = 0.0_f64;
     let mut pan_depth = 0.0_f64;
+    let mut grid = 0.25_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -247,6 +251,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--autopan-depth must be between 0 and 1",
                         "coda render score.coda --autopan-depth 0.6",
+                    )
+                }
+            },
+            "--grid" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    grid = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--grid must be a positive finite number",
+                        "coda quantize score.coda --grid 0.25",
                     )
                 }
             },
@@ -685,7 +701,8 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "reverse" | "digest" => {
+        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "reverse" | "quantize"
+        | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -736,6 +753,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "quantize" {
+        let snapped = match quantize::quantize(&composed, grid) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive finite grid in beats"),
+        };
+        let path = if output == "out.wav" {
+            "quantized.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&snapped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, grid {grid})",
+                    text.len(),
+                    snapped.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "reverse" {
         let reversed = reverse::reverse(&composed);
