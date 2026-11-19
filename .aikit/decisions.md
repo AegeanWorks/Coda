@@ -340,3 +340,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Score, lint, fingerprint and audio facts were scattered across commands, making a piece hard to summarize.
 - **Decision**: Build a Markdown report from the existing pure analyzers with a fixed section order, including audio analysis only when a WAV is supplied.
 - **Consequences**: The document is byte-stable, warnings and stats are reused verbatim, and invalid audio fails clearly.
+
+### ADR-048: Stereo width uses mid/side scaling
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Pan and channel operations could not change the width of an existing stereo image.
+- **Decision**: Scale the side component by an amount in 0..2 while keeping mid fixed, clamping to range; amount 1 is byte-identical and 0 folds to mono.
+- **Consequences**: Width changes are deterministic and length-preserving; widening may clamp peaks, which is pinned by byte tests.

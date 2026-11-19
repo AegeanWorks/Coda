@@ -44,3 +44,4 @@ pub mod vary;
 pub mod verify;
 pub mod wav_reverse;
 pub mod wave;
+pub mod width;

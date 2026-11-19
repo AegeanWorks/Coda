@@ -37,6 +37,7 @@ use coda::vary;
 use coda::verify;
 use coda::wav_reverse;
 use coda::wave::Wave;
+use coda::width;
 use std::path::Path;
 use std::{env, fs, process::ExitCode};
 
@@ -72,6 +73,7 @@ USAGE
   coda stamp <score.coda> <in.wav> [-o out.wav]
   coda stamp-info <in.wav>
   coda report <score.coda> [--audio in.wav] [-o report.md]
+  coda width <in.wav> --width 0..2 [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -111,6 +113,7 @@ OPTIONS
       --root <note>    Root note for seed (default: C4)
       --time-signature N/D  Meter for MIDI export (e.g. 3/4)
       --audio FILE     WAV to include in report
+      --width 0..2     Stereo width for width (0 mono, 1 identity)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -215,6 +218,7 @@ fn main() -> ExitCode {
     let mut root_note: Option<String> = None;
     let mut time_signature: Option<(u8, u8)> = None;
     let mut audio_path: Option<String> = None;
+    let mut width_amount = 1.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -516,6 +520,18 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--width" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=2.0).contains(&v) => {
+                    width_amount = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--width must be between 0 and 2",
+                        "coda width in.wav --width 1.5",
+                    )
+                }
+            },
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
                     bits = n;
@@ -752,6 +768,43 @@ fn main() -> ExitCode {
         return match fs::write(&path, &converted) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, {bits}-bit)", converted.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "width" {
+        if positional.is_empty() {
+            return fail("width needs an input WAV", "coda width in.wav --width 0.5");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let changed = match width::change_width(&bytes, width_amount) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "width.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &changed) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, width {width_amount})",
+                    changed.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

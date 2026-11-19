@@ -1510,6 +1510,46 @@ fn cli_join_crossfade_shortens_the_result() {
 }
 
 #[test]
+fn cli_width_controls_stereo_image() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-width-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let mono = root.join("mono.wav");
+    std::fs::write(&input, wav_bytes(&[(0.8, 0.2); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("width")
+        .arg(&input)
+        .args(["--width", "0", "-o"])
+        .arg(&mono)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let bytes = std::fs::read(&mono).unwrap();
+    assert_eq!(&bytes[44..46], &bytes[46..48]);
+
+    let unity = root.join("unity.wav");
+    let result = Command::new(exe)
+        .arg("width")
+        .arg(&input)
+        .args(["--width", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_mix_layers_wavs_with_gain_control() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-mix-{}", std::process::id()));
