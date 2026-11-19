@@ -26,4 +26,5 @@ pub mod stats;
 pub mod templates;
 pub mod transpose;
 pub mod vary;
+pub mod wav_reverse;
 pub mod wave;

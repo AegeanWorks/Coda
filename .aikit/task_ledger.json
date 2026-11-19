@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-quantize",
+    "task_id": "coda-wav-reverse",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795071453.5365896,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795071617.4428155,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795071460.280651,
-    "completed_head": "50b3f572447202e2f6e2be150ae506dd2608c35e",
-    "completed_tree": "95ea07c6f2c06c5fc8f1794519b8de74dae1c170"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-normalize",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 113 tests green; normalization peak, idempotence and silence handling pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795069844.147593,
-      "timestamp_str": "2026-11-19 09:30:44",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-normalize",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-normalize' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795069852.5282278,
-      "timestamp_str": "2026-11-19 09:30:52",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "7cb909cf7c1f7e87e83e6f15d42d7fa02bbfe5fa",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-templates",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-wav-reverse",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV frame reversal",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071514.3433578,
+      "timestamp_str": "2026-11-19 09:58:34",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Reverse audio is a standard sound-design tool and the score-level reverse already exists; the audio counterpart completes the pair.",
+        "benefits": "reverse-wav flips sample order in a Coda WAV with a rebuilt header, is idempotent when applied twice, and needs no external editor.",
+        "risks": "contract: invalid WAVs must fail clearly and double reversal must be byte-identical; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure reversal module with exact frame-order and double-identity tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "256f50c1e24202af4917a123d06d374ddaa1962a612cdbe8ea34edb4742b27ec",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-wav-reverse",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 146 tests green; frame-order reversal and double-reverse byte identity pinned",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071617.4428155,
+      "timestamp_str": "2026-11-19 10:00:17",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

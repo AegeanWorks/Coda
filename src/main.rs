@@ -18,6 +18,7 @@ use coda::stats;
 use coda::templates;
 use coda::transpose;
 use coda::vary;
+use coda::wav_reverse;
 use coda::wave::Wave;
 use std::path::Path;
 use std::{env, fs, process::ExitCode};
@@ -40,6 +41,7 @@ USAGE
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
+  coda reverse-wav <in.wav> [-o out.wav]
   coda import-midi <file.mid> [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
@@ -446,6 +448,43 @@ fn main() -> ExitCode {
                     composed.notes.len(),
                     positional[0]
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "reverse-wav" {
+        if positional.is_empty() {
+            return fail(
+                "reverse-wav needs an input WAV",
+                "coda reverse-wav in.wav [-o out.wav]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let reversed = match wav_reverse::reverse_wav(&bytes) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "reversed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &reversed) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, reversed)", reversed.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

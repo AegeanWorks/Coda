@@ -753,6 +753,41 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_reverse_wav_is_byte_invertible() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-rev-wav-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let original = root.join("original.wav");
+    let once = root.join("once.wav");
+    let twice = root.join("twice.wav");
+
+    let rendered = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&original)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+    for (from, to) in [(&original, &once), (&once, &twice)] {
+        let out = Command::new(exe)
+            .arg("reverse-wav")
+            .arg(from)
+            .arg("-o")
+            .arg(to)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let before = std::fs::read(&original).unwrap();
+    assert_ne!(before, std::fs::read(&once).unwrap());
+    assert_eq!(before, std::fs::read(&twice).unwrap());
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_quantize_snaps_starts_and_is_exact_on_grid() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-quantize-{}", std::process::id()));

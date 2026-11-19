@@ -193,3 +193,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Off-grid note starts from variation or live input need a deterministic snapping tool.
 - **Decision**: Round each note start to the nearest multiple of a positive grid, leaving duration, pitch and all timbral fields unchanged; expose it as quantize writing canonical source.
 - **Consequences**: Re-quantizing an already snapped score is byte-identical; invalid grids fail clearly; the CLI test verifies snap positions through the canonical serializer.
+
+### ADR-027: WAV reversal is a byte-invertible audio transform
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Sound design often needs backward audio; the score-level reverse does not reverse the rendered waveform.
+- **Decision**: Decode 16-bit stereo Coda WAV frames, reverse their order and re-encode with the original sample rate; expose it as reverse-wav.
+- **Consequences**: Double reversal is byte-identical; invalid WAVs fail clearly; score reversal and WAV reversal remain distinct operations.
