@@ -11,6 +11,7 @@ use coda::dc;
 use coda::diatonic;
 use coda::digest;
 use coda::echo;
+use coda::extract;
 use coda::fade;
 use coda::fade_presets;
 use coda::gain;
@@ -87,6 +88,7 @@ USAGE
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
   coda arpeggiate <score.coda> [--grid 0.25] [-o out.coda]
   coda invert <score.coda> [--center C4] [-o out.coda]
+  coda extract <score.coda> --start B --end B [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -1702,7 +1704,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "harmonize" | "arpeggiate" | "invert" | "digest" => {
+        | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1767,6 +1769,42 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "extract" {
+        let end = match trim_end {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "extract needs --end",
+                    "coda extract score.coda --start 0 --end 4",
+                )
+            }
+        };
+        let cut = match extract::extract(&composed, trim_start, end) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use 0 <= start < end in beats"),
+        };
+        let path = if output == "out.wav" {
+            "extracted.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&cut);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {trim_start}..{end})",
+                    text.len(),
+                    cut.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "invert" {
         let mirrored = match invert::invert(&composed, &center_note) {

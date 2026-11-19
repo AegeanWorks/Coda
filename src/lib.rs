@@ -17,6 +17,7 @@ pub mod diatonic;
 pub mod digest;
 pub mod echo;
 pub mod envelope;
+pub mod extract;
 pub mod fade;
 pub mod fade_presets;
 pub mod gain;

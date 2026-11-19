@@ -66,6 +66,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Harmonization** — `harmonize --intervals 4,7` adds lower-velocity harmony voices to a melody.
 - **Arpeggiation** — `arpeggiate` rolls simultaneous notes into a sequence on a grid.
 - **Inversion** — `invert` mirrors pitches around a center note, keeping rhythm and timbre.
+- **Extraction** — `extract` clips a score to a beat range, trimming overlapping notes.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -120,6 +121,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `harmonize <score.coda> --intervals LIST` | Add harmony voices by semitone. |
 | `arpeggiate <score.coda> [--grid B]` | Roll chords into a sequence. |
 | `invert <score.coda> [--center NOTE]` | Mirror pitches around a center. |
+| `extract <score.coda> --start B --end B` | Clip a score to a beat range. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

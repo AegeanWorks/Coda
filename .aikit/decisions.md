@@ -396,3 +396,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Time reversal and transposition existed but pitch reflection around a center did not.
 - **Decision**: Reflect each pitch as 2*center - pitch, skipping rests and out-of-range results, preserving all other note fields.
 - **Consequences**: Reflection values, field preservation and round-trip are pinned by byte tests; invalid centers fail clearly.
+
+### ADR-056: Extraction clips scores to a beat range
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Scores could be trimmed only by hand while WAVs had a trim command.
+- **Decision**: Keep notes overlapping [start,end), clip their starts and durations to the window, preserve all other fields, and reject invalid ranges.
+- **Consequences**: Clipped positions and durations are pinned by byte tests and the result re-serializes exactly.
