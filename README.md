@@ -60,7 +60,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `export-score <score.coda>` | Write canonical, re-parseable source. |
 | `vary <score.coda> --seed N` | Write a seeded variation as canonical source. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
-| `import-midi <file.mid>` | Reconstruct a score from a format-0 single-track MIDI file. |
+| `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 

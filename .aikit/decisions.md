@@ -123,3 +123,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: MIDI has no waveform, pan or envelope fields, so a full Score cannot be recovered from a .mid file.
 - **Decision**: Parse format-0 single-track MIDI into a Score with recovered tempo, pitches, durations and velocities, using score defaults for waveform, gain, pan and envelope; running status and meta events are supported.
 - **Consequences**: A score built from defaults round-trips to byte-identical audio; richer scores lose non-MIDI fields on import, which compare reports explicitly.
+
+### ADR-017: MIDI import accepts format 1 and merges tracks
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: DAW exports are usually format 1 with a conductor track and separate note tracks; format 0 only was too narrow.
+- **Decision**: Parse every MTrk chunk, take the first tempo meta event found, merge all note events, and sort the combined notes by (start tick, pitch) into one Score.
+- **Consequences**: Format-0 imports stay byte-identical; track-count mismatches are rejected; imported notes are ordered by time then pitch for determinism.

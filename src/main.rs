@@ -251,7 +251,7 @@ fn main() -> ExitCode {
         };
         let imported = match midi_import::import_midi(&bytes) {
             Ok(s) => s,
-            Err(e) => return fail(&e, "only single-track format-0 MIDI files are supported"),
+            Err(e) => return fail(&e, "only format-0 or format-1 MIDI files are supported"),
         };
         let path = if output == "out.wav" {
             "imported.coda".to_string()

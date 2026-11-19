@@ -63,11 +63,16 @@ impl<'a> Reader<'a> {
     }
 }
 
-fn parse_track(data: &[u8], ticks_per_quarter: u16) -> Result<Score, String> {
+struct TrackData {
+    notes: Vec<Note>,
+    tempo: Option<f64>,
+}
+
+fn parse_track(data: &[u8], ticks_per_quarter: u16) -> Result<TrackData, String> {
     let mut reader = Reader::new(data);
     let mut running: Option<u8> = None;
     let mut tick = 0_u32;
-    let mut tempo = 120.0_f64;
+    let mut tempo: Option<f64> = None;
     let mut open: BTreeMap<(u8, u8), (u32, u8)> = BTreeMap::new();
     let mut notes = Vec::new();
 
@@ -121,7 +126,7 @@ fn parse_track(data: &[u8], ticks_per_quarter: u16) -> Result<Score, String> {
                         | ((payload[1] as u32) << 8)
                         | payload[2] as u32;
                     if micros > 0 {
-                        tempo = 60_000_000.0 / micros as f64;
+                        tempo = Some(60_000_000.0 / micros as f64);
                     }
                 }
                 if kind == 0x2f {
@@ -132,23 +137,7 @@ fn parse_track(data: &[u8], ticks_per_quarter: u16) -> Result<Score, String> {
         }
     }
 
-    notes.sort_by_key(|note| {
-        (
-            (note.start * ticks_per_quarter as f64).round() as i64,
-            note.pitch.clone(),
-        )
-    });
-    Ok(Score {
-        tempo,
-        wave: Wave::Triangle,
-        gain: 0.3,
-        envelope: Envelope::default(),
-        vibrato: Vibrato {
-            rate: 0.0,
-            cents: 0.0,
-        },
-        notes,
-    })
+    Ok(TrackData { notes, tempo })
 }
 
 fn make_note(pitch: u8, start: u32, end: u32, velocity: u8, ticks_per_quarter: u16) -> Note {
@@ -178,12 +167,14 @@ pub fn import_midi(bytes: &[u8]) -> Result<Score, String> {
         return Err("invalid MIDI header length".into());
     }
     let format = reader.u16be()?;
-    if format != 0 {
-        return Err(format!("only format 0 MIDI is supported, got {format}"));
+    if format > 1 {
+        return Err(format!(
+            "only format 0 and 1 MIDI is supported, got {format}"
+        ));
     }
-    let tracks = reader.u16be()?;
-    if tracks != 1 {
-        return Err(format!("only one MIDI track is supported, got {tracks}"));
+    let declared_tracks = reader.u16be()?;
+    if declared_tracks == 0 {
+        return Err("MIDI file declares no tracks".into());
     }
     let ticks_per_quarter = reader.u16be()?;
     if ticks_per_quarter == 0 {
@@ -191,15 +182,48 @@ pub fn import_midi(bytes: &[u8]) -> Result<Score, String> {
     }
     reader.take(header_length as usize - 6)?;
 
+    let mut notes = Vec::new();
+    let mut tempo = None;
+    let mut found_tracks = 0_u16;
     while reader.pos < bytes.len() {
         let id = reader.take(4)?;
         let length = reader.u32be()? as usize;
         let chunk = reader.take(length)?;
         if id == b"MTrk" {
-            return parse_track(chunk, ticks_per_quarter);
+            found_tracks += 1;
+            let track = parse_track(chunk, ticks_per_quarter)?;
+            if tempo.is_none() {
+                tempo = track.tempo;
+            }
+            notes.extend(track.notes);
         }
     }
-    Err("MIDI file has no MTrk chunk".into())
+    if found_tracks == 0 {
+        return Err("MIDI file has no MTrk chunk".into());
+    }
+    if found_tracks != declared_tracks {
+        return Err(format!(
+            "MIDI header declares {declared_tracks} tracks but {found_tracks} were found"
+        ));
+    }
+
+    notes.sort_by_key(|note| {
+        (
+            (note.start * ticks_per_quarter as f64).round() as i64,
+            note.pitch.clone(),
+        )
+    });
+    Ok(Score {
+        tempo: tempo.unwrap_or(120.0),
+        wave: Wave::Triangle,
+        gain: 0.3,
+        envelope: Envelope::default(),
+        vibrato: Vibrato {
+            rate: 0.0,
+            cents: 0.0,
+        },
+        notes,
+    })
 }
 
 #[cfg(test)]
@@ -218,8 +242,64 @@ mod tests {
     fn rejects_unsupported_formats() {
         let bytes = midi_bytes(&score::parse("note C4 1\n").unwrap());
         let mut modified = bytes.clone();
-        modified[8] = 1; // format 1
-        assert!(import_midi(&modified).unwrap_err().contains("format 0"));
+        modified[9] = 2; // high byte of the format field
+        assert!(import_midi(&modified)
+            .unwrap_err()
+            .contains("format 0 and 1"));
+    }
+
+    fn format_one_file(tracks: &[Vec<u8>]) -> Vec<u8> {
+        let mut bytes: Vec<u8> = vec![b'M', b'T', b'h', b'd', 0, 0, 0, 6, 0, 1];
+        bytes.extend_from_slice(&(tracks.len() as u16).to_be_bytes());
+        bytes.extend_from_slice(&480_u16.to_be_bytes());
+        for track in tracks {
+            bytes.extend_from_slice(b"MTrk");
+            bytes.extend_from_slice(&(track.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(track);
+        }
+        bytes
+    }
+
+    #[test]
+    fn merges_format_one_tracks() {
+        let conductor: Vec<u8> = vec![
+            0x00, 0xff, 0x51, 0x03, 0x07, 0xa1, 0x20, // tempo 120
+            0x00, 0xff, 0x2f, 0x00,
+        ];
+        let first: Vec<u8> = vec![
+            0x00, 0x90, 60, 100, // C4 on at tick 0
+            0x83, 0x60, 0x80, 60, 0, // C4 off at tick 480
+            0x00, 0xff, 0x2f, 0x00,
+        ];
+        let second: Vec<u8> = vec![
+            0x83, 0x60, 0x90, 64, 100, // E4 on at tick 480
+            0x83, 0x60, 0x80, 64, 0, // E4 off at tick 960
+            0x00, 0xff, 0x2f, 0x00,
+        ];
+
+        let imported = import_midi(&format_one_file(&[conductor, first, second])).unwrap();
+        assert_eq!(imported.tempo, 120.0);
+        assert_eq!(imported.notes.len(), 2);
+        assert_eq!(imported.notes[0].pitch, "C4");
+        assert_eq!(imported.notes[0].start, 0.0);
+        assert_eq!(imported.notes[0].beats, 1.0);
+        assert_eq!(imported.notes[1].pitch, "E4");
+        assert_eq!(imported.notes[1].start, 1.0);
+        assert_eq!(imported.notes[1].beats, 1.0);
+        assert_eq!(
+            score::parse(&score::serialize(&imported)).unwrap(),
+            imported
+        );
+    }
+
+    #[test]
+    fn rejects_track_count_mismatch() {
+        let track: Vec<u8> = vec![0x00, 0xff, 0x2f, 0x00];
+        let bytes = format_one_file(&[track]);
+        let mut modified = bytes.clone();
+        modified[10] = 0; // declared tracks high byte -> 0, low byte stays 1; change low below
+        modified[11] = 2; // declare two tracks, one chunk present
+        assert!(import_midi(&modified).unwrap_err().contains("declares"));
     }
 
     #[test]

@@ -611,6 +611,60 @@ fn cli_midi_export_then_import_preserves_audio() {
 }
 
 #[test]
+fn cli_imports_multi_track_midi() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-multitrack-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let midi = root.join("multitrack.mid");
+    let score_path = root.join("merged.coda");
+
+    let conductor: Vec<u8> = vec![
+        0x00, 0xff, 0x51, 0x03, 0x07, 0xa1, 0x20, 0x00, 0xff, 0x2f, 0x00,
+    ];
+    let first: Vec<u8> = vec![
+        0x00, 0x90, 60, 100, 0x83, 0x60, 0x80, 60, 0, 0x00, 0xff, 0x2f, 0x00,
+    ];
+    let second: Vec<u8> = vec![
+        0x83, 0x60, 0x90, 64, 100, 0x83, 0x60, 0x80, 64, 0, 0x00, 0xff, 0x2f, 0x00,
+    ];
+    let tracks = [conductor, first, second];
+
+    let mut bytes: Vec<u8> = vec![b'M', b'T', b'h', b'd', 0, 0, 0, 6, 0, 1];
+    bytes.extend_from_slice(&(tracks.len() as u16).to_be_bytes());
+    bytes.extend_from_slice(&480_u16.to_be_bytes());
+    for track in &tracks {
+        bytes.extend_from_slice(b"MTrk");
+        bytes.extend_from_slice(&(track.len() as u32).to_be_bytes());
+        bytes.extend_from_slice(track);
+    }
+    std::fs::write(&midi, &bytes).unwrap();
+
+    let out = Command::new(exe)
+        .arg("import-midi")
+        .arg(&midi)
+        .arg("-o")
+        .arg(&score_path)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("2 notes, tempo 120"), "{stdout}");
+
+    let info = Command::new(exe)
+        .arg("info")
+        .arg(&score_path)
+        .output()
+        .unwrap();
+    let info = String::from_utf8_lossy(&info.stdout);
+    assert!(info.contains("2 sounding"), "{info}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_compare_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-compare-{}", std::process::id()));
