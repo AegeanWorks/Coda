@@ -690,3 +690,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: splice inserted a WAV and shifted the tail, with no way to replace a region while keeping the base length.
 - **Decision**: Copy the insert's frames over the base from a rounded frame offset, truncating past the base end and leaving head and tail untouched; require matching rates.
 - **Consequences**: In-place replacement, length preservation, head/tail integrity, truncation and validation are pinned by byte tests.
+
+### ADR-098: Tuplets remap a beat window in time
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: stretch scaled a whole score and augment scaled all durations, with no way to compress or expand only a selected beat window.
+- **Decision**: Remap note times inside [start,end) by a ratio, shifting later notes by the window's length delta and preserving durations, pitch, velocity and timbre.
+- **Consequences**: Window compression, outside-note shifting, duration preservation and round-trip are pinned by byte tests.

@@ -85,6 +85,7 @@ pub mod templates;
 pub mod transpose;
 pub mod tremolo;
 pub mod trim;
+pub mod tuplets;
 pub mod vary;
 pub mod velocity;
 pub mod verify;

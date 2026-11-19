@@ -2087,6 +2087,43 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_tuplets_compresses_a_beat_window() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-tuplets-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nat 1 E4 1\nat 2 G4 1\nat 3 A4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("tuplets")
+        .arg(&source)
+        .args(["--start", "1", "--end", "3", "--tuplet-ratio", "0.5", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 1"), "{text}");
+    assert!(text.contains("note E4 0.5 1"), "{text}");
+    assert!(text.contains("note G4 0.5 1"), "{text}");
+    assert!(text.contains("note A4 1 1"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("tuplets")
+        .arg(&source)
+        .args(["--start", "1", "--end", "3"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_ramp_draws_a_crescendo() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-ramp-{}", std::process::id()));

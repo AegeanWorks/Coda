@@ -78,6 +78,7 @@ use coda::templates;
 use coda::transpose;
 use coda::tremolo;
 use coda::trim;
+use coda::tuplets;
 use coda::vary;
 use coda::velocity;
 use coda::verify;
@@ -162,6 +163,7 @@ USAGE
   coda ramp <score.coda> --from 0..1 --to 0..1 [-o out.coda]
   coda concat-wav <a.wav> <b.wav> [...] [-o out.wav]
   coda overwrite <base.wav> <insert.wav> --at S [-o out.wav]
+  coda tuplets <score.coda> --start B --end B --tuplet-ratio R [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -236,6 +238,7 @@ OPTIONS
       --mix 0..1       Wet mix for chorus (default: 0)
       --comp-threshold N  Compressor threshold 0..1 (default: 1)
       --comp-ratio N   Compressor ratio 1..20 (default: 1)
+      --tuplet-ratio R Tuplet time ratio for a beat window
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -373,6 +376,7 @@ fn main() -> ExitCode {
     let mut chorus_mix = 0.0_f64;
     let mut comp_threshold = 1.0_f64;
     let mut comp_ratio = 1.0_f64;
+    let mut tuplet_ratio: Option<f64> = None;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -822,6 +826,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--tuplet-ratio" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    tuplet_ratio = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--tuplet-ratio must be a positive number",
+                        "coda tuplets score.coda --start 1 --end 3 --tuplet-ratio 0.5",
                     )
                 }
             },
@@ -3531,7 +3547,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "ramp" | "digest" => {
+        | "sustain" | "ramp" | "tuplets" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4263,6 +4279,51 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "tuplets" {
+        let end = match trim_end {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "tuplets needs --end",
+                    "coda tuplets score.coda --start 1 --end 3 --tuplet-ratio 0.5",
+                )
+            }
+        };
+        let ratio = match tuplet_ratio {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "tuplets needs --tuplet-ratio",
+                    "coda tuplets score.coda --start 1 --end 3 --tuplet-ratio 0.5",
+                )
+            }
+        };
+        let grouped = match tuplets::tuplets(&composed, trim_start, end, ratio) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use 0 <= start < end and a positive ratio"),
+        };
+        let path = if output == "out.wav" {
+            "tuplets.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&grouped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {trim_start}..{end} at {ratio})",
+                    text.len(),
+                    grouped.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "ramp" {
