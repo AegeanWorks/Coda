@@ -28,6 +28,7 @@ use coda::harmonize;
 use coda::health;
 use coda::highpass;
 use coda::humanize;
+use coda::intervals;
 use coda::invert;
 use coda::join;
 use coda::lint;
@@ -127,6 +128,7 @@ USAGE
   coda chord <score.coda> --at B --pitch NOTE --quality NAME --beats B [-o out.coda]
   coda distort <in.wav> --drive 0..1 [-o out.wav]
   coda bandpass <in.wav> --high-alpha 0..1 --low-alpha 0..1 [-o out.wav]
+  coda intervals <score.coda>
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -2653,7 +2655,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "digest" => {
+        | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -3385,6 +3387,16 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "intervals" {
+        return match intervals::intervals(&composed) {
+            Ok(report) => {
+                print!("{report}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(&e, "write at least one pitched note in the score"),
+        };
     }
 
     if command == "info" {

@@ -564,3 +564,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Lowpass and highpass each addressed one end of the spectrum but removing both needed two separate commands.
 - **Decision**: Apply a one-pole high-pass then low-pass in a single frame pass with shared deterministic state, requiring both coefficients in 0..1.
 - **Consequences**: Edge coefficient combinations, constant-signal removal, bounded output and validation are pinned by byte tests.
+
+### ADR-080: Intervals reports melodic step sequences
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: stats reported pitch range and density but not the contour between consecutive notes.
+- **Decision**: Print signed semitone steps between consecutive sounding pitches, with extremes and up/down/level counts, skipping rests and handling single-note scores.
+- **Consequences**: Exact step sequences, rest handling, single-note output and empty-score rejection are pinned by byte tests.

@@ -2087,6 +2087,41 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_intervals_reports_melodic_steps() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-intervals-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    std::fs::write(&source, "note C4 1\nnote E4 1\nnote G4 1\nnote E4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("intervals")
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = String::from_utf8_lossy(&result.stdout);
+    assert!(text.contains("sequence    +4 +3 -3"), "{text}");
+    assert!(
+        text.contains("direction   up 2 / down 1 / level 0"),
+        "{text}"
+    );
+
+    std::fs::write(&source, "tempo 120\n").unwrap();
+    let empty = Command::new(exe)
+        .arg("intervals")
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert_eq!(empty.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_bandpass_filters_a_step_signal() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-bandpass-{}", std::process::id()));

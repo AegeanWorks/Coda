@@ -34,6 +34,7 @@ pub mod harmonize;
 pub mod health;
 pub mod highpass;
 pub mod humanize;
+pub mod intervals;
 pub mod invert;
 pub mod join;
 pub mod lint;
