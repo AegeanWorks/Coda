@@ -32,8 +32,8 @@ fn decode(wav: &[u8]) -> Result<(u32, Vec<Frame>), String> {
 /// Rotate frames left by a rounded offset, wrapping the head to the tail.
 /// A zero offset is byte-identical; length and rate are preserved.
 pub fn rotate(wav: &[u8], seconds: f64) -> Result<Vec<u8>, String> {
-    if !seconds.is_finite() {
-        return Err("offset must be a finite number".into());
+    if !seconds.is_finite() || seconds < 0.0 {
+        return Err("offset must be a non-negative number".into());
     }
     let (rate, frames) = decode(wav)?;
     if frames.is_empty() {
@@ -82,5 +82,6 @@ mod tests {
     fn rejects_bad_input() {
         assert!(rotate(b"bad", 0.0).is_err());
         assert!(rotate(&sample(), f64::NAN).is_err());
+        assert!(rotate(&sample(), -0.000125).is_err());
     }
 }

@@ -862,13 +862,13 @@ fn main() -> ExitCode {
                 }
             },
             "--rotate-by" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
-                Some(v) if v.is_finite() => {
+                Some(v) if v >= 0.0 && v.is_finite() => {
                     rotate_by = Some(v);
                     i += 2;
                 }
                 _ => {
                     return fail(
-                        "--rotate-by must be a finite number",
+                        "--rotate-by must be a non-negative number",
                         "coda rotate in.wav --rotate-by 0.5",
                     )
                 }
