@@ -284,3 +284,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Audio join and phrase loop cover assembling sound, but distinct score files need a source-level merge for further editing.
 - **Decision**: Append each subsequent score's notes with an offset of the preceding span, keeping the first score's global settings, and write canonical source.
 - **Consequences**: A single input is byte-identical, offsets and note counts are pinned by byte tests, and the merged score re-serializes exactly.
+
+### ADR-040: Resampling uses linear interpolation with an exact same-rate path
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A single render sample rate is not usable by all downstream tools; conversion must stay deterministic and dependency-free.
+- **Decision**: Decode Coda WAV frames and interpolate linearly at target-rate positions, rebuilding the header; same-rate input is returned through re-encoding unchanged.
+- **Consequences**: Frame counts round from the rate ratio, interpolation midpoints are pinned by byte tests, and invalid rates fail clearly.

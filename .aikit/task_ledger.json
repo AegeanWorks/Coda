@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-concat",
+    "task_id": "coda-resample",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795074755.1535227,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795074986.8250184,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795074760.7799447,
-    "completed_head": "998aea402c766bbe7134886b50af7b00a1125a1a",
-    "completed_tree": "3f75c67ac7d3b15df3dbb90c405b61201a8b0fb0"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-stretch",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 178 tests green; stretch identity, scaling and field preservation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795073140.1928513,
-      "timestamp_str": "2026-11-19 10:25:40",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-stretch",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-stretch' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795073147.170173,
-      "timestamp_str": "2026-11-19 10:25:47",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "42fdfeb084534b188891f10e9fecfb7850842778",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-rms-normalize",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-resample",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV sample-rate conversion",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074820.4274776,
+      "timestamp_str": "2026-11-19 10:53:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Rendered audio is locked to one sample rate; resampling is needed to feed other tools or match a target device.",
+        "benefits": "resample converts any Coda WAV to a target rate with deterministic linear interpolation, keeping a valid WAV header.",
+        "risks": "contract: same-rate input must be byte-identical, frame counts must be rounded correctly, and invalid rates must fail clearly; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure resample module with identity, ratio and interpolation byte tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "06468cabc31ebf825807e3747c4ea9bae708d026cfeb61ccf8e833d6a6f6016b",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-resample",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 208 tests green; same-rate identity, ratio-based frame counts and interpolation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074986.8250184,
+      "timestamp_str": "2026-11-19 10:56:26",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

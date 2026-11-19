@@ -822,6 +822,39 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_resample_halves_rate_and_frames() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-resample-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.25, 0.25); 1_000], 44_100)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("resample")
+        .arg(&input)
+        .args(["--rate", "22050", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let analysis = Command::new(exe)
+        .arg("analyze")
+        .arg(&output)
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&analysis.stdout);
+    assert!(text.contains("sample rate 22050"), "{text}");
+    assert!(text.contains("frames      500"), "{text}");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_concat_merges_scores_into_source() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-concat-{}", std::process::id()));

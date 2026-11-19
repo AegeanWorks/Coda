@@ -19,6 +19,7 @@ use coda::mix;
 use coda::normalize;
 use coda::quantize;
 use coda::render::{render, wav_bytes, Frame};
+use coda::resample;
 use coda::reverse;
 use coda::score;
 use coda::stats;
@@ -58,6 +59,7 @@ USAGE
   coda loop <score.coda> --times N [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda concat <a.coda> <b.coda> [...] [-o out.coda]
+  coda resample <in.wav> --rate HZ [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -87,6 +89,7 @@ OPTIONS
       --threshold DB   Silence threshold for trim (default: -60 dBFS)
       --preset NAME    Fade preset: short|gentle|long|tail|attack
       --times N        Repetitions for loop (default: 1)
+      --rate HZ        Target sample rate for resample
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -189,6 +192,7 @@ fn main() -> ExitCode {
     let mut trim_threshold = -60.0_f64;
     let mut fade_preset: Option<String> = None;
     let mut times = 1_usize;
+    let mut target_rate: Option<u32> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -430,6 +434,18 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--rate" => match need(i).and_then(|v| v.parse::<u32>().ok()) {
+                Some(v) if v > 0 && v <= 384_000 => {
+                    target_rate = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--rate must be between 1 and 384000 Hz",
+                        "coda resample in.wav --rate 22050",
+                    )
+                }
+            },
             "--bars" => match need(i).and_then(|v| v.parse::<u32>().ok()) {
                 Some(v) => {
                     options.bars = v;
@@ -622,6 +638,47 @@ fn main() -> ExitCode {
                     composed.notes.len(),
                     positional[0]
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "resample" {
+        if positional.is_empty() {
+            return fail(
+                "resample needs an input WAV",
+                "coda resample in.wav --rate 22050",
+            );
+        }
+        let rate = match target_rate {
+            Some(r) => r,
+            None => return fail("resample needs --rate", "coda resample in.wav --rate 22050"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let converted = match resample::resample(&bytes, rate) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "resampled.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &converted) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, {rate} Hz)", converted.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

@@ -27,6 +27,7 @@ pub mod normalize;
 pub mod notes;
 pub mod quantize;
 pub mod render;
+pub mod resample;
 pub mod reverse;
 pub mod score;
 pub mod stats;
