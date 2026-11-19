@@ -76,6 +76,7 @@ pub mod splice;
 pub mod stamp;
 pub mod stats;
 pub mod stretch;
+pub mod sustain;
 pub mod swing;
 pub mod templates;
 pub mod transpose;

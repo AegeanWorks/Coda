@@ -2087,6 +2087,37 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_sustain_extends_notes_to_the_next_onset() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-sustain-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nat 2 E4 0.5\nat 4 G4 0.5\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("sustain")
+        .arg(&source)
+        .args(["-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 2"), "{text}");
+    assert!(text.contains("note E4 2"), "{text}");
+    assert!(text.contains("note G4 0.5"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    assert!(String::from_utf8_lossy(&stats.stdout).contains("notes       3 sounding"));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_compress_reduces_only_loud_samples() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-compress-{}", std::process::id()));

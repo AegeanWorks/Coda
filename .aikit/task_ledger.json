@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-compress",
+    "task_id": "coda-sustain",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795097784.6306381,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795098236.980662,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795104984.6306381,
+    "lease_until": 1795105436.980662,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795097790.8041706,
-    "completed_head": "81e83e2ea1385848ec6bcb259bc1997ad4836f28",
-    "completed_tree": "4f3c652c9453cdcf270133dc45592f962eec52b7"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-noise",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 424 tests green; identity, determinism, seed variation and bounds pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795096016.1014068,
-      "timestamp_str": "2026-11-19 16:46:56",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-noise",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-noise' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795096024.0695047,
-      "timestamp_str": "2026-11-19 16:47:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "902ae0739e824b00f01beacead63c16c84bb2c16",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-midi-render",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-sustain",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a legato sustain transform",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795097935.9869947,
+      "timestamp_str": "2026-11-19 17:18:55",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "augment scales durations and stretch scales timing, but neither extends each note to the next onset to create legato.",
+        "benefits": "sustain extends each note's duration to the next distinct onset while leaving chords and the final note intact, preserving pitch, velocity and timbre.",
+        "risks": "contract: notes at a shared onset keep their length, final note unchanged, no negative durations, round-trip, empty score fails; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for extension, chord handling, final note and round-trip, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "8354d76d5f0bb8aaadf8192fbfd95eea458ffce3fce965bbe99a5ab1ccb3fe93",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-sustain",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 455 tests green; legato extension, chord handling and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795098236.980662,
+      "timestamp_str": "2026-11-19 17:23:56",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -662,3 +662,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: limit capped peaks and normalize scaled a whole file, but neither reduced only the audio above a threshold.
 - **Decision**: Map samples above the threshold to threshold + (magnitude - threshold)/ratio with sign preserved; threshold 1 or ratio 1 is byte-identical.
 - **Consequences**: Identity, quiet preservation, loud attenuation, sign preservation, determinism and validation are pinned by byte tests.
+
+### ADR-094: Sustain extends notes to the next onset
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: augment scaled durations and stretch shifted timing, but no tool made a line legato by joining each note to the next onset.
+- **Decision**: Set each note's duration to the distance to the next distinct onset, leaving the final note and all other fields untouched.
+- **Consequences**: Legato extension, chord handling, final-note preservation and round-trip are pinned by byte tests.

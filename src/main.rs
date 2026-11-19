@@ -69,6 +69,7 @@ use coda::splice;
 use coda::stamp;
 use coda::stats;
 use coda::stretch;
+use coda::sustain;
 use coda::swing;
 use coda::templates;
 use coda::transpose;
@@ -154,6 +155,7 @@ USAGE
   coda vibrato <in.wav> --vib-rate HZ --vib-depth N [-o out.wav]
   coda chorus <in.wav> [--chorus-rate HZ] [--chorus-depth N] [--chorus-delay N] [--mix 0..1] [-o out.wav]
   coda compress <in.wav> [--comp-threshold 0..1] [--comp-ratio 1..20] [-o out.wav]
+  coda sustain <score.coda> [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -3396,7 +3398,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "digest" => {
+        | "sustain" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4128,6 +4130,33 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "sustain" {
+        let legato = match sustain::sustain(&composed) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "write at least one note in the score"),
+        };
+        let path = if output == "out.wav" {
+            "sustained.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&legato);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, sustained)",
+                    text.len(),
+                    legato.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "sequence" {
