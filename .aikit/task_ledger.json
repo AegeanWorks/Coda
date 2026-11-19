@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-multitrack-midi",
+    "task_id": "coda-join",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795069166.2584999,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795069401.4705427,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795069174.994619,
-    "completed_head": "c0c0717051fdaa82f4852184d83f189fb16d6c63",
-    "completed_tree": "53eb9719269acb1e4cb825087b77d8ef9d61ac18"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-score-roundtrip",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 72 tests green; parse(serialize(score)) equals score for all styles, and a cursor bug in at/note placement was found and fixed by the round-trip test",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795067849.8775432,
-      "timestamp_str": "2026-11-19 08:57:29",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-score-roundtrip",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-score-roundtrip' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795067866.115961,
-      "timestamp_str": "2026-11-19 08:57:46",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "8bfe8087bad1c82280f5cbeb072fbcad647c34e5",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-transpose",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-join",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV joining across multiple scores",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795069234.6933715,
+      "timestamp_str": "2026-11-19 09:20:34",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Long pieces are written as sections, but Coda could only render one score per file; joining renders a sequence as one WAV.",
+        "benefits": "join validates sample-rate parity and concatenates PCM data with a corrected RIFF header, so sections compose without external audio tools.",
+        "risks": "contract: individual WAV bytes and golden vectors must not change; mismatched sample rates must fail clearly; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure join module with exact header/data byte tests, a CLI command rendering each input at one rate, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "cee6eb08fe61cb73d5b2e9340f15c7ec8474bda44a9fad082b8b5e83f36300ca",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-join",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 104 tests green; joined WAV header and concatenated data pinned byte-for-byte, mixed sample rates rejected",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795069401.4705427,
+      "timestamp_str": "2026-11-19 09:23:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

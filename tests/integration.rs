@@ -611,6 +611,48 @@ fn cli_midi_export_then_import_preserves_audio() {
 }
 
 #[test]
+fn cli_join_concatenates_sections_byte_for_byte() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-join-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.coda");
+    let b = root.join("b.coda");
+    let out1 = root.join("one.wav");
+    let out2 = root.join("two.wav");
+    std::fs::write(&a, "note C4 1\n").unwrap();
+    std::fs::write(&b, "note E4 0.5\n").unwrap();
+
+    for out in [&out1, &out2] {
+        let result = Command::new(exe)
+            .arg("join")
+            .arg(&a)
+            .arg(&b)
+            .arg("-o")
+            .arg(out)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(String::from_utf8_lossy(&result.stdout).contains("2 sections"));
+    }
+    let joined = std::fs::read(&out1).unwrap();
+    assert_eq!(&joined[0..4], b"RIFF");
+    assert_eq!(&joined[36..40], b"data");
+    assert_eq!(joined, std::fs::read(&out2).unwrap());
+
+    let single = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(root.join("single.wav"))
+        .output()
+        .unwrap();
+    assert!(single.status.success());
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_imports_multi_track_midi() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-multitrack-{}", std::process::id()));

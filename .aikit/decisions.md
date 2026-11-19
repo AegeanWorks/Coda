@@ -130,3 +130,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: DAW exports are usually format 1 with a conductor track and separate note tracks; format 0 only was too narrow.
 - **Decision**: Parse every MTrk chunk, take the first tempo meta event found, merge all note events, and sort the combined notes by (start tick, pitch) into one Score.
 - **Consequences**: Format-0 imports stay byte-identical; track-count mismatches are rejected; imported notes are ordered by time then pitch for determinism.
+
+### ADR-018: Joining validates WAV headers and rebuilds the RIFF length
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Sections rendered separately must combine into one playable file without external audio tools.
+- **Decision**: Add a pure join module that checks 16-bit stereo WAV headers and sample-rate parity, concatenates data payloads, and writes a fresh RIFF header with the summed length; expose it as the join command.
+- **Consequences**: Sections at different sample rates are rejected; single-part joins are byte-identical; golden vectors for individual renders are unchanged.

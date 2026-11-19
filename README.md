@@ -45,6 +45,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Transposition** — `--semitones N` shifts every pitched note chromatically while leaving timing, velocity, pan and envelopes untouched; an inverse shift restores byte-identical audio.
 - **Seeded variation** — `vary` applies bounded, reproducible changes to pitch, velocity, pan and timbre; `--amount 0` is an exact identity.
 - **Comparison** — `compare` reports ordered structural differences between two scores and whether their rendered audio is byte-identical.
+- **Joining** — `join` renders several scores at one sample rate and concatenates their PCM data with a corrected RIFF header.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -61,6 +62,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `vary <score.coda> --seed N` | Write a seeded variation as canonical source. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
 | `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
+| `join <a.coda> <b.coda> [...]` | Render sections and concatenate them into one WAV. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 

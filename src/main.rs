@@ -3,6 +3,7 @@
 use coda::compare;
 use coda::digest;
 use coda::gen::{self, GenOptions, Scale, Style};
+use coda::join;
 use coda::lint;
 use coda::midi_import;
 use coda::render::{render, wav_bytes};
@@ -24,6 +25,7 @@ USAGE
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda compare <a.coda> <b.coda>
+  coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda import-midi <file.mid> [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
@@ -231,6 +233,56 @@ fn main() -> ExitCode {
                 i += 1;
             }
         }
+    }
+
+    if command == "join" {
+        if positional.len() < 2 {
+            return fail(
+                "join needs at least two score files",
+                "coda join a.coda b.coda [-o out.wav]",
+            );
+        }
+        let mut parts = Vec::new();
+        for path in &positional {
+            let mut score = match read_score(path) {
+                Ok(s) => s,
+                Err(code) => return code,
+            };
+            if let Some(w) = wave_override {
+                score.wave = w;
+                for note in &mut score.notes {
+                    note.wave = w;
+                }
+            }
+            if let Some(t) = tempo_override {
+                score.tempo = t;
+            }
+            let score = if semitones == 0 {
+                score
+            } else {
+                transpose::transpose(&score, semitones)
+            };
+            parts.push(wav_bytes(&render(&score, sample_rate), sample_rate));
+        }
+        let joined = match join::join_wavs(&parts) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "all sections must be rendered at the same sample rate"),
+        };
+        return match fs::write(&output, &joined) {
+            Ok(()) => {
+                println!(
+                    "wrote {output} ({} bytes, {} sections, {} samples)",
+                    joined.len(),
+                    parts.len(),
+                    (joined.len() - 44) / 4
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{output}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "import-midi" {
