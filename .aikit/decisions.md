@@ -102,3 +102,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Moving oscillator choice onto Note silently broke --wave for file-based commands; a CLI check caught it.
 - **Decision**: Propagate a --wave override to every note of a parsed score as well as the score default; seed already did this through its generator.
 - **Consequences**: A byte-level regression test pins the behavior; golden vectors for unmodified scores are unchanged.
+
+### ADR-014: Variation is a pure seeded transform with an exact identity
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A score is a single point; a reproducible family of related pieces needs a bounded transform with no hidden state.
+- **Decision**: Implement vary(score, seed, amount) with a seeded LCG, bounded velocity/pan drift, occasional pitch ornament and waveform swaps; amount 0 returns the input unchanged, and the CLI writes canonical .coda source.
+- **Consequences**: Identical seeds give identical source bytes; all varied fields stay in valid ranges; the result is an ordinary editable score that re-parses exactly.

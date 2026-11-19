@@ -14,4 +14,5 @@ pub mod notes;
 pub mod render;
 pub mod score;
 pub mod transpose;
+pub mod vary;
 pub mod wave;

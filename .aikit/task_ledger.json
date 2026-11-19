@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-wave-override-fix",
+    "task_id": "coda-vary",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795068228.2233655,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795068443.3618739,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795068238.1256666,
-    "completed_head": "3534fc92b6c2f29719a1d69346f6308af9285750",
-    "completed_tree": "e440e5a1b8a66379dfa4f8e8243e37fffe9dfb4c"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-note-vibrato",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 58 tests green; per-note vibrato overrides verified with byte comparisons and reset semantics; old scores unchanged",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795066679.078969,
-      "timestamp_str": "2026-11-19 08:37:59",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-note-vibrato",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-note-vibrato' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795066704.3643215,
-      "timestamp_str": "2026-11-19 08:38:24",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "4911390e530f70c693df74e3d7ebe0592eee5d1a",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-note-wave",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-vary",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add seeded score variation",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068305.495727,
+      "timestamp_str": "2026-11-19 09:05:05",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "A single score can only be heard one way; a deterministic variation command turns it into a family of related pieces without manual editing.",
+        "benefits": "vary applies bounded, seeded changes to pitch, velocity, pan and timbre; amount 0 is an exact identity; the result is an ordinary editable score.",
+        "risks": "contract: amount 0 must return a byte-identical Score and all varied fields must stay in valid ranges; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure vary module with identity/determinism/bounds tests, a CLI command routing to canonical .coda output, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "e78f245e86e763c2e78811c289caaea9f73e0a5808612c7bad9a1f40c0710ed8",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-vary",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 85 tests green; seeded variation is byte-identical for equal seeds, identity at amount 0, and output re-parses cleanly",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068443.3618739,
+      "timestamp_str": "2026-11-19 09:07:23",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -489,6 +489,64 @@ fn cli_score_export_is_parseable_source() {
 }
 
 #[test]
+fn cli_vary_is_seeded_and_writes_parseable_source() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-vary-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let mut outputs = Vec::new();
+
+    for (name, seed) in [("a.coda", "42"), ("b.coda", "42"), ("c.coda", "43")] {
+        let path = root.join(name);
+        let out = Command::new(exe)
+            .args([
+                "vary",
+                "examples/scale.coda",
+                "--seed",
+                seed,
+                "--amount",
+                "0.8",
+                "-o",
+            ])
+            .arg(&path)
+            .output()
+            .expect("coda binary should run");
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(text.starts_with("tempo "), "{text}");
+        let checked = Command::new(exe).arg("lint").arg(&path).output().unwrap();
+        assert!(checked.status.success());
+        outputs.push(std::fs::read(&path).unwrap());
+    }
+    assert_eq!(outputs[0], outputs[1], "same seed must be identical");
+    assert_ne!(outputs[0], outputs[2], "different seeds must differ");
+
+    let identity = root.join("identity.coda");
+    let zero = root.join("zero.coda");
+    for (command, path) in [("export-score", &identity), ("vary", &zero)] {
+        let mut args = vec![command, "examples/scale.coda"];
+        if command == "vary" {
+            args.extend(["--seed", "42", "--amount", "0"]);
+        }
+        args.push("-o");
+        let out = Command::new(exe).args(args).arg(path).output().unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    assert_eq!(
+        std::fs::read(&identity).unwrap(),
+        std::fs::read(&zero).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_lint_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-lint-{}", std::process::id()));

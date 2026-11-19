@@ -6,6 +6,7 @@ use coda::lint;
 use coda::render::{render, wav_bytes};
 use coda::score;
 use coda::transpose;
+use coda::vary;
 use coda::wave::Wave;
 use std::path::Path;
 use std::{env, fs, process::ExitCode};
@@ -19,6 +20,7 @@ USAGE
   coda info <score.coda>
   coda lint <score.coda>
   coda export-score <score.coda> [options]
+  coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
   coda help
@@ -33,6 +35,8 @@ OPTIONS
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
+      --seed N         Variation seed for `vary`
+      --amount 0..1    Variation strength (default: 0.5)
 
 SCORE DIRECTIVES
   tempo <bpm>          wave <name>          gain <0..1>
@@ -85,6 +89,8 @@ fn main() -> ExitCode {
     let mut wave_override: Option<Wave> = None;
     let mut tempo_override: Option<f64> = None;
     let mut semitones = 0_i32;
+    let mut variation_seed = 0_u64;
+    let mut variation_amount = 0.5_f64;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -189,6 +195,30 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--seed" => match need(i).and_then(|v| v.parse::<u64>().ok()) {
+                Some(n) => {
+                    variation_seed = n;
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--seed must be a non-negative integer",
+                        "coda vary score.coda --seed 42",
+                    )
+                }
+            },
+            "--amount" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    variation_amount = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--amount must be between 0 and 1",
+                        "coda vary score.coda --seed 42 --amount 0.7",
+                    )
+                }
+            },
             flag if flag.starts_with('-') => {
                 return fail(&format!("unknown option '{flag}'"), "coda help")
             }
@@ -284,7 +314,7 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "lint" | "export-score" | "digest" => {
+        "render" | "info" | "lint" | "export-score" | "vary" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -335,6 +365,30 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "vary" {
+        let varied = vary::vary(&composed, variation_seed, variation_amount);
+        let path = if output == "out.wav" {
+            "variation.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&varied);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, seed {variation_seed}, amount {variation_amount})",
+                    text.len(),
+                    varied.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "lint" {
         let warnings = lint::lint(&composed);
