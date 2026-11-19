@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-normalize",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795069844.147593,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795069852.4504237,
+    "completed_head": "7cb909cf7c1f7e87e83e6f15d42d7fa02bbfe5fa",
+    "completed_tree": "b5b374511d81e7d9e8fb5729f8b72fb41d1a9aeb"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-vary",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add seeded score variation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795068305.495727,
-      "timestamp_str": "2026-11-19 09:05:05",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "A single score can only be heard one way; a deterministic variation command turns it into a family of related pieces without manual editing.",
-        "benefits": "vary applies bounded, seeded changes to pitch, velocity, pan and timbre; amount 0 is an exact identity; the result is an ordinary editable score.",
-        "risks": "contract: amount 0 must return a byte-identical Score and all varied fields must stay in valid ranges; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure vary module with identity/determinism/bounds tests, a CLI command routing to canonical .coda output, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "e78f245e86e763c2e78811c289caaea9f73e0a5808612c7bad9a1f40c0710ed8",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-vary",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-normalize",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-normalize' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795069852.5282278,
+      "timestamp_str": "2026-11-19 09:30:52",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "7cb909cf7c1f7e87e83e6f15d42d7fa02bbfe5fa",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
