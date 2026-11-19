@@ -118,6 +118,27 @@ fn generative_mode_is_repeatable_and_scale_aware() {
 }
 
 #[test]
+fn envelope_presets_change_render_and_reset() {
+    let plain = score::parse("wave sine\nnote A4 1\nat 2 C5 1\n").unwrap();
+    let marked = score::parse("wave sine\nnote A4 1\npreset pluck\nat 2 C5 1\n").unwrap();
+    assert_ne!(
+        wav_bytes(&render(&plain, 8_000), 8_000),
+        wav_bytes(&render(&marked, 8_000), 8_000)
+    );
+
+    let via_preset =
+        score::parse("wave sine\npreset pad\nnote A4 1\npreset default\nat 2 C5 1\n").unwrap();
+    let explicit = score::parse(
+        "wave sine\nenv 0.35 0.4 0.75 0.9\nnote A4 1\nenv 0.01 0.08 0.65 0.15\nat 2 C5 1\n",
+    )
+    .unwrap();
+    assert_eq!(
+        wav_bytes(&render(&via_preset, 8_000), 8_000),
+        wav_bytes(&render(&explicit, 8_000), 8_000)
+    );
+}
+
+#[test]
 fn per_note_envelope_changes_render() {
     let plain = score::parse("wave sine\nnote A4 1\n").unwrap();
     let sharp = score::parse("wave sine\nenv 0 0 1 0\nnote A4 1\n").unwrap();

@@ -14,6 +14,7 @@
 //! inst saw           # per-note oscillator; `inst default` restores
 //! pan -0.6           # running stereo position: -1 left, 0 centre, 1 right
 //! env 0 0 1 0        # per-note ADSR override; `env default` resets
+//! preset pad         # named ADSR; preset default resets
 //! repeat 4           # repeat the next note/rest events
 //! note C4 1          # sequential note, duration in beats
 //! note E4 1 0.6      # optional velocity (0..1)
@@ -202,6 +203,15 @@ pub fn parse(text: &str) -> Result<Score, String> {
                     }
                 };
             }
+            "preset" => {
+                note_envelope = match a {
+                    Some("default") => score.envelope,
+                    Some(name) => Envelope::preset(name).ok_or_else(|| {
+                        line_error(idx, format!("unknown envelope preset '{name}'"))
+                    })?,
+                    None => return Err(line_error(idx, "preset needs a name".into())),
+                };
+            }
             "vibrato" => {
                 let rate = number(a, "vibrato rate").map_err(|m| line_error(idx, m))?;
                 let cents = number(b, "vibrato cents").map_err(|m| line_error(idx, m))?;
@@ -375,6 +385,14 @@ mod tests {
         assert_eq!(score.notes[2].vibrato, score.vibrato);
         assert!(parse("vib 5 2000\nnote C4 1\n").is_err());
         assert!(parse("vib 200 20\nnote C4 1\n").is_err());
+    }
+
+    #[test]
+    fn preset_sets_and_restores_note_envelope() {
+        let score = parse("preset pad\nnote C4 1\npreset default\nnote E4 1\n").unwrap();
+        assert_eq!(score.notes[0].envelope, Envelope::preset("pad").unwrap());
+        assert_eq!(score.notes[1].envelope, score.envelope);
+        assert!(parse("preset bogus\nnote C4 1\n").is_err());
     }
 
     #[test]

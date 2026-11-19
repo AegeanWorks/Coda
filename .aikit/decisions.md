@@ -74,3 +74,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Legal scores can still be musically poor or risky; an error would prevent experimentation and change existing output.
 - **Decision**: Add a pure lint module that returns ordered warnings and a lint command that only prints them, exiting 0 even with warnings; parse errors still exit 2.
 - **Consequences**: Exact-output tests pin the warning format; no WAV, MIDI or score bytes change; CLI feedback is deterministic and reviewable.
+
+### ADR-010: Named ADSR presets share the running envelope slot
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Four-number ADSR overrides are precise but unreadable for common articulations.
+- **Decision**: Expose five named envelopes through Envelope::preset and a preset directive that writes the same running note envelope as env; preset default restores the score envelope.
+- **Consequences**: Presets are plain Envelope values with no new data type; a preset is byte-equivalent to its explicit numbers; unoverridden scores keep their golden vectors.

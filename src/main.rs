@@ -40,6 +40,7 @@ SCORE DIRECTIVES
   inst <wave>           per-note oscillator; inst default resets
   vibrato <rate_hz> <cents>  vib <rate_hz> <cents>
   env <a> <d> <s> <r>   per-note ADSR; env default resets
+  preset <name>         pluck|stab|pad|organ|bow; preset default resets
 
 EXIT CODES
   0 success    2 usage or IO error
