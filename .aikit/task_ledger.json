@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-fades",
+    "task_id": "coda-echo",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795070334.8026412,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795070607.2188256,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795070342.8315158,
-    "completed_head": "277c9ed1af456f440ceb500f25f2959398aebc0d",
-    "completed_tree": "7b8ad45d294c004994a70506256fdb795ec5f407"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-import",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 96 tests green; supported-subset MIDI round-trip preserves byte-identical audio and richer scores report their non-MIDI losses via compare",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795068937.6653254,
-      "timestamp_str": "2026-11-19 09:15:37",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-midi-import",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-midi-import' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795068945.8655682,
-      "timestamp_str": "2026-11-19 09:15:45",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "af500fa90af051f7adf20d9f480fd61fdffc6014",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-multitrack-midi",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-echo",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a deterministic echo/delay audio effect",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070404.4715915,
+      "timestamp_str": "2026-11-19 09:40:04",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Rendered sounds are dry; a simple feedback delay adds a common mixing tool without external processors.",
+        "benefits": "--echo-delay and --echo-feedback add a bounded, reproducible comb echo to any render, seed, album track or joined section.",
+        "risks": "contract: zero delay must be byte-identical to current golden vectors; feedback must stay below 1 to avoid runaway gain; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure echo module with impulse-response and identity byte tests, wire two CLI options into the shared audio helper, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "23f5263d60aa57abf152cec2b045060f84c06454a050afadd377efcc662d7358",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-echo",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 127 tests green; echo impulse tail, clamping and zero-delay identity pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070607.2188256,
+      "timestamp_str": "2026-11-19 09:43:27",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

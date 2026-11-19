@@ -753,6 +753,56 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_echo_changes_audio_but_identity_is_exact() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-echo-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let plain = root.join("plain.wav");
+    let echoed = root.join("echo.wav");
+
+    let base = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&plain)
+        .output()
+        .unwrap();
+    assert!(base.status.success());
+    let effect = Command::new(exe)
+        .args([
+            "render",
+            "examples/scale.coda",
+            "--echo-delay",
+            "0.08",
+            "--echo-feedback",
+            "0.4",
+            "-o",
+        ])
+        .arg(&echoed)
+        .output()
+        .unwrap();
+    assert!(
+        effect.status.success(),
+        "{}",
+        String::from_utf8_lossy(&effect.stderr)
+    );
+
+    let before = std::fs::read(&plain).unwrap();
+    let after = std::fs::read(&echoed).unwrap();
+    assert_eq!(before.len(), after.len());
+    assert_ne!(before, after);
+
+    let no_delay = Command::new(exe)
+        .args(["digest", "examples/scale.coda", "--echo-delay", "0"])
+        .output()
+        .unwrap();
+    let plain_digest = Command::new(exe)
+        .args(["digest", "examples/scale.coda"])
+        .output()
+        .unwrap();
+    assert_eq!(no_delay.stdout, plain_digest.stdout);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_fades_change_edges_but_preserve_length() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-fades-{}", std::process::id()));

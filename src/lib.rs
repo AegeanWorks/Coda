@@ -7,6 +7,7 @@
 
 pub mod compare;
 pub mod digest;
+pub mod echo;
 pub mod envelope;
 pub mod fade;
 pub mod gen;

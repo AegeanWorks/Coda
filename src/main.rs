@@ -2,6 +2,7 @@
 
 use coda::compare;
 use coda::digest;
+use coda::echo;
 use coda::fade;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::join;
@@ -44,6 +45,8 @@ OPTIONS
       --sample-rate N  Samples per second (default: 44100)
       --fade-in S      Linear fade-in in seconds (default: 0)
       --fade-out S     Linear fade-out in seconds (default: 0)
+      --echo-delay S   Feedback delay in seconds (default: 0)
+      --echo-feedback  Echo gain 0..1 (default: 0.35)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -83,8 +86,11 @@ fn rendered_wav(
     sample_rate: u32,
     fade_in: f64,
     fade_out: f64,
+    echo_delay: f64,
+    echo_feedback: f64,
 ) -> (Vec<Frame>, Vec<u8>) {
     let mut samples = render(composed, sample_rate);
+    echo::apply_echo(&mut samples, sample_rate, echo_delay, echo_feedback);
     fade::apply_fades(&mut samples, sample_rate, fade_in, fade_out);
     let bytes = wav_bytes(&samples, sample_rate);
     (samples, bytes)
@@ -115,6 +121,8 @@ fn main() -> ExitCode {
     let mut sample_rate = 44_100_u32;
     let mut fade_in = 0.0_f64;
     let mut fade_out = 0.0_f64;
+    let mut echo_delay = 0.0_f64;
+    let mut echo_feedback = 0.35_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -174,6 +182,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--fade-out must be a non-negative number",
                         "coda render score.coda --fade-out 0.1",
+                    )
+                }
+            },
+            "--echo-delay" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    echo_delay = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--echo-delay must be a non-negative number",
+                        "coda render score.coda --echo-delay 0.12",
+                    )
+                }
+            },
+            "--echo-feedback" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    echo_feedback = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--echo-feedback must be between 0 and 1",
+                        "coda render score.coda --echo-feedback 0.4",
                     )
                 }
             },
@@ -420,7 +452,14 @@ fn main() -> ExitCode {
             } else {
                 transpose::transpose(&score, semitones)
             };
-            let (_, bytes) = rendered_wav(&score, sample_rate, fade_in, fade_out);
+            let (_, bytes) = rendered_wav(
+                &score,
+                sample_rate,
+                fade_in,
+                fade_out,
+                echo_delay,
+                echo_feedback,
+            );
             parts.push(bytes);
         }
         let joined = match join::join_wavs(&parts) {
@@ -544,7 +583,14 @@ fn main() -> ExitCode {
         let mut fingerprints = Vec::new();
         for n in 0..tracks {
             let piece = gen::generate(base + n as u64, options);
-            let (samples, bytes) = rendered_wav(&piece, sample_rate, fade_in, fade_out);
+            let (samples, bytes) = rendered_wav(
+                &piece,
+                sample_rate,
+                fade_in,
+                fade_out,
+                echo_delay,
+                echo_feedback,
+            );
             let fingerprint = digest::fingerprint(&bytes);
             fingerprints.push(fingerprint.clone());
             let filename = format!("track-{:02}.wav", n + 1);
@@ -746,7 +792,14 @@ fn main() -> ExitCode {
     }
 
     if command == "digest" {
-        let (samples, bytes) = rendered_wav(&composed, sample_rate, fade_in, fade_out);
+        let (samples, bytes) = rendered_wav(
+            &composed,
+            sample_rate,
+            fade_in,
+            fade_out,
+            echo_delay,
+            echo_feedback,
+        );
         let fingerprint = digest::fingerprint(&bytes);
         println!(
             "{fingerprint}  {} bytes  {} samples",
@@ -776,7 +829,14 @@ fn main() -> ExitCode {
         );
         (bytes, summary)
     } else {
-        let (samples, bytes) = rendered_wav(&composed, sample_rate, fade_in, fade_out);
+        let (samples, bytes) = rendered_wav(
+            &composed,
+            sample_rate,
+            fade_in,
+            fade_out,
+            echo_delay,
+            echo_feedback,
+        );
         let fingerprint = digest::fingerprint(&bytes);
         let summary = format!(
             "{} bytes, {} samples, {} notes, digest {fingerprint}",

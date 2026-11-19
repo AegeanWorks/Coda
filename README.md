@@ -50,6 +50,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
 - **Fades** — `--fade-in` and `--fade-out` apply deterministic linear envelopes to rendered audio, clamped to half the piece.
+- **Echo** — `--echo-delay` and `--echo-feedback` add a bounded, reproducible feedback delay to any render.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -73,7 +74,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 
-Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`, `--peak`, `--fade-in`, `--fade-out`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
+Options: `-o/--out`, `--sample-rate`, `--bars`, `--tracks`, `--wave`, `--scale`, `--style`, `--tempo`, `--semitones`, `--seed`, `--amount`, `--peak`, `--fade-in`, `--fade-out`, `--echo-delay`, `--echo-feedback`. Output routing by extension: `.wav` renders audio, `.mid`/`.midi` writes MIDI, `.coda` writes canonical source. Exit codes: `0` success, `2` usage/IO error.
 
 ## Score language
 

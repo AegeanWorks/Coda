@@ -165,3 +165,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Hard starts and stops make rendered sections and joins sound unfinished.
 - **Decision**: Apply a linear envelope over --fade-in/--fade-out seconds to both channels before WAV encoding, clamping each fade to half the buffer; zero fades leave bytes unchanged.
 - **Consequences**: Audio paths (render, seed, album, join, digest) share one helper, while MIDI and score export are unaffected; golden vectors remain valid when fades are absent.
+
+### ADR-023: Echo is a bounded comb delay in the shared audio path
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Dry renders need a simple spatial effect without external processors.
+- **Decision**: Add a feedback delay applied before fades in the shared render helper, with feedback clamped below 1 and no effect when delay is zero or longer than the buffer.
+- **Consequences**: Zero-delay renders stay byte-identical; the impulse response is pinned by tests; MIDI and score export are unaffected.
