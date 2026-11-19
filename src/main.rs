@@ -18,6 +18,7 @@ use coda::render::{render, wav_bytes, Frame};
 use coda::reverse;
 use coda::score;
 use coda::stats;
+use coda::swing;
 use coda::templates;
 use coda::transpose;
 use coda::vary;
@@ -43,6 +44,7 @@ USAGE
   coda quantize <score.coda> [--grid 0..1 beats] [-o out.coda]
   coda humanize <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda diatonic <score.coda> --steps N [--scale name] [-o out.coda]
+  coda swing <score.coda> [--ratio 0..1] [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -65,6 +67,7 @@ OPTIONS
       --grid B         Quantization grid in beats (default: 0.25)
       --gain-b 0..1    Gain on the second WAV in mix (default: 0.5)
       --steps N        Scale degrees to move in diatonic (default: 0)
+      --ratio 0..1     Swing amount (default: 0.6)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -156,6 +159,7 @@ fn main() -> ExitCode {
     let mut grid = 0.25_f64;
     let mut gain_b = 0.5_f64;
     let mut steps = 0_i32;
+    let mut ratio = 0.6_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -299,6 +303,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--steps must be an integer",
                         "coda diatonic score.coda --steps 2",
+                    )
+                }
+            },
+            "--ratio" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    ratio = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--ratio must be between 0 and 1",
+                        "coda swing score.coda --ratio 0.6",
                     )
                 }
             },
@@ -814,7 +830,7 @@ fn main() -> ExitCode {
 
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
-        | "diatonic" | "reverse" | "quantize" | "digest" => {
+        | "diatonic" | "swing" | "reverse" | "quantize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -865,6 +881,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "swing" {
+        let swung = match swing::swing(&composed, ratio) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a ratio between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "swung.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&swung);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, swing {ratio})",
+                    text.len(),
+                    swung.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "diatonic" {
         let shifted = diatonic::diatonic(&composed, steps, options.scale);

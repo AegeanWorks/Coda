@@ -753,6 +753,49 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_swing_delays_offbeats_with_exact_identity() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-swing-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let straight = root.join("straight.coda");
+    let swung = root.join("swung.coda");
+
+    let out = Command::new(exe)
+        .args(["swing", "examples/scale.coda", "--ratio", "0", "-o"])
+        .arg(&straight)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let out = Command::new(exe)
+        .args(["swing", "examples/scale.coda", "--ratio", "0.8", "-o"])
+        .arg(&swung)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let baseline = root.join("baseline.coda");
+    let out = Command::new(exe)
+        .args(["export-score", "examples/scale.coda", "-o"])
+        .arg(&baseline)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        std::fs::read(&straight).unwrap(),
+        std::fs::read(&baseline).unwrap()
+    );
+    assert_ne!(
+        std::fs::read(&swung).unwrap(),
+        std::fs::read(&baseline).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_diatonic_moves_by_degrees_with_exact_identity() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-diatonic-{}", std::process::id()));

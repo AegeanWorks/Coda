@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-diatonic",
+    "task_id": "coda-swing",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795072437.708626,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795072701.3154643,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795072444.9458525,
-    "completed_head": "58f40b1f8778a20f4c9a145947bf062e6555f39f",
-    "completed_tree": "bb2f1e0116d2a5a437ae2b14bff7146a501b1ce7"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-reverse",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 132 tests green; double reversal is byte-identical in source and audio",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795070792.1847486,
-      "timestamp_str": "2026-11-19 09:46:32",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-reverse",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-reverse' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795070802.1410742,
-      "timestamp_str": "2026-11-19 09:46:42",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "d0ccd95039e2148ac16cb59494a831c2dfdb0e36",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-autopan",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-swing",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a swing timing transform",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072506.260418,
+      "timestamp_str": "2026-11-19 10:15:06",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Quantize snaps to an even grid and humanize randomizes; a swing transform applies the classic long-short eighth feel deterministically.",
+        "benefits": "swing delays off-beat eighths by a controlled ratio while leaving downbeats and all timbral fields untouched.",
+        "risks": "contract: ratio 0 must be an identity, only off-beats may move, and output must stay exactly serializable; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure swing module with on/off-beat, identity and preservation tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "601b2a2cd41e80876dd8c20771151e6a60d0ff8124e3b96292086c32ef4fe831",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-swing",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 169 tests green; swing off-beat delay, identity and exact serialization pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072701.3154643,
+      "timestamp_str": "2026-11-19 10:18:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

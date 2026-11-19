@@ -221,3 +221,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Chromatic transposition can leave a melody outside its intended key; degree-based movement preserves key membership.
 - **Decision**: Map each pitch to the nearest degree of the chosen scale, shift by an integer number of degrees with octave wrap, and reuse the existing scale definitions and note-name helpers.
 - **Consequences**: Zero steps is byte-identical, a full scale walks an octave, and non-scale notes resolve deterministically to the nearest lower degree.
+
+### ADR-031: Swing delays only on-grid off-beats
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A deterministic long-short feel sits between rigid quantization and random humanize.
+- **Decision**: Shift notes whose start sits on an odd eighth-note grid point by ratio times a quarter beat, leaving downbeats and all non-timing fields untouched; ratio 0 is an identity.
+- **Consequences**: Swing output remains exactly serializable, off-beat positions are pinned by byte tests, and it composes with quantize and humanize.
