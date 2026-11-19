@@ -9,81 +9,48 @@
       "start": 3,
       "step": 3,
       "stop": null,
-      "stage": 1,
-      "window": 3,
+      "stage": 2,
+      "window": 6,
       "audited_commits": [
         "f90c3b61a38554ac0c69bccc91939271043ed734",
         "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-        "c8bc300044bd087109e3f31db929323162d2ba06"
+        "c8bc300044bd087109e3f31db929323162d2ba06",
+        "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+        "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+        "000f77a34534f535621e53308d763dbe9787d133"
       ],
       "status": "active",
       "created": "2026-11-19T20:05:25",
-      "updated": "2026-11-19T20:12:24",
+      "updated": "2026-11-19T20:15:56",
       "last_audit": {
         "run": "run-1",
-        "stage": 1,
-        "window": 3,
+        "stage": 2,
+        "window": 6,
         "commits": [
+          "7772432c4c2694999b4f4a1c583df3473b1bff6b",
           "f90c3b61a38554ac0c69bccc91939271043ed734",
           "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-          "c8bc300044bd087109e3f31db929323162d2ba06"
+          "c8bc300044bd087109e3f31db929323162d2ba06",
+          "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+          "000f77a34534f535621e53308d763dbe9787d133"
         ],
         "new_commits": [
+          "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+          "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+          "000f77a34534f535621e53308d763dbe9787d133"
+        ],
+        "prior_commits": [
           "f90c3b61a38554ac0c69bccc91939271043ed734",
           "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
           "c8bc300044bd087109e3f31db929323162d2ba06"
         ],
-        "prior_commits": [],
-        "findings": [
-          {
-            "code": "review-cli-accepts-negative-rotate",
-            "category": "improvement",
-            "severity": "low",
-            "path": "src/main.rs",
-            "line": 864,
-            "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-            "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-            "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-            "hunk": "eb4aaea0595b:src/main.rs#5",
-            "symbol": "",
-            "introduced": true,
-            "reproducible": false,
-            "fixable": false,
-            "interaction": "",
-            "repaired": false,
-            "source": "review",
-            "patch_old": "",
-            "patch_new": ""
-          }
-        ],
-        "repairs": [
-          {
-            "code": "review-cli-accepts-negative-rotate",
-            "path": "src/main.rs",
-            "line": 864,
-            "summary": "applied review suggestion: The CLI parser admits any finite --rotate-by value, including negatives the rend",
-            "test_name": "",
-            "applied": true
-          },
-          {
-            "code": "review-negative-offset-silently-identity",
-            "path": "src/rotate.rs",
-            "line": 35,
-            "summary": "applied review suggestion: A negative rotation offset is accepted, but casting a negative f64 to usize satu",
-            "test_name": "",
-            "applied": true
-          }
-        ],
-        "counts": {
-          "improvement": 1
-        },
-        "reviewed": 7,
+        "findings": [],
+        "repairs": [],
+        "counts": {},
+        "reviewed": 8,
         "review": {
-          "status": "reviewed",
-          "rejected": [
-            "src/rotate.rs:35: the evidence is not in the current file (it may quote a removed line)",
-            "src/main.rs:864: suggestion dropped (the quoted text occurs 0 times in the file)"
-          ],
+          "status": "unreviewed",
+          "rejected": [],
           "files": [
             ".aikit/codebase_map.md",
             ".aikit/decisions.md",
@@ -91,40 +58,12 @@
             "src/lib.rs",
             "src/main.rs",
             "src/rotate.rs",
+            "src/slapback.rs",
             "tests/integration.rs"
           ],
-          "packet": ".aikit/reforge.reviews/stage-run-1-1-f90c3b61a385.md",
+          "packet": ".aikit/reforge.reviews/stage-run-1-2-7772432c4c26.md",
           "redacted": 0,
-          "coverage": {
-            "reported": 13,
-            "total": 13,
-            "carried": [],
-            "missing": [],
-            "unknown": [],
-            "invalid": []
-          },
-          "findings": [
-            {
-              "code": "review-cli-accepts-negative-rotate",
-              "category": "improvement",
-              "severity": "low",
-              "path": "src/main.rs",
-              "line": 864,
-              "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-              "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-              "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-              "hunk": "eb4aaea0595b:src/main.rs#5",
-              "symbol": "",
-              "introduced": true,
-              "reproducible": false,
-              "fixable": false,
-              "interaction": "",
-              "repaired": false,
-              "source": "review",
-              "patch_old": "",
-              "patch_new": ""
-            }
-          ],
+          "findings": [],
           "attestations": []
         },
         "skipped": [],
@@ -135,11 +74,10 @@
           "short": "",
           "pushed": false,
           "push_error": null,
-          "empty": false,
-          "timestamp": "2026-11-19T20:11:07"
+          "empty": true,
+          "timestamp": "2026-11-19T20:15:56"
         },
-        "timestamp": "2026-11-19T20:05:31",
-        "dirty_targets": []
+        "timestamp": "2026-11-19T20:15:56"
       },
       "history": [
         {
@@ -254,92 +192,116 @@
           "tests": {},
           "gates": {},
           "delivery": {
+            "commit": "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+            "short": "7772432",
+            "pushed": false,
+            "push_error": null,
+            "empty": false,
+            "timestamp": "2026-11-19T20:15:23"
+          },
+          "timestamp": "2026-11-19T20:05:31",
+          "dirty_targets": []
+        },
+        {
+          "run": "run-1",
+          "stage": 2,
+          "window": 6,
+          "commits": [
+            "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+            "f90c3b61a38554ac0c69bccc91939271043ed734",
+            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
+            "c8bc300044bd087109e3f31db929323162d2ba06",
+            "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+            "000f77a34534f535621e53308d763dbe9787d133"
+          ],
+          "new_commits": [
+            "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+            "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+            "000f77a34534f535621e53308d763dbe9787d133"
+          ],
+          "prior_commits": [
+            "f90c3b61a38554ac0c69bccc91939271043ed734",
+            "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
+            "c8bc300044bd087109e3f31db929323162d2ba06"
+          ],
+          "findings": [],
+          "repairs": [],
+          "counts": {},
+          "reviewed": 8,
+          "review": {
+            "status": "unreviewed",
+            "rejected": [],
+            "files": [
+              ".aikit/codebase_map.md",
+              ".aikit/decisions.md",
+              "README.md",
+              "src/lib.rs",
+              "src/main.rs",
+              "src/rotate.rs",
+              "src/slapback.rs",
+              "tests/integration.rs"
+            ],
+            "packet": ".aikit/reforge.reviews/stage-run-1-2-7772432c4c26.md",
+            "redacted": 0,
+            "findings": [],
+            "attestations": []
+          },
+          "skipped": [],
+          "tests": {},
+          "gates": {},
+          "delivery": {
             "commit": "",
             "short": "",
             "pushed": false,
             "push_error": null,
-            "empty": false,
-            "timestamp": "2026-11-19T20:11:07"
+            "empty": true,
+            "timestamp": "2026-11-19T20:15:56"
           },
-          "timestamp": "2026-11-19T20:05:31",
-          "dirty_targets": []
+          "timestamp": "2026-11-19T20:15:56"
         }
       ],
-      "total_commits": 212
+      "total_commits": 213
     }
   ],
-  "stage": 1,
-  "window": 3,
+  "stage": 2,
+  "window": 6,
   "audited_commits": [
     "f90c3b61a38554ac0c69bccc91939271043ed734",
     "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-    "c8bc300044bd087109e3f31db929323162d2ba06"
+    "c8bc300044bd087109e3f31db929323162d2ba06",
+    "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+    "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+    "000f77a34534f535621e53308d763dbe9787d133"
   ],
   "last_audit": {
     "run": "run-1",
-    "stage": 1,
-    "window": 3,
+    "stage": 2,
+    "window": 6,
     "commits": [
+      "7772432c4c2694999b4f4a1c583df3473b1bff6b",
       "f90c3b61a38554ac0c69bccc91939271043ed734",
       "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-      "c8bc300044bd087109e3f31db929323162d2ba06"
+      "c8bc300044bd087109e3f31db929323162d2ba06",
+      "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+      "000f77a34534f535621e53308d763dbe9787d133"
     ],
     "new_commits": [
+      "7772432c4c2694999b4f4a1c583df3473b1bff6b",
+      "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
+      "000f77a34534f535621e53308d763dbe9787d133"
+    ],
+    "prior_commits": [
       "f90c3b61a38554ac0c69bccc91939271043ed734",
       "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
       "c8bc300044bd087109e3f31db929323162d2ba06"
     ],
-    "prior_commits": [],
-    "findings": [
-      {
-        "code": "review-cli-accepts-negative-rotate",
-        "category": "improvement",
-        "severity": "low",
-        "path": "src/main.rs",
-        "line": 864,
-        "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-        "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-        "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-        "hunk": "eb4aaea0595b:src/main.rs#5",
-        "symbol": "",
-        "introduced": true,
-        "reproducible": false,
-        "fixable": false,
-        "interaction": "",
-        "repaired": false,
-        "source": "review",
-        "patch_old": "",
-        "patch_new": ""
-      }
-    ],
-    "repairs": [
-      {
-        "code": "review-cli-accepts-negative-rotate",
-        "path": "src/main.rs",
-        "line": 864,
-        "summary": "applied review suggestion: The CLI parser admits any finite --rotate-by value, including negatives the rend",
-        "test_name": "",
-        "applied": true
-      },
-      {
-        "code": "review-negative-offset-silently-identity",
-        "path": "src/rotate.rs",
-        "line": 35,
-        "summary": "applied review suggestion: A negative rotation offset is accepted, but casting a negative f64 to usize satu",
-        "test_name": "",
-        "applied": true
-      }
-    ],
-    "counts": {
-      "improvement": 1
-    },
-    "reviewed": 7,
+    "findings": [],
+    "repairs": [],
+    "counts": {},
+    "reviewed": 8,
     "review": {
-      "status": "reviewed",
-      "rejected": [
-        "src/rotate.rs:35: the evidence is not in the current file (it may quote a removed line)",
-        "src/main.rs:864: suggestion dropped (the quoted text occurs 0 times in the file)"
-      ],
+      "status": "unreviewed",
+      "rejected": [],
       "files": [
         ".aikit/codebase_map.md",
         ".aikit/decisions.md",
@@ -347,40 +309,12 @@
         "src/lib.rs",
         "src/main.rs",
         "src/rotate.rs",
+        "src/slapback.rs",
         "tests/integration.rs"
       ],
-      "packet": ".aikit/reforge.reviews/stage-run-1-1-f90c3b61a385.md",
+      "packet": ".aikit/reforge.reviews/stage-run-1-2-7772432c4c26.md",
       "redacted": 0,
-      "coverage": {
-        "reported": 13,
-        "total": 13,
-        "carried": [],
-        "missing": [],
-        "unknown": [],
-        "invalid": []
-      },
-      "findings": [
-        {
-          "code": "review-cli-accepts-negative-rotate",
-          "category": "improvement",
-          "severity": "low",
-          "path": "src/main.rs",
-          "line": 864,
-          "message": "The CLI parser admits any finite --rotate-by value, including negatives the renderer cannot apply, so the user gets a silent no-op with a success exit instead of a usage error.",
-          "evidence": "\"--rotate-by\" => match need(i).and_then(|v| v.parse::<f64>().ok()) {",
-          "commit": "eb4aaea0595bba38c6bad3ca5ac214282c21644d",
-          "hunk": "eb4aaea0595b:src/main.rs#5",
-          "symbol": "",
-          "introduced": true,
-          "reproducible": false,
-          "fixable": false,
-          "interaction": "",
-          "repaired": false,
-          "source": "review",
-          "patch_old": "",
-          "patch_new": ""
-        }
-      ],
+      "findings": [],
       "attestations": []
     },
     "skipped": [],
@@ -391,11 +325,10 @@
       "short": "",
       "pushed": false,
       "push_error": null,
-      "empty": false,
-      "timestamp": "2026-11-19T20:11:07"
+      "empty": true,
+      "timestamp": "2026-11-19T20:15:56"
     },
-    "timestamp": "2026-11-19T20:05:31",
-    "dirty_targets": []
+    "timestamp": "2026-11-19T20:15:56"
   },
   "history": []
 }
