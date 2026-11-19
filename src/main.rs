@@ -38,6 +38,7 @@ use coda::loop_score;
 use coda::lowpass;
 use coda::midi_import;
 use coda::midi_info;
+use coda::midside;
 use coda::mix;
 use coda::normalize;
 use coda::notes;
@@ -139,6 +140,7 @@ USAGE
   coda crossfade <a.wav> <b.wav> --crossfade S [-o out.wav]
   coda limit <in.wav> --limit 0..1 [-o out.wav]
   coda sequence <score.coda> --shifts 0,12,7 [-o out.coda]
+  coda midside <in.wav> --mode encode|decode [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -183,7 +185,7 @@ OPTIONS
       --preset NAME    Fade preset: short|gentle|long|tail|attack
       --times N        Repetitions for loop (default: 1)
       --rate HZ        Target sample rate for resample
-      --mode NAME      Channel mode: mono|swap|left|right
+      --mode NAME      channels: mono|swap|left|right; midside: encode|decode
       --bits N         Output bit depth for bitdepth: 8 or 16
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
@@ -1302,6 +1304,47 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "midside" {
+        if positional.is_empty() {
+            return fail(
+                "midside needs an input WAV",
+                "coda midside in.wav --mode encode",
+            );
+        }
+        let mode = match channel_mode {
+            Some(name) => name,
+            None => return fail("midside needs --mode", "coda midside in.wav --mode encode"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let transformed = match midside::midside(&bytes, &mode) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use --mode encode or decode"),
+        };
+        let path = if output == "out.wav" {
+            format!("midside-{mode}.wav")
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &transformed) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, {mode})", transformed.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

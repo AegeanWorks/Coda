@@ -2087,6 +2087,53 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_midside_roundtrips_a_stereo_wav() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-ms-{}-{}", std::process::id(), 13));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let encoded = root.join("encoded.wav");
+    let decoded = root.join("decoded.wav");
+    std::fs::write(&input, wav_bytes(&[(0.6, 0.2), (-0.3, 0.8)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("midside")
+        .arg(&input)
+        .args(["--mode", "encode", "-o"])
+        .arg(&encoded)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let result = Command::new(exe)
+        .arg("midside")
+        .arg(&encoded)
+        .args(["--mode", "decode", "-o"])
+        .arg(&decoded)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let original = std::fs::read(&input).unwrap();
+    let restored = std::fs::read(&decoded).unwrap();
+    assert_eq!(original.len(), restored.len());
+    for i in (44..original.len()).step_by(2) {
+        let before = i16::from_le_bytes([original[i], original[i + 1]]);
+        let after = i16::from_le_bytes([restored[i], restored[i + 1]]);
+        assert!((before - after).abs() <= 2, "{before} vs {after}");
+    }
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_sequence_transposes_phrase_copies() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-seq-{}-{}", std::process::id(), 11));

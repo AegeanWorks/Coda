@@ -45,6 +45,7 @@ pub mod lowpass;
 pub mod midi;
 pub mod midi_import;
 pub mod midi_info;
+pub mod midside;
 pub mod mix;
 pub mod normalize;
 pub mod notes;

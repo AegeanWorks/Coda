@@ -606,3 +606,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: loop repeated a phrase exactly and transposed shifted it once, but building a transposed sequence needed both steps manually.
 - **Decision**: Append one copy per requested semitone shift at successive phrase endings, transposing sounding pitches when in range and preserving rhythm, velocity and timbre.
 - **Consequences**: Offset placement, transposition, exact repeats, round-trip and shift validation are pinned by byte tests.
+
+### ADR-086: Mid/side transform converts stereo components
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: channels and width could fold or widen stereo but not represent it as mid and side signals.
+- **Decision**: Apply the √2-normalized sum/difference butterfly, which is self-inverse for both encode and decode, with mode validated for caller clarity.
+- **Consequences**: Mono-to-zero-side, mid-only dual-mono, bounded round-trip and mode validation are pinned by byte tests.
