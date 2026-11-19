@@ -2,12 +2,12 @@
   "version": 1,
   "active_task": {
     "task_id": "coda-brand-publish",
-    "last_phase": "phase 1",
-    "active_phase": 1,
+    "last_phase": "phase 4",
+    "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1795114675.732025,
+    "updated_at": 1795114728.3598917,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795121875.732025,
+    "lease_until": 1795121928.3598917,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,27 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "impact_assessment": {
-      "why": "The initial push was commit-only: GitHub topics were null, no brand manifest existed and there is no release tag, so the public repo is not fully delivered.",
-      "benefits": "Full AIKit publish syncs description, topics and dossier; a v0.1.0 release tag pins the first public release.",
-      "risks": "Publish has external side effects (catalogue sync); a wrong tag name or asset would be visible publicly.",
-      "mitigation": "Dry-run publish first, review generated SVGs structurally, verify remote metadata and tag after, and keep all gates passing."
-    }
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 99",
-      "phase_num": 3,
-      "description": "Reforge stage 99: stage 99 host review reviewed; run active; coverage 21/21",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795113286.5277643,
-      "timestamp_str": "2026-11-19 21:34:46",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
-    },
     {
       "task_id": "reforge:run-1",
       "phase": "reforge stage 100",
@@ -295,6 +277,24 @@
         "risks": "Publish has external side effects (catalogue sync); a wrong tag name or asset would be visible publicly.",
         "mitigation": "Dry-run publish first, review generated SVGs structurally, verify remote metadata and tag after, and keep all gates passing."
       },
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-brand-publish",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Phase 4 passed: 5/5 gates; brand assets approved and applied; publish dry-run verified description, 9 topics and catalogue sync.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795114728.3598917,
+      "timestamp_str": "2026-11-19 21:58:48",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
       "workspaces": [
         {
           "name": "coda",
