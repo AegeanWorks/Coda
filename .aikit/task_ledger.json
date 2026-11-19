@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-dc",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795077829.5058498,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795077835.6480644,
+    "completed_head": "2b0600c2a0bac538a4c632407eafbe8e66342aa6",
+    "completed_tree": "8981c91146981d0cc3885068086059f536721f97"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-verify",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a score-to-audio verification command",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795075800.4650333,
-      "timestamp_str": "2026-11-19 11:10:00",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "There is no direct way to confirm that a WAV still matches its source score after a chain of edits or effects.",
-        "benefits": "verify re-renders a score with the current settings and compares bytes to a WAV, reporting the first differing byte for deterministic diagnosis.",
-        "risks": "contract: a matching file must pass, a single-byte change must be located exactly, and usage/IO errors must use distinct exit codes; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add a pure comparison helper with exact byte-offset tests, a CLI command reusing the render path, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "4a9a3c77bb961c30907438a1584af507d7a555255f1e6126eda59db3ad815725",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-verify",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-dc",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-dc' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795077835.9320397,
+      "timestamp_str": "2026-11-19 11:43:55",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "2b0600c2a0bac538a4c632407eafbe8e66342aa6",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
