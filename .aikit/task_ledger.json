@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-midi-info",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795092597.6919217,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795099797.6919217,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795092604.69892,
+    "completed_head": "9a0aaab5c180fa6c13899358850a15075fa4a5b2",
+    "completed_tree": "beb97c6f40c7d29f89b99eabfabef7d5cc5e4cab"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-splice",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add WAV splice at a time offset",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795090613.193362,
-      "timestamp_str": "2026-11-19 15:16:53",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "pad inserts silence and mix adds signals, but there is no way to insert one WAV into another at a chosen time while keeping the original tail.",
-        "benefits": "splice places a WAV at an exact frame offset inside another, shifting the remaining audio unchanged, with zero-padding beyond the source end.",
-        "risks": "contract: rates must match, offset non-negative and rounded to frames, head/tail bytes preserved, gap zero-filled, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for insertion, padding, rate validation and exact frame counts, a two-WAV CLI command with --at, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "6914987dac140a940574586a4d58fedfb9e2475e14bf63e67dcd4dfa129db7fe",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-splice",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-midi-info",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-midi-info' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795092604.7703388,
+      "timestamp_str": "2026-11-19 15:50:04",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "9a0aaab5c180fa6c13899358850a15075fa4a5b2",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
