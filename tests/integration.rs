@@ -2087,6 +2087,61 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_slapback_adds_one_delayed_tap() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-slap-{}-{}", std::process::id(), 29));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+
+    let mut frames = vec![(0.0_f64, 0.0_f64); 16];
+    frames[0] = (1.0, 1.0);
+    std::fs::write(&input, wav_bytes(&frames, 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("slapback")
+        .arg(&input)
+        .args(["--slap-delay", "0.000125", "--slap-mix", "0.5", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    let tap = i16::from_le_bytes([after[48], after[49]]);
+    assert!(first > 30000, "original kept");
+    assert!(
+        (tap as f64 / 32767.0 - 0.5).abs() < 0.01,
+        "single tap at mix level"
+    );
+    assert_eq!(
+        i16::from_le_bytes([after[52], after[53]]),
+        0,
+        "no feedback tail"
+    );
+
+    let result = Command::new(exe)
+        .arg("slapback")
+        .arg(&input)
+        .args(["--slap-delay", "1", "--slap-mix", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&unity).unwrap(),
+        std::fs::read(&input).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_ties_merges_adjacent_same_pitch_notes() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-ties-{}", std::process::id()));

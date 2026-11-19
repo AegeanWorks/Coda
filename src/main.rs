@@ -68,6 +68,7 @@ use coda::reverse_region;
 use coda::ring;
 use coda::score;
 use coda::sequence;
+use coda::slapback;
 use coda::snap_scale;
 use coda::solo;
 use coda::speed;
@@ -176,6 +177,7 @@ USAGE
   coda pingpong <in.wav> [--ping-delay S] [--ping-feedback 0..1] [-o out.wav]
   coda thin <score.coda> --gap B [-o out.coda]
   coda ties <score.coda> [-o out.coda]
+  coda slapback <in.wav> [--slap-delay S] [--slap-mix 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -256,6 +258,8 @@ OPTIONS
       --ping-delay S   Ping-pong delay in seconds (default: 0)
       --ping-feedback  Ping-pong feedback 0..1 (default: 0.35)
       --gap B          Minimum spacing in beats for thin
+      --slap-delay S   Slapback delay in seconds (default: 0)
+      --slap-mix 0..1  Slapback wet mix (default: 0.5)
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -399,6 +403,8 @@ fn main() -> ExitCode {
     let mut ping_delay = 0.0_f64;
     let mut ping_feedback = 0.35_f64;
     let mut thin_gap: Option<f64> = None;
+    let mut slap_delay = 0.0_f64;
+    let mut slap_mix = 0.5_f64;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -848,6 +854,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--slap-delay" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    slap_delay = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--slap-delay must be non-negative",
+                        "coda slapback in.wav --slap-delay 0.04",
+                    )
+                }
+            },
+            "--slap-mix" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    slap_mix = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--slap-mix must be between 0 and 1",
+                        "coda slapback in.wav --slap-mix 0.5",
                     )
                 }
             },
@@ -2223,6 +2253,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &saturated) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, drive {drive})", saturated.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "slapback" {
+        if positional.is_empty() {
+            return fail(
+                "slapback needs an input WAV",
+                "coda slapback in.wav --slap-delay 0.04",
+            );
+        }
+        if slap_delay <= 0.0 {
+            return fail(
+                "slapback needs a positive --slap-delay",
+                "coda slapback in.wav --slap-delay 0.04",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let slapped = match slapback::apply_slapback(&bytes, slap_delay, slap_mix) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "slapback.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &slapped) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {slap_delay}s, mix {slap_mix})",
+                    slapped.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

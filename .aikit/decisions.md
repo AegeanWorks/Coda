@@ -739,3 +739,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: there was no way to merge consecutive touching notes of the same pitch into one sustained note.
 - **Decision**: Fold a sounding note into the previous one when they share a pitch and touch, extending the first note's duration and keeping its other fields; gaps and rests are untouched.
 - **Consequences**: Merging, non-merging cases, first-field preservation and round-trip are pinned by byte tests.
+
+### ADR-105: Slapback adds a single clean delayed copy
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: echo-to fed back repeatedly and chorus modulated its delay, with no single clean delayed copy.
+- **Decision**: Mix one fixed delayed copy into the dry signal at a wet level with no feedback; zero delay, zero mix or a delay past the end are byte-identical.
+- **Consequences**: Single-tap behaviour, identity cases, determinism and bounds are pinned by byte tests.
