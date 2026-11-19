@@ -9,6 +9,7 @@ use coda::bandpass;
 use coda::bitdepth;
 use coda::channels;
 use coda::chord;
+use coda::chorus;
 use coda::compare;
 use coda::concat;
 use coda::crossfade;
@@ -150,6 +151,7 @@ USAGE
   coda pan-sweep <in.wav> [--autopan-rate HZ] [--autopan-depth 0..1] [-o out.wav]
   coda mswidth <in.wav> --side 0..2 [-o out.wav]
   coda vibrato <in.wav> --vib-rate HZ --vib-depth N [-o out.wav]
+  coda chorus <in.wav> [--chorus-rate HZ] [--chorus-depth N] [--chorus-delay N] [--mix 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -218,6 +220,10 @@ OPTIONS
       --side 0..2      Side gain for mswidth (1 = identity)
       --vib-rate HZ    Vibrato LFO rate in Hz
       --vib-depth N    Vibrato depth in frames
+      --chorus-rate HZ Chorus LFO rate (default: 0.3)
+      --chorus-depth N Chorus delay swing in frames (default: 2)
+      --chorus-delay N Chorus base delay in frames (default: 10)
+      --mix 0..1       Wet mix for chorus (default: 0)
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -347,6 +353,10 @@ fn main() -> ExitCode {
     let mut side_gain: Option<f64> = None;
     let mut vib_rate: Option<f64> = None;
     let mut vib_depth: Option<f64> = None;
+    let mut chorus_rate = 0.3_f64;
+    let mut chorus_depth = 2.0_f64;
+    let mut chorus_delay = 10.0_f64;
+    let mut chorus_mix = 0.0_f64;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -794,6 +804,54 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--chorus-rate" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v > 0.0 && v.is_finite() => {
+                    chorus_rate = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--chorus-rate must be a positive number",
+                        "coda chorus in.wav --chorus-rate 0.3",
+                    )
+                }
+            },
+            "--chorus-depth" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    chorus_depth = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--chorus-depth must be non-negative",
+                        "coda chorus in.wav --chorus-depth 2",
+                    )
+                }
+            },
+            "--chorus-delay" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    chorus_delay = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--chorus-delay must be non-negative",
+                        "coda chorus in.wav --chorus-delay 10",
+                    )
+                }
+            },
+            "--mix" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    chorus_mix = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--mix must be between 0 and 1",
+                        "coda chorus in.wav --mix 0.4",
                     )
                 }
             },
@@ -1355,6 +1413,51 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "chorus" {
+        if positional.is_empty() {
+            return fail("chorus needs an input WAV", "coda chorus in.wav --mix 0.4");
+        }
+        if chorus_mix <= 0.0 {
+            return fail(
+                "chorus needs a positive --mix",
+                "coda chorus in.wav --mix 0.4",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let effected =
+            match chorus::apply_chorus(&bytes, chorus_rate, chorus_depth, chorus_delay, chorus_mix)
+            {
+                Ok(b) => b,
+                Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+            };
+        let path = if output == "out.wav" {
+            "chorus.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &effected) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {chorus_rate} Hz, mix {chorus_mix})",
+                    effected.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

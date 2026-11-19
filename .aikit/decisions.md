@@ -648,3 +648,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: score vibrato applied at render time, leaving finished WAVs without pitch modulation.
 - **Decision**: Warp sample positions by a sine LFO of chosen rate and frame depth with deterministic linear interpolation; depth 0 is byte-identical and length is preserved.
 - **Consequences**: Identity, determinism, length preservation, bounded output and validation are pinned by byte tests.
+
+### ADR-092: Chorus blends an LFO-modulated delayed copy
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: echo was a fixed feedback delay with no modulated short delay mixed into the dry signal.
+- **Decision**: Mix the dry signal with a copy delayed by base_delay plus a sine swing, using deterministic interpolation and a wet coefficient; zero mix is a no-op.
+- **Consequences**: Zero-mix identity, determinism, length preservation, bounded output and validation are pinned by byte tests.

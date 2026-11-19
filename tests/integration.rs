@@ -2087,6 +2087,67 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_chorus_blends_a_modulated_delay() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-chorus-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(
+            &[(0.2, 0.2), (0.6, 0.6), (1.0, 1.0), (0.6, 0.6), (0.2, 0.2)],
+            8_000,
+        ),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("chorus")
+        .arg(&input)
+        .args([
+            "--chorus-rate",
+            "200",
+            "--chorus-depth",
+            "2",
+            "--chorus-delay",
+            "2",
+            "--mix",
+            "0.5",
+            "-o",
+        ])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    let before = std::fs::read(&input).unwrap();
+    assert_eq!(after.len(), before.len());
+    assert_ne!(after, before, "a wet chorus changes samples");
+
+    let zero = Command::new(exe)
+        .arg("chorus")
+        .arg(&input)
+        .args(["--mix", "0", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert_eq!(zero.status.code(), Some(2), "a zero mix is a no-op");
+    let missing = Command::new(exe)
+        .arg("chorus")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_vibrato_warps_the_timeline() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-vib-{}-{}", std::process::id(), 23));

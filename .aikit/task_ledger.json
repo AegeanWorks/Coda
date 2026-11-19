@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-vibrato",
+    "task_id": "coda-chorus",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795097087.7965639,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795097421.738086,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795104287.7965639,
+    "lease_until": 1795104621.738086,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795097093.7659807,
-    "completed_head": "a8ac82062d59f4d11c162044e0d482eca46c07a2",
-    "completed_tree": "3383dff353e6ee485ef8b7adce006cf5f8f4a089"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-sequence",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 414 tests green; offsets, transposition, exact repeats and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795095473.2635653,
-      "timestamp_str": "2026-11-19 16:37:53",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-sequence",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-sequence' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795095481.2247348,
-      "timestamp_str": "2026-11-19 16:38:01",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "96562fc11b5d9dda7f478e592cdbd5f0f3023c33",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-midside",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-chorus",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a chorus effect for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795097178.5360155,
+      "timestamp_str": "2026-11-19 17:06:18",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "echo is a fixed feedback delay; there is no modulated short delay mixed with the dry signal to create chorus.",
+        "benefits": "chorus mixes the dry WAV with an LFO-modulated delayed copy using deterministic interpolation; zero mix is byte-identical.",
+        "risks": "contract: rate positive, depth/base non-negative, mix 0..1, zero mix identity, deterministic, bounded, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, determinism, length and bounds, a CLI command with --rate/--depth/--mix style options, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "cbf99f58500d9abb70a5d789f9c28fd8e5a941a6ebcbc3a57c6b347a6055e6d3",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-chorus",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 445 tests green; zero-mix identity, determinism and bounded output pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795097421.738086,
+      "timestamp_str": "2026-11-19 17:10:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

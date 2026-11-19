@@ -14,6 +14,7 @@ pub mod bandpass;
 pub mod bitdepth;
 pub mod channels;
 pub mod chord;
+pub mod chorus;
 pub mod compare;
 pub mod concat;
 pub mod crossfade;
