@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-pan",
+    "task_id": "coda-highpass",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795091329.4328904,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795091728.84615,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795098529.4328904,
+    "lease_until": 1795098928.84615,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795091338.4422877,
-    "completed_head": "77bb31497d27e28690264ed16b6e742bef92b8c8",
-    "completed_tree": "682afc612f4e6b77ddbf6c6a4adfc8b2d7a04b4b"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-overlay",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 324 tests green; start preservation, stable ordering and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795089618.8496802,
-      "timestamp_str": "2026-11-19 15:00:18",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-overlay",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-overlay' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795089635.4420547,
-      "timestamp_str": "2026-11-19 15:00:35",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "cf29a27712432805125900f1f5a49130857dd47f",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-health",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-highpass",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a one-pole high-pass filter for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091408.3590703,
+      "timestamp_str": "2026-11-19 15:30:08",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "lowpass can remove harsh top end but there is no complementary tool to remove rumble and slow drift while keeping the higher content.",
+        "benefits": "highpass subtracts a one-pole low-pass state from the signal per channel, keeping frame count and rate, with alpha 1 producing silence and alpha 0 a DC-shifted copy.",
+        "risks": "contract: alpha 0..1, alpha 1 all-zero output, alpha 0 equals input minus its first sample, deterministic, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for the two edge coefficients, step response and determinism, a CLI command reusing --alpha, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "ae2d0918bb011890b9a4b5c20bb6dd4637acf30f23ad0004f3b06bed73b56863",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-highpass",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 359 tests green; first difference, DC removal, constant-signal silence and determinism pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795091728.84615,
+      "timestamp_str": "2026-11-19 15:35:28",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

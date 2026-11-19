@@ -515,3 +515,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: autopan swept the image over time and width folded or widened it, but no tool set a fixed stereo position on a finished WAV.
 - **Decision**: Apply fixed equal-power cos/sin gains derived from --pan, with centre byte-identical and hard sides silencing the opposite channel.
 - **Consequences**: Centre identity, hard-side isolation, bounded partial gains and determinism are pinned by byte tests.
+
+### ADR-073: Highpass subtracts a one-pole low-pass state
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Lowpass could remove top end but no tool removed slow drift and rumble from a rendered WAV.
+- **Decision**: Subtract a one-pole low-pass state per channel; alpha 1 passes sample-to-sample changes (first difference), alpha 0 removes the first-sample offset, and a constant signal is silent at any coefficient.
+- **Consequences**: First-difference behaviour, DC removal, constant-signal silence and determinism are pinned by byte tests.

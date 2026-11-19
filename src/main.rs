@@ -23,6 +23,7 @@ use coda::gate;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::harmonize;
 use coda::health;
+use coda::highpass;
 use coda::humanize;
 use coda::invert;
 use coda::join;
@@ -113,6 +114,7 @@ USAGE
   coda splice <a.wav> <b.wav> --at S [-o out.wav]
   coda lowpass <in.wav> --alpha 0..1 [-o out.wav]
   coda pan <in.wav> --pan -1..1 [-o out.wav]
+  coda highpass <in.wav> --alpha 0..1 [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -168,7 +170,7 @@ OPTIONS
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
       --at S           Insertion time in seconds for splice
-      --alpha 0..1     Low-pass smoothing coefficient (1 = identity)
+      --alpha 0..1     Filter coefficient (lowpass 1 = identity, highpass 1 = first difference)
       --pan -1..1      Static stereo position for pan (0 = identity)
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
@@ -1682,6 +1684,47 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "highpass" {
+        if positional.is_empty() {
+            return fail(
+                "highpass needs an input WAV",
+                "coda highpass in.wav --alpha 0.2",
+            );
+        }
+        let alpha = match lp_alpha {
+            Some(value) => value,
+            None => return fail("highpass needs --alpha", "coda highpass in.wav --alpha 0.2"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let filtered = match highpass::apply_highpass(&bytes, alpha) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "highpassed.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &filtered) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, alpha {alpha})", filtered.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 
