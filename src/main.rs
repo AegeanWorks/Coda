@@ -79,6 +79,7 @@ use coda::sustain;
 use coda::swing;
 use coda::templates;
 use coda::thin;
+use coda::ties;
 use coda::transpose;
 use coda::tremolo;
 use coda::trim;
@@ -174,6 +175,7 @@ USAGE
   coda solo <score.coda> --low NOTE --high NOTE [-o out.coda]
   coda pingpong <in.wav> [--ping-delay S] [--ping-feedback 0..1] [-o out.wav]
   coda thin <score.coda> --gap B [-o out.coda]
+  coda ties <score.coda> [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -3713,7 +3715,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "ramp" | "tuplets" | "velgrid" | "solo" | "thin" | "digest" => {
+        | "sustain" | "ramp" | "tuplets" | "velgrid" | "solo" | "thin" | "ties" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4445,6 +4447,33 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "ties" {
+        let bound = match ties::ties(&composed) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "write at least one note in the score"),
+        };
+        let path = if output == "out.wav" {
+            "tied.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&bound);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, tied)",
+                    text.len(),
+                    bound.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "thin" {

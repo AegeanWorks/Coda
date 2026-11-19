@@ -113,6 +113,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Solo** — `solo --low C4 --high C5` keeps only the notes inside a pitch range.
 - **Ping-pong** — `pingpong --ping-delay S` bounces echoes alternately between stereo channels.
 - **Thinning** — `thin --gap B` drops notes closer than a minimum spacing.
+- **Ties** — `ties` merges touching notes of the same pitch into one sustained note.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -208,6 +209,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `solo <score.coda> --low NOTE --high NOTE` | Keep notes in a pitch range. |
 | `pingpong <in.wav> [--ping-delay S] [--ping-feedback 0..1]` | Bounce echoes across channels. |
 | `thin <score.coda> --gap B` | Drop notes closer than a beat gap. |
+| `ties <score.coda>` | Merge touching same-pitch notes. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

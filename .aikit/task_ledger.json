@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-thin",
+    "task_id": "coda-ties",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795102055.3761349,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795102343.166432,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795109255.3761349,
+    "lease_until": 1795109543.166432,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795102061.0960562,
-    "completed_head": "342e19fb860bfd683c10ce4ba3786102fa416d19",
-    "completed_tree": "3a056cedfd4692be6e2115ed4d5abcf04b475e24"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-overwrite",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 470 tests green; in-place replacement, length preservation and truncation pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795099922.6299212,
-      "timestamp_str": "2026-11-19 17:52:02",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-overwrite",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-overwrite' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795099928.9919174,
-      "timestamp_str": "2026-11-19 17:52:08",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "f1a60a2e0776fe92d83ac8705aa99454c31a4f74",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-tuplets",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-ties",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a note-tie transform",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795102161.9753954,
+      "timestamp_str": "2026-11-19 18:29:21",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "there is no way to merge consecutive notes of the same pitch into one sustained note without rewriting the score.",
+        "benefits": "ties merges adjacent equal-pitch notes that touch, keeping the first note's fields and extending its duration to the last one's end.",
+        "risks": "contract: only touching equal-pitch sounding notes merge, first fields kept, duration sums correctly, other notes unchanged, round-trip; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for merging, non-merging cases and round-trip, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "c2c631171da3dd2d9351bf380534fc4218bba7bbec415f277e428eaffcd6fb30",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-ties",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 505 tests green; merging, non-merging and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795102343.166432,
+      "timestamp_str": "2026-11-19 18:32:23",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

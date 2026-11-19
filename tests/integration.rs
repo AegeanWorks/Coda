@@ -2087,6 +2087,36 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_ties_merges_adjacent_same_pitch_notes() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-ties-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote C4 0.5\nnote E4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("ties")
+        .arg(&source)
+        .args(["-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1.5"), "{text}");
+    assert!(text.contains("note E4 1"), "{text}");
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    assert!(String::from_utf8_lossy(&stats.stdout).contains("notes       2 sounding"));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_thin_removes_close_notes() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-thin-{}", std::process::id()));

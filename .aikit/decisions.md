@@ -732,3 +732,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: there was no way to reduce a dense run of notes to a minimum spacing without rewriting the score.
 - **Decision**: Keep a sounding note only when it starts at least a gap after the previously kept note; rests are always kept and kept notes are unchanged.
 - **Consequences**: Spacing rule, first-note retention, rest preservation and round-trip are pinned by byte tests.
+
+### ADR-104: Ties merge touching same-pitch notes
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: there was no way to merge consecutive touching notes of the same pitch into one sustained note.
+- **Decision**: Fold a sounding note into the previous one when they share a pitch and touch, extending the first note's duration and keeping its other fields; gaps and rests are untouched.
+- **Consequences**: Merging, non-merging cases, first-field preservation and round-trip are pinned by byte tests.
