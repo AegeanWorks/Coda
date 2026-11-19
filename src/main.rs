@@ -1,5 +1,6 @@
 //! Command-line front end for Coda.
 
+use coda::autopan;
 use coda::compare;
 use coda::digest;
 use coda::echo;
@@ -49,6 +50,8 @@ OPTIONS
       --fade-out S     Linear fade-out in seconds (default: 0)
       --echo-delay S   Feedback delay in seconds (default: 0)
       --echo-feedback  Echo gain 0..1 (default: 0.35)
+      --autopan-rate   Pan LFO rate in Hz (default: 0)
+      --autopan-depth  Pan depth 0..1 (default: 0)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -83,18 +86,28 @@ fn fail(message: &str, fix: &str) -> ExitCode {
     ExitCode::from(2)
 }
 
-fn rendered_wav(
-    composed: &score::Score,
+struct AudioOptions {
     sample_rate: u32,
     fade_in: f64,
     fade_out: f64,
     echo_delay: f64,
     echo_feedback: f64,
-) -> (Vec<Frame>, Vec<u8>) {
-    let mut samples = render(composed, sample_rate);
-    echo::apply_echo(&mut samples, sample_rate, echo_delay, echo_feedback);
-    fade::apply_fades(&mut samples, sample_rate, fade_in, fade_out);
-    let bytes = wav_bytes(&samples, sample_rate);
+    pan_rate: f64,
+    pan_depth: f64,
+}
+
+fn rendered_wav(composed: &score::Score, options: &AudioOptions) -> (Vec<Frame>, Vec<u8>) {
+    let rate = options.sample_rate;
+    let mut samples = render(composed, rate);
+    echo::apply_echo(
+        &mut samples,
+        rate,
+        options.echo_delay,
+        options.echo_feedback,
+    );
+    autopan::apply_autopan(&mut samples, rate, options.pan_rate, options.pan_depth);
+    fade::apply_fades(&mut samples, rate, options.fade_in, options.fade_out);
+    let bytes = wav_bytes(&samples, rate);
     (samples, bytes)
 }
 
@@ -125,6 +138,8 @@ fn main() -> ExitCode {
     let mut fade_out = 0.0_f64;
     let mut echo_delay = 0.0_f64;
     let mut echo_feedback = 0.35_f64;
+    let mut pan_rate = 0.0_f64;
+    let mut pan_depth = 0.0_f64;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -208,6 +223,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--echo-feedback must be between 0 and 1",
                         "coda render score.coda --echo-feedback 0.4",
+                    )
+                }
+            },
+            "--autopan-rate" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v >= 0.0 && v.is_finite() => {
+                    pan_rate = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--autopan-rate must be a non-negative number",
+                        "coda render score.coda --autopan-rate 0.2",
+                    )
+                }
+            },
+            "--autopan-depth" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    pan_depth = v;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--autopan-depth must be between 0 and 1",
+                        "coda render score.coda --autopan-depth 0.6",
                     )
                 }
             },
@@ -330,6 +369,16 @@ fn main() -> ExitCode {
             }
         }
     }
+
+    let audio = AudioOptions {
+        sample_rate,
+        fade_in,
+        fade_out,
+        echo_delay,
+        echo_feedback,
+        pan_rate,
+        pan_depth,
+    };
 
     if command == "templates" {
         for name in templates::names() {
@@ -454,14 +503,7 @@ fn main() -> ExitCode {
             } else {
                 transpose::transpose(&score, semitones)
             };
-            let (_, bytes) = rendered_wav(
-                &score,
-                sample_rate,
-                fade_in,
-                fade_out,
-                echo_delay,
-                echo_feedback,
-            );
+            let (_, bytes) = rendered_wav(&score, &audio);
             parts.push(bytes);
         }
         let joined = match join::join_wavs(&parts) {
@@ -585,14 +627,7 @@ fn main() -> ExitCode {
         let mut fingerprints = Vec::new();
         for n in 0..tracks {
             let piece = gen::generate(base + n as u64, options);
-            let (samples, bytes) = rendered_wav(
-                &piece,
-                sample_rate,
-                fade_in,
-                fade_out,
-                echo_delay,
-                echo_feedback,
-            );
+            let (samples, bytes) = rendered_wav(&piece, &audio);
             let fingerprint = digest::fingerprint(&bytes);
             fingerprints.push(fingerprint.clone());
             let filename = format!("track-{:02}.wav", n + 1);
@@ -818,14 +853,7 @@ fn main() -> ExitCode {
     }
 
     if command == "digest" {
-        let (samples, bytes) = rendered_wav(
-            &composed,
-            sample_rate,
-            fade_in,
-            fade_out,
-            echo_delay,
-            echo_feedback,
-        );
+        let (samples, bytes) = rendered_wav(&composed, &audio);
         let fingerprint = digest::fingerprint(&bytes);
         println!(
             "{fingerprint}  {} bytes  {} samples",
@@ -855,14 +883,7 @@ fn main() -> ExitCode {
         );
         (bytes, summary)
     } else {
-        let (samples, bytes) = rendered_wav(
-            &composed,
-            sample_rate,
-            fade_in,
-            fade_out,
-            echo_delay,
-            echo_feedback,
-        );
+        let (samples, bytes) = rendered_wav(&composed, &audio);
         let fingerprint = digest::fingerprint(&bytes);
         let summary = format!(
             "{} bytes, {} samples, {} notes, digest {fingerprint}",

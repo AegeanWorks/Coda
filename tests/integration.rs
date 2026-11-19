@@ -753,6 +753,63 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_autopan_changes_balance_with_zero_depth_identity() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-autopan-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let plain = root.join("plain.wav");
+    let panned = root.join("panned.wav");
+
+    let base = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&plain)
+        .output()
+        .unwrap();
+    assert!(base.status.success());
+    let effect = Command::new(exe)
+        .args([
+            "render",
+            "examples/scale.coda",
+            "--autopan-rate",
+            "0.3",
+            "--autopan-depth",
+            "0.8",
+            "-o",
+        ])
+        .arg(&panned)
+        .output()
+        .unwrap();
+    assert!(
+        effect.status.success(),
+        "{}",
+        String::from_utf8_lossy(&effect.stderr)
+    );
+
+    let before = std::fs::read(&plain).unwrap();
+    let after = std::fs::read(&panned).unwrap();
+    assert_eq!(before.len(), after.len());
+    assert_ne!(before, after);
+
+    let identity = Command::new(exe)
+        .args([
+            "digest",
+            "examples/scale.coda",
+            "--autopan-rate",
+            "0.3",
+            "--autopan-depth",
+            "0",
+        ])
+        .output()
+        .unwrap();
+    let plain_digest = Command::new(exe)
+        .args(["digest", "examples/scale.coda"])
+        .output()
+        .unwrap();
+    assert_eq!(identity.stdout, plain_digest.stdout);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_reverse_changes_audio_and_double_reverse_restores_it() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-reverse-{}", std::process::id()));

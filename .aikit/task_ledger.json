@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-reverse",
+    "task_id": "coda-autopan",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795070792.1847486,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795071191.9806237,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795070802.044229,
-    "completed_head": "d0ccd95039e2148ac16cb59494a831c2dfdb0e36",
-    "completed_tree": "8c7f23f998b8f5190935f9171540f694948ac5f7"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-join",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 104 tests green; joined WAV header and concatenated data pinned byte-for-byte, mixed sample rates rejected",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795069401.4705427,
-      "timestamp_str": "2026-11-19 09:23:21",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-join",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-join' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795069410.8149197,
-      "timestamp_str": "2026-11-19 09:23:30",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "5ee1ed12177abeb2702db6dd9dc398d766746062",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-stats",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-autopan",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add deterministic auto-pan",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070874.734059,
+      "timestamp_str": "2026-11-19 09:47:54",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Stereo output exists but the image is static unless every note sets its own pan; an LFO sweep gives motion without editing scores.",
+        "benefits": "--autopan-rate and --autopan-depth apply an equal-power stereo sweep to any render, with depth 0 preserving existing bytes.",
+        "risks": "contract: depth 0 must be byte-identical to golden vectors; gains must stay bounded; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure autopan module with identity, LFO-phase and bounded-gain tests, wire two CLI options into the shared audio helper, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "24a2a81e66d015511f201e714b83c153b21ebd37e12272eec0acdc3d83410612",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-autopan",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 137 tests green; autopan LFO balance and zero-depth identity pinned, audio options grouped to satisfy clippy",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071191.9806237,
+      "timestamp_str": "2026-11-19 09:53:11",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

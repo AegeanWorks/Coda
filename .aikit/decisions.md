@@ -179,3 +179,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A time-reversal transform should be a pure, invertible operation on an existing phrase.
 - **Decision**: Set each note's start to total duration minus its original end, leaving order and all other fields untouched; expose it as a CLI command writing canonical source.
 - **Consequences**: Applying reverse twice is byte-identical including chords; a test arithmetic slip in the expected mirrored starts was caught and corrected.
+
+### ADR-025: Auto-pan is an equal-power LFO in the shared audio path
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Stereo output was static unless each note set its own pan; a sweep adds motion without editing scores.
+- **Decision**: Apply a sine LFO to pan with equal-power gains normalised at centre, so depth 0 is an identity; group all audio-effect settings into AudioOptions to keep the render helper small.
+- **Consequences**: Zero-depth renders stay byte-identical; gains are bounded; CLI wiring uses one options struct across render, seed, album, join and digest.
