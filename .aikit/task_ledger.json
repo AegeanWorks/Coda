@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-speed",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795091990.280639,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795099190.280639,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795091997.383372,
+    "completed_head": "1f42c2f1095210fe754ad484e9ca795acaa02114",
+    "completed_tree": "8d208ffd38c955f9da905021b2cde9bbacd6fc1e"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-pedal",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add a pedal-point drone transform",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795090131.6588745,
-      "timestamp_str": "2026-11-19 15:08:51",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Harmonize adds voices per note but there is no way to anchor a score with one sustained bass note spanning its whole length.",
-        "benefits": "pedal appends a single drone at the score's first beat covering its full span, with chosen pitch and velocity and no changes to existing notes.",
-        "risks": "contract: pitch must parse, velocity 0..1, span must be positive, existing notes untouched, output round-trips; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for span, pitch, velocity and preservation, a CLI command with --note/--velocity, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "e9a1a411117026930996e14a7f8a4080163a1671868415e24d987cb869c60a39",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-pedal",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-speed",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-speed' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795091997.4721768,
+      "timestamp_str": "2026-11-19 15:39:57",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "1f42c2f1095210fe754ad484e9ca795acaa02114",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
