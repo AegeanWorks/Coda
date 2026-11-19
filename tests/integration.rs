@@ -822,6 +822,40 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_augment_scales_durations_only() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-augment-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nat 3 E4 0.5\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("augment")
+        .arg(&source)
+        .args(["--factor", "2", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 2"), "{text}");
+    assert!(text.contains("at 3 E4 1"), "{text}");
+
+    let missing = Command::new(exe)
+        .arg("augment")
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_register_fits_notes_into_a_range() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-register-{}", std::process::id()));

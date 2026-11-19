@@ -3,6 +3,7 @@
 use coda::accent;
 use coda::analyze;
 use coda::arpeggiate;
+use coda::augment;
 use coda::autopan;
 use coda::bitdepth;
 use coda::channels;
@@ -95,6 +96,7 @@ USAGE
   coda crush <in.wav> [--crush-bits 1..16] [--hold N] [-o out.wav]
   coda ring <a.wav> <b.wav> [-o out.wav]
   coda echo-to <in.wav> [--echo-delay S] [--echo-feedback 0..1] [-o out.wav]
+  coda augment <score.coda> --factor F [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -243,6 +245,7 @@ fn main() -> ExitCode {
     let mut steps = 0_i32;
     let mut ratio = 0.6_f64;
     let mut factor = 1.0_f64;
+    let mut factor_seen = false;
     let mut rms_target: Option<f64> = None;
     let mut crossfade = 0.0_f64;
     let mut trim_start = 0.0_f64;
@@ -455,6 +458,7 @@ fn main() -> ExitCode {
             "--factor" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
                 Some(v) if v > 0.0 && v.is_finite() => {
                     factor = v;
+                    factor_seen = true;
                     i += 2;
                 }
                 _ => {
@@ -2033,7 +2037,7 @@ fn main() -> ExitCode {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
-        | "digest" => {
+        | "augment" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -2098,6 +2102,39 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "augment" {
+        if !factor_seen {
+            return fail(
+                "augment needs --factor",
+                "coda augment score.coda --factor 2",
+            );
+        }
+        let grown = match augment::augment(&composed, factor) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive finite factor"),
+        };
+        let path = if output == "out.wav" {
+            "augmented.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&grown);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, factor {factor})",
+                    text.len(),
+                    grown.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "register" {
         let low = match low_note {

@@ -8,6 +8,7 @@
 pub mod accent;
 pub mod analyze;
 pub mod arpeggiate;
+pub mod augment;
 pub mod autopan;
 pub mod bitdepth;
 pub mod channels;

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-echo-wav",
+    "task_id": "coda-augment",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795088564.6024976,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795088815.00362,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,54 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795088573.356669,
-    "completed_head": "03788fbbf41d4bc553ddf40f60f15bc98805d2c0",
-    "completed_tree": "6372550ff47534a506d898a513cf0a8992c2953c"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-accent",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add repeating accent patterns",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795086370.2100914,
-      "timestamp_str": "2026-11-19 14:06:10",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Velocity can be set per note in a score but there is no fast way to apply a repeating accent groove.",
-        "benefits": "accent cycles a velocity pattern across sounding notes deterministically, leaving timing, pitch and timbre unchanged.",
-        "risks": "contract: velocities must be valid, rests must be skipped, and invalid patterns must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for pattern cycling, rest skipping and round-trip, a CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "47359bfeef8449cd4b387bd4902c00d7a5644f956f5d3adbcb21d3fb26243838",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-accent",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 279 tests green; velocity cycling, rest skipping and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795086664.6426995,
-      "timestamp_str": "2026-11-19 14:11:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-accent",
       "phase": "completed",
@@ -408,6 +363,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-augment",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add duration-only augmentation",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088639.089027,
+      "timestamp_str": "2026-11-19 14:43:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "stretch scales both note starts and lengths, so there is no way to lengthen durations in place to create overlap or legato.",
+        "benefits": "augment multiplies only note durations by a factor, keeping starts, pitches and timbres fixed and producing canonical editable source.",
+        "risks": "contract: factor must be positive and finite, starts must be untouched, unit factor byte-identical, output must round-trip; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for duration scaling, start preservation and round-trip, a CLI command reusing --factor, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "6f8a40c564cc58510d30388763b50617a41af56a80bbfddedefafbcf76a6e34f",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-augment",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 314 tests green; duration-only scaling, start preservation and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088815.00362,
+      "timestamp_str": "2026-11-19 14:46:55",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

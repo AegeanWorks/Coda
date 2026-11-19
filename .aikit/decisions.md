@@ -452,3 +452,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Echo was only available at render time, so processed WAVs could not receive a feedback delay.
 - **Decision**: Reuse the bounded comb echo on decoded Coda WAV frames with the existing --echo-delay and --echo-feedback options, requiring a positive delay and preserving frame count and rate.
 - **Consequences**: Delayed tail, zero-delay identity, determinism, length preservation and missing-delay failure are pinned by byte tests.
+
+### ADR-064: Augmentation scales note durations in place
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: stretch moved note starts as well as durations, leaving no way to lengthen notes in place for overlap or legato.
+- **Decision**: Multiply only each note's beats by a positive factor, leaving starts, pitches, timbres and velocities untouched, with unit factor byte-identical.
+- **Consequences**: Duration-only scaling, start preservation, exact round-trip and factor validation are pinned by byte tests.

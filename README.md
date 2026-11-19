@@ -89,6 +89,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Swing** — `swing` delays off-beat eighths by a controlled ratio for a deterministic long-short feel.
 - **Audio analysis** — `analyze` reports frames, duration, sample rate, peak and RMS (with dBFS) for any Coda WAV.
 - **Time stretch** — `stretch` scales every note start and duration by a factor while preserving pitch and timbre.
+- **Augmentation** — `augment --factor F` scales only note durations in place, creating overlap without moving starts.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -128,6 +129,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `crush <in.wav> [--crush-bits 1..16] [--hold N]` | Bitcrush and decimate audio. |
 | `ring <a.wav> <b.wav>` | Multiply two WAVs (ring modulation). |
 | `echo-to <in.wav> --echo-delay S [--echo-feedback 0..1]` | Add feedback delay to a WAV. |
+| `augment <score.coda> --factor F` | Scale only note durations. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |
