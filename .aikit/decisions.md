@@ -88,3 +88,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Generated arrangements were render-only; saving one as an editable score required a lossless inverse of the parser.
 - **Decision**: Add score::serialize that writes score directives and explicit per-note overrides, tracking the parser's cursor so at/note/rest placement is preserved; route .coda output and export-score to it.
 - **Consequences**: parse(serialize(score)) equals score for all styles and overrides; no new file format or parser; WAV and MIDI output unchanged.
+
+### ADR-012: Transposition is a single post-composition transform
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Changing key required editing every pitch by hand, and a per-render option must work for files and generated pieces alike.
+- **Decision**: Apply a pure transpose(score, semitones) once after composition via --semitones; only pitch strings change, and rests are skipped.
+- **Consequences**: An inverse shift restores byte-identical audio; no WAV/MIDI format changes; the option applies uniformly to render, seed, digest, info, lint and source export.

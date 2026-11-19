@@ -13,4 +13,5 @@ pub mod midi;
 pub mod notes;
 pub mod render;
 pub mod score;
+pub mod transpose;
 pub mod wave;

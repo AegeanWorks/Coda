@@ -5,6 +5,7 @@ use coda::gen::{self, GenOptions, Scale, Style};
 use coda::lint;
 use coda::render::{render, wav_bytes};
 use coda::score;
+use coda::transpose;
 use coda::wave::Wave;
 use std::path::Path;
 use std::{env, fs, process::ExitCode};
@@ -31,6 +32,7 @@ OPTIONS
       --scale <name>   major | minor | pentatonic | chromatic (seed only)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
+      --semitones N    Transpose every pitched note by N semitones
 
 SCORE DIRECTIVES
   tempo <bpm>          wave <name>          gain <0..1>
@@ -82,6 +84,7 @@ fn main() -> ExitCode {
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
     let mut tempo_override: Option<f64> = None;
+    let mut semitones = 0_i32;
     let mut positional: Vec<String> = Vec::new();
 
     let mut i = 1;
@@ -171,6 +174,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--tempo must be a positive number",
                         "coda seed 42 --tempo 96",
+                    )
+                }
+            },
+            "--semitones" => match need(i).and_then(|v| v.parse::<i32>().ok()) {
+                Some(n) => {
+                    semitones = n;
+                    i += 2;
+                }
+                None => {
+                    return fail(
+                        "--semitones must be an integer",
+                        "coda render score.coda --semitones 2",
                     )
                 }
             },
@@ -308,6 +323,12 @@ fn main() -> ExitCode {
             gen::generate(number, options)
         }
         other => return fail(&format!("unknown command '{other}'"), "coda help"),
+    };
+
+    let composed = if semitones == 0 {
+        composed
+    } else {
+        transpose::transpose(&composed, semitones)
     };
 
     if command == "lint" {

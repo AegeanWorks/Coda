@@ -6,6 +6,7 @@ use coda::midi::midi_bytes;
 use coda::notes;
 use coda::render::{render, wav_bytes, Frame};
 use coda::score;
+use coda::transpose::transpose;
 use coda::wave::Wave;
 use std::process::Command;
 
@@ -364,6 +365,56 @@ fn cli_extension_routes_midi_and_wav() {
         String::from_utf8_lossy(&out.stderr)
     );
     assert_eq!(&std::fs::read(&seed_midi).unwrap()[0..4], b"MThd");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
+fn inverse_transpose_restores_exact_audio() {
+    let score = score::parse(SCALE_FILE).unwrap();
+    let original = wav_bytes(&render(&score, 8_000), 8_000);
+    let shifted = transpose(&score, 7);
+    let restored = transpose(&shifted, -7);
+    assert_ne!(original, wav_bytes(&render(&shifted, 8_000), 8_000));
+    assert_eq!(original, wav_bytes(&render(&restored, 8_000), 8_000));
+}
+
+#[test]
+fn cli_semitones_changes_output_and_source() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let plain = Command::new(exe)
+        .args(["digest", "examples/scale.coda", "--sample-rate", "8000"])
+        .output()
+        .unwrap();
+    let shifted = Command::new(exe)
+        .args([
+            "digest",
+            "examples/scale.coda",
+            "--sample-rate",
+            "8000",
+            "--semitones",
+            "12",
+        ])
+        .output()
+        .unwrap();
+    assert!(plain.status.success());
+    assert!(shifted.status.success());
+    assert_ne!(plain.stdout, shifted.stdout);
+
+    let root = std::env::temp_dir().join(format!("coda-transpose-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("up.coda");
+    let out = Command::new(exe)
+        .args(["render", "examples/scale.coda", "--semitones", "-12", "-o"])
+        .arg(&source)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let text = std::fs::read_to_string(&source).unwrap();
+    assert!(text.contains("note C3 "), "{text}");
     std::fs::remove_dir_all(&root).unwrap();
 }
 
