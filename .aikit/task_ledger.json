@@ -2,12 +2,12 @@
   "version": 1,
   "active_task": {
     "task_id": "coda-reforge-run1",
-    "last_phase": "phase 2",
-    "active_phase": 2,
+    "last_phase": "phase 4",
+    "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1795108604.2989094,
+    "updated_at": 1795108709.2934887,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795115804.2989094,
+    "lease_until": 1795115909.2934887,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,39 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "impact_assessment": {
-      "why": "Coda has 212 commits with no systematic historical audit; Reforge attributes findings to the commits that introduced them.",
-      "benefits": "Stage-by-stage host review plus validated repairs improve code and tests while every gate and byte test stays green.",
-      "risks": "contract: reviewed patches must pass cargo test/clippy/fmt and strict gate; dependency: std only; concurrency: no other coda work during the run; state: reforge state and ledger are committed bookkeeping.",
-      "mitigation": "Audit a window, review every packet hunk with a verbatim quote and distinct note, dry-run fixes, apply, verify, commit locally without push, repeat."
-    }
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-thin",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add note thinning for scores",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795101866.6796815,
-      "timestamp_str": "2026-11-19 18:24:26",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "there is no way to reduce a dense run of notes to a minimum spacing without rewriting the score.",
-        "benefits": "thin keeps a sounding note only when it starts at least a gap after the previously kept note, preserving rests and all kept fields.",
-        "risks": "contract: gap positive finite, first note kept, spacing rule exact, rests preserved, round-trip, invalid values fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for thinning, rest preservation and round-trip, a CLI command with --gap, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "7db4259304aaf6d6b88a56211c24a8bd0348e6f4fd6f7ee120617d5e7092c336",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-thin",
       "phase": "phase 4",
@@ -363,6 +333,24 @@
         "mitigation": "Audit a window, review every packet hunk with a verbatim quote and distinct note, dry-run fixes, apply, verify, commit locally without push, repeat."
       },
       "plan_digest": "03a8d7b91a1c6196c85e5e7f8ac9ccfc90207c28755ec816305b24cfc56e62f9",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-reforge-run1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Reforge stage 1 reviewed and repaired locally; 5/5 AIKit gates passed; 515 tests green",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795108709.2934887,
+      "timestamp_str": "2026-11-19 20:18:29",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
       "workspaces": [
         {
           "name": "coda",
