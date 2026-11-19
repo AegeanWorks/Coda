@@ -1815,6 +1815,55 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_ring_multiplies_two_wavs() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-ring-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let unit = root.join("unit.wav");
+    let out = root.join("out.wav");
+    let identity = root.join("identity.wav");
+    std::fs::write(&a, wav_bytes(&[(0.5, -0.5)], 8_000)).unwrap();
+    std::fs::write(&b, wav_bytes(&[(0.8, 0.4), (0.3, 0.3)], 8_000)).unwrap();
+    std::fs::write(&unit, wav_bytes(&[(1.0, 1.0)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("ring")
+        .arg(&a)
+        .arg(&b)
+        .args(["-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&out).unwrap();
+    assert_eq!(after.len(), 44 + 8, "longer input sets the length");
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    assert!((first as f64 / 32767.0 - 0.4).abs() < 0.01, "{first}");
+    assert_eq!(i16::from_le_bytes([after[48], after[49]]), 0, "zero padded");
+
+    let result = Command::new(exe)
+        .arg("ring")
+        .arg(&a)
+        .arg(&unit)
+        .args(["-o"])
+        .arg(&identity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        std::fs::read(&identity).unwrap(),
+        std::fs::read(&a).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_crush_reduces_resolution_and_holds_samples() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-crush-{}", std::process::id()));

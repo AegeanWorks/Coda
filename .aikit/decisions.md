@@ -438,3 +438,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Bitdepth changed the container format and resample interpolated smoothly, leaving no lo-fi effect inside a 16-bit WAV.
 - **Decision**: Quantize each sample by masking its 16-bit integer to the requested bit depth and repeat it for a hold factor, with 16 bits and hold 1 byte-identical.
 - **Consequences**: Full-resolution identity, exact quantization grid, sample-and-hold behaviour and argument validation are pinned by byte tests.
+
+### ADR-062: Ring modulation multiplies two Coda WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: mix overlays WAVs by addition but could not multiply them for amplitude modulation or lo-fi timbres.
+- **Decision**: Multiply matching-rate WAVs per channel and per frame, zero-pad the shorter input to the longer length, clamp products, and treat full scale as an exact identity.
+- **Consequences**: Per-channel products, identity, zero padding, commutativity and rate validation are pinned by byte tests.

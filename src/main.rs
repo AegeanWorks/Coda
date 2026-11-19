@@ -36,6 +36,7 @@ use coda::render::{render, wav_bytes, Frame};
 use coda::report;
 use coda::resample;
 use coda::reverse;
+use coda::ring;
 use coda::score;
 use coda::stamp;
 use coda::stats;
@@ -91,6 +92,7 @@ USAGE
   coda tremolo <in.wav> [--lfo-rate HZ] [--lfo-depth 0..1] [-o out.wav]
   coda gate <in.wav> [--threshold DB] [-o out.wav]
   coda crush <in.wav> [--crush-bits 1..16] [--hold N] [-o out.wav]
+  coda ring <a.wav> <b.wav> [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1483,6 +1485,50 @@ fn main() -> ExitCode {
                 ExitCode::SUCCESS
             }
             Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+    }
+
+    if command == "ring" {
+        if positional.len() < 2 {
+            return fail(
+                "ring needs two WAV files",
+                "coda ring a.wav b.wav [-o out.wav]",
+            );
+        }
+        let mut inputs = Vec::new();
+        for path in positional.iter().take(2) {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that both WAV files exist and are readable",
+                    )
+                }
+            }
+        }
+        let product = match ring::ring_wavs(&inputs[0], &inputs[1]) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "both inputs must be Coda WAVs at the same sample rate"),
+        };
+        let path = if output == "out.wav" {
+            "ring.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &product) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames)",
+                    product.len(),
+                    (product.len() - 44) / 4
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
         };
     }
 

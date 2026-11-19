@@ -72,6 +72,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Register fitting** — `register --low C4 --high C5` octave-displaces notes into a target range.
 - **Noise gate** — `gate --threshold DB` silences frames below a dBFS level, leaving louder frames untouched.
 - **Bitcrush** — `crush --crush-bits N --hold N` reduces resolution and holds samples for a lo-fi effect.
+- **Ring modulation** — `ring a.wav b.wav` multiplies two WAVs sample by sample.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -124,6 +125,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `register <score.coda> --low NOTE --high NOTE` | Fit pitches into a target register. |
 | `gate <in.wav> [--threshold DB]` | Silence frames below a dBFS threshold. |
 | `crush <in.wav> [--crush-bits 1..16] [--hold N]` | Bitcrush and decimate audio. |
+| `ring <a.wav> <b.wav>` | Multiply two WAVs (ring modulation). |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

@@ -43,6 +43,7 @@ pub mod render;
 pub mod report;
 pub mod resample;
 pub mod reverse;
+pub mod ring;
 pub mod score;
 pub mod stamp;
 pub mod stats;

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-crush",
+    "task_id": "coda-ring",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795088053.424768,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795088339.8668208,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,54 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795088061.2672007,
-    "completed_head": "ad9a788defe5b66d45ad7b2f7b714dfa8a80f107",
-    "completed_tree": "0f9d57ce361b5d7cafcccc6abfefb2089b4faf30"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-invert",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add melodic inversion",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795085621.1752083,
-      "timestamp_str": "2026-11-19 13:53:41",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Time reversal and transposition exist, but mirroring pitches around a center note is a distinct compositional transform.",
-        "benefits": "invert reflects every pitch around a chosen center while preserving rhythm, velocity, pan and timbre.",
-        "risks": "contract: center must parse as a note, reflected pitches must stay in MIDI range, and invalid input must fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for pitch reflection, field preservation and round-trip, a CLI command, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "37390ed0ec8bc5cc5eee0a789a0eceff1bc8d4d7473fcec09343de04e4317cc1",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-invert",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 270 tests green; pitch reflection, field preservation and round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795085855.035265,
-      "timestamp_str": "2026-11-19 13:57:35",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-invert",
       "phase": "completed",
@@ -408,6 +363,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-ring",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add ring modulation for two WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088175.771426,
+      "timestamp_str": "2026-11-19 14:36:15",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "mix overlays WAVs by addition but there is no way to multiply two signals, which is needed for amplitude modulation and simple lo-fi timbres.",
+        "benefits": "ring multiplies matching-rate Coda WAVs sample by sample, zero-pads the shorter input, and is an exact identity against full scale.",
+        "risks": "contract: rates must match, output uses the longer length, products clamp to range, identity must be byte-exact, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for product, identity, zero padding and rate validation, a CLI command taking two WAVs, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "19277f0ca355945879acff727742fd83faa9472dace098d8fd64da72ab5f2f01",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-ring",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 304 tests green; per-channel products, identity, zero padding and rate validation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795088339.8668208,
+      "timestamp_str": "2026-11-19 14:38:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
