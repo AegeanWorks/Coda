@@ -73,6 +73,7 @@ pub mod resample;
 pub mod reverse;
 pub mod reverse_region;
 pub mod ring;
+pub mod rotate;
 pub mod score;
 pub mod sequence;
 pub mod slapback;

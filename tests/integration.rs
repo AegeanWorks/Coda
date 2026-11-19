@@ -2087,6 +2087,46 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_rotate_wraps_frames_circularly() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-rotate-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("rotate")
+        .arg(&input)
+        .args(["--rotate-by", "0.00025", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let sample = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert!((sample(0) as f64 / 32767.0 - 0.3).abs() < 0.01);
+    assert!((sample(2) as f64 / 32767.0 - 0.1).abs() < 0.01);
+
+    let missing = Command::new(exe)
+        .arg("rotate")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_slapback_adds_one_delayed_tap() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-slap-{}-{}", std::process::id(), 29));

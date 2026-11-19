@@ -746,3 +746,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: echo-to fed back repeatedly and chorus modulated its delay, with no single clean delayed copy.
 - **Decision**: Mix one fixed delayed copy into the dry signal at a wet level with no feedback; zero delay, zero mix or a delay past the end are byte-identical.
 - **Consequences**: Single-tap behaviour, identity cases, determinism and bounds are pinned by byte tests.
+
+### ADR-106: Rotate wraps a WAV's frames circularly
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: splice and reverse-region moved or reversed frames, but no tool wrapped the tail of a WAV to the front.
+- **Decision**: Shift frames left by a rounded offset with wraparound, preserving length, rate and all audio bytes; a zero offset is byte-identical.
+- **Consequences**: Wraparound, identity, length preservation and validation are pinned by byte tests.

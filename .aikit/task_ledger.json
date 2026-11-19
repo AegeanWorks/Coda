@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-slapback",
+    "task_id": "coda-rotate",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795102676.9739745,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795103046.2563186,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795109876.9739745,
+    "lease_until": 1795110246.2563186,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795102682.5392172,
-    "completed_head": "b60a9b18e9914820e3299f7b7fb8b9a0b23f65a8",
-    "completed_tree": "44690ec5dbc694871a2e8cbf3e95652bf6580403"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-velgrid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 480 tests green; nearest-level snapping, tie-breaking and rest handling pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795100571.3315217,
-      "timestamp_str": "2026-11-19 18:02:51",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-velgrid",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-velgrid' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795100577.474902,
-      "timestamp_str": "2026-11-19 18:02:57",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "3317494f5b6ed4961e788955137c2c02f9b216a9",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-envelope-wav",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-rotate",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add circular frame rotation for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795102771.9482589,
+      "timestamp_str": "2026-11-19 18:39:31",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "reverse-region and splice move or reverse frames, but no tool rotates a WAV circularly so the tail wraps to the front.",
+        "benefits": "rotate shifts every frame by a rounded frame offset with wraparound, preserving length, rate and all audio bytes.",
+        "risks": "contract: offset rounded to frames, wraparound exact, length and rate preserved, zero offset identity, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for wraparound, identity, length and validation, a CLI command with --rotate-by, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "98e517a49366a017efa62d55ddfca6104f69cc93177d6f7cb6a0023c6d740341",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-rotate",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 515 tests green; wraparound, identity and length preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795103046.2563186,
+      "timestamp_str": "2026-11-19 18:44:06",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -66,6 +66,7 @@ use coda::resample;
 use coda::reverse;
 use coda::reverse_region;
 use coda::ring;
+use coda::rotate;
 use coda::score;
 use coda::sequence;
 use coda::slapback;
@@ -178,6 +179,7 @@ USAGE
   coda thin <score.coda> --gap B [-o out.coda]
   coda ties <score.coda> [-o out.coda]
   coda slapback <in.wav> [--slap-delay S] [--slap-mix 0..1] [-o out.wav]
+  coda rotate <in.wav> --rotate-by S [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -260,6 +262,7 @@ OPTIONS
       --gap B          Minimum spacing in beats for thin
       --slap-delay S   Slapback delay in seconds (default: 0)
       --slap-mix 0..1  Slapback wet mix (default: 0.5)
+      --rotate-by S    Circular rotation offset in seconds
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -405,6 +408,7 @@ fn main() -> ExitCode {
     let mut thin_gap: Option<f64> = None;
     let mut slap_delay = 0.0_f64;
     let mut slap_mix = 0.5_f64;
+    let mut rotate_by: Option<f64> = None;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -854,6 +858,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--rotate-by" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if v.is_finite() => {
+                    rotate_by = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--rotate-by must be a finite number",
+                        "coda rotate in.wav --rotate-by 0.5",
                     )
                 }
             },
@@ -2253,6 +2269,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &saturated) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, drive {drive})", saturated.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "rotate" {
+        if positional.is_empty() {
+            return fail(
+                "rotate needs an input WAV",
+                "coda rotate in.wav --rotate-by 0.5",
+            );
+        }
+        let offset = match rotate_by {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "rotate needs --rotate-by",
+                    "coda rotate in.wav --rotate-by 0.5",
+                )
+            }
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let rotated = match rotate::rotate(&bytes, offset) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "rotated.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &rotated) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, {offset}s rotation)", rotated.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
