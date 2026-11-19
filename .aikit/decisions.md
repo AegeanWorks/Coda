@@ -60,3 +60,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Score-wide vibrato cannot ornament a single note inside an otherwise straight phrase.
 - **Decision**: Give Note a concrete Vibrato field; the score-wide directive updates both the score and the running note value, while vib rate cents overrides only following notes and vib default restores the score setting.
 - **Consequences**: The renderer reads note.vibrato with no branching; unornamented scores render byte-identically; rate and cents are bounded at parse time.
+
+### ADR-008: Oscillator choice is a per-note value
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A single score-wide wave cannot give a bass and a lead different timbres in one render.
+- **Decision**: Give Note a concrete Wave field; the score-wide wave directive updates both the score and the running note value, inst <name> overrides following notes, and inst default restores the score wave. Generated notes inherit the selected --wave.
+- **Consequences**: The renderer reads note.wave directly with no branching; unoverridden scores and generated pieces render byte-identically; wave names are validated at parse time.

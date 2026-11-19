@@ -53,7 +53,7 @@ pub fn render(score: &Score, sample_rate: u32) -> Vec<Frame> {
             let detune =
                 note.vibrato.cents * (std::f64::consts::TAU * note.vibrato.rate * t).sin() / 1200.0;
             let phase = (freq * t * 2.0_f64.powf(detune)) % 1.0;
-            let value = score.wave.sample(phase, seed) * amp * note.velocity;
+            let value = note.wave.sample(phase, seed) * amp * note.velocity;
             buffer[at].0 += value * left_gain;
             buffer[at].1 += value * right_gain;
         }

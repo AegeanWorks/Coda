@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-note-vibrato",
+    "task_id": "coda-note-wave",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795066679.078969,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795067019.3496358,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,36 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795066703.051589,
-    "completed_head": "4911390e530f70c693df74e3d7ebe0592eee5d1a",
-    "completed_tree": "d885d6d8b7677a730a1b914cf40542ed552b4fb0"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-port",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan migration of Coda into the AIKit projects folder",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795065570.6962533,
-      "timestamp_str": "2026-11-19 08:19:30",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "The user directed that new software live under projects/ and be governed by AIKit; the existing copy sits outside the portfolio registry.",
-        "benefits": "One registered project with ledger, ADRs and gates; no duplicate source tree; deterministic output preserved.",
-        "risks": "contract: keep the 48 passing tests and byte-identical WAV output; dependency: Rust is installed but off PATH and needs the GNU toolchain; concurrency: the workspace has another agent's active cairn-arrays task that must not be touched; state: AIKit scaffold memory in .aikit must be preserved.",
-        "mitigation": "Copy source verbatim into the AIKit-created project, keep its .aikit memory, record ADRs via aikit adr, run cargo test and aikit check, never publish or push."
-      },
-      "plan_digest": "639cae10aff1fbdba2c3dac91a82ef49d43cd062da1b7f623aaef18a875f493e",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-port",
       "phase": "phase 3",
@@ -398,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-note-wave",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add per-note waveform (instrument) overrides",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795066781.2329733,
+      "timestamp_str": "2026-11-19 08:39:41",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Waveform is score-wide, so voices in a chord or counter-melody cannot have different timbres.",
+        "benefits": "An inst directive lets one note switch oscillator while the rest of the phrase keeps its voice; MIDI and WAV stay deterministic.",
+        "risks": "contract: WAV and MIDI golden vectors must not change when no override is used; dependency: std only; concurrency: none; state: the running wave must reset predictably with inst default, and generated notes must inherit the chosen --wave.",
+        "mitigation": "Give Note a concrete Wave field, update score and generator constructors together, add byte-comparison and parse tests, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "ef61903caa89cbafb1abdbea6610a69434e9ba0b6a2bf60b759a81d3da194fd8",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-note-wave",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 61 tests green; per-note oscillator overrides verified with byte comparisons and generated-note inheritance; golden vectors unchanged",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795067019.3496358,
+      "timestamp_str": "2026-11-19 08:43:39",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

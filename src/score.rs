@@ -11,6 +11,7 @@
 //! release 0.15
 //! vibrato 5 20       # score-wide rate in Hz, depth in cents
 //! vib 8 45           # per-note override; `vib default` restores
+//! inst saw           # per-note oscillator; `inst default` restores
 //! pan -0.6           # running stereo position: -1 left, 0 centre, 1 right
 //! env 0 0 1 0        # per-note ADSR override; `env default` resets
 //! repeat 4           # repeat the next note/rest events
@@ -36,6 +37,8 @@ pub struct Note {
     pub envelope: Envelope,
     /// The vibrato used for this note (overridable with `vib`).
     pub vibrato: Vibrato,
+    /// The oscillator used for this note (overridable with `inst`).
+    pub wave: Wave,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -128,6 +131,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
     let mut pan = 0.0_f64;
     let mut note_envelope = score.envelope;
     let mut note_vibrato = score.vibrato;
+    let mut note_wave = score.wave;
 
     for (idx, raw) in text.lines().enumerate() {
         let line = raw.trim();
@@ -145,6 +149,18 @@ pub fn parse(text: &str) -> Result<Score, String> {
                 let raw = a.ok_or_else(|| line_error(idx, "wave needs a name".into()))?;
                 score.wave = Wave::parse(raw)
                     .ok_or_else(|| line_error(idx, format!("unknown wave '{raw}'")))?;
+                note_wave = score.wave;
+            }
+            "inst" => {
+                note_wave = match a.map(str::to_ascii_lowercase).as_deref() {
+                    Some("default") => score.wave,
+                    _ => {
+                        let raw =
+                            a.ok_or_else(|| line_error(idx, "inst needs a wave name".into()))?;
+                        Wave::parse(raw)
+                            .ok_or_else(|| line_error(idx, format!("unknown wave '{raw}'")))?
+                    }
+                };
             }
             "gain" => score.gain = number(a, "gain").map_err(|m| line_error(idx, m))?,
             "attack" => {
@@ -231,6 +247,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                         pan: note_pan,
                         envelope: note_envelope,
                         vibrato: note_vibrato,
+                        wave: note_wave,
                     });
                 }
                 cursor += beats * repeat as f64;
@@ -251,6 +268,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                     pan: note_pan,
                     envelope: note_envelope,
                     vibrato: note_vibrato,
+                    wave: note_wave,
                 });
             }
             "rest" => {
@@ -266,6 +284,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                         pan: 0.0,
                         envelope: note_envelope,
                         vibrato: note_vibrato,
+                        wave: note_wave,
                     });
                 }
                 cursor += beats * repeat as f64;
@@ -334,6 +353,16 @@ mod tests {
                 cents: 20.0
             }
         );
+    }
+
+    #[test]
+    fn per_note_wave_override() {
+        let score =
+            parse("wave sine\nnote C4 1\ninst saw\nnote E4 1\ninst default\nnote G4 1\n").unwrap();
+        assert_eq!(score.notes[0].wave, Wave::Sine);
+        assert_eq!(score.notes[1].wave, Wave::Saw);
+        assert_eq!(score.notes[2].wave, Wave::Sine);
+        assert!(parse("inst nonsense\nnote C4 1\n").is_err());
     }
 
     #[test]

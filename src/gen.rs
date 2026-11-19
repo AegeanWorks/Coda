@@ -109,7 +109,7 @@ impl Default for GenOptions {
     }
 }
 
-fn pitched(midi: i32, start: f64, beats: f64, velocity: f64, pan: f64) -> Note {
+fn pitched(midi: i32, start: f64, beats: f64, velocity: f64, pan: f64, wave: Wave) -> Note {
     Note {
         pitch: notes::name(midi),
         start,
@@ -121,10 +121,11 @@ fn pitched(midi: i32, start: f64, beats: f64, velocity: f64, pan: f64) -> Note {
             rate: 0.0,
             cents: 0.0,
         },
+        wave,
     }
 }
 
-fn rest(start: f64, beats: f64) -> Note {
+fn rest(start: f64, beats: f64, wave: Wave) -> Note {
     Note {
         pitch: "-".into(),
         start,
@@ -136,10 +137,11 @@ fn rest(start: f64, beats: f64) -> Note {
             rate: 0.0,
             cents: 0.0,
         },
+        wave,
     }
 }
 
-fn flow(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
+fn flow(rng: &mut Lcg, degrees: &[i32], bars: u32, wave: Wave) -> Vec<Note> {
     const PATTERNS: [&[f64]; 4] = [
         &[1.0, 1.0, 1.0, 1.0],
         &[0.5, 0.5, 1.0, 1.0, 1.0],
@@ -156,7 +158,7 @@ fn flow(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
         let mut at = (bar * 4) as f64;
         for &length in pattern {
             if rng.next().is_multiple_of(9) {
-                out.push(rest(at, length));
+                out.push(rest(at, length, wave));
             } else {
                 if rng.next().is_multiple_of(5) {
                     direction = -direction;
@@ -166,24 +168,38 @@ fn flow(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
                 let midi = 60 + degrees[index as usize] + (octave - 4) * 12;
                 let velocity = 0.6 + (rng.next() % 30) as f64 / 100.0;
                 let pan = (rng.next() % 21) as f64 / 10.0 - 1.0;
-                out.push(pitched(midi, at, length, velocity, pan));
+                out.push(pitched(midi, at, length, velocity, pan, wave));
             }
             at += length;
         }
         if bar % 2 == 0 {
-            out.push(pitched(36 + degrees[0], (bar * 4) as f64, 2.0, 0.5, 0.0));
+            out.push(pitched(
+                36 + degrees[0],
+                (bar * 4) as f64,
+                2.0,
+                0.5,
+                0.0,
+                wave,
+            ));
         }
     }
     out
 }
 
-fn arp(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
+fn arp(rng: &mut Lcg, degrees: &[i32], bars: u32, wave: Wave) -> Vec<Note> {
     let mut out = Vec::new();
     let span = degrees.len();
     for bar in 0..bars {
         let base = bar * 4;
         let root = (rng.next() as usize) % span;
-        out.push(pitched(36 + degrees[root], base as f64, 2.0, 0.55, 0.0));
+        out.push(pitched(
+            36 + degrees[root],
+            base as f64,
+            2.0,
+            0.55,
+            0.0,
+            wave,
+        ));
         for i in 0..8 {
             let degree = degrees[(root + i) % span];
             let octave = if i >= 4 { 5 } else { 4 };
@@ -194,32 +210,54 @@ fn arp(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
                 0.45,
                 0.6,
                 pan,
+                wave,
             ));
         }
     }
     out
 }
 
-fn chords(rng: &mut Lcg, degrees: &[i32], bars: u32) -> Vec<Note> {
+fn chords(rng: &mut Lcg, degrees: &[i32], bars: u32, wave: Wave) -> Vec<Note> {
     let mut out = Vec::new();
     let span = degrees.len();
     for bar in 0..bars {
         let base = (bar * 4) as f64;
         let first = (rng.next() as usize) % span;
         for &degree in &[first, (first + 2) % span, (first + 4) % span] {
-            out.push(pitched(60 + degrees[degree], base, 1.5, 0.55, 0.0));
+            out.push(pitched(60 + degrees[degree], base, 1.5, 0.55, 0.0, wave));
         }
-        out.push(pitched(36 + degrees[first], base, 1.5, 0.5, 0.0));
+        out.push(pitched(36 + degrees[first], base, 1.5, 0.5, 0.0, wave));
 
         let second = (first + 3) % span;
         let second_at = base + 2.0;
         for &degree in &[second, (second + 2) % span, (second + 4) % span] {
-            out.push(pitched(60 + degrees[degree], second_at, 1.5, 0.55, 0.0));
+            out.push(pitched(
+                60 + degrees[degree],
+                second_at,
+                1.5,
+                0.55,
+                0.0,
+                wave,
+            ));
         }
-        out.push(pitched(36 + degrees[second], second_at, 1.5, 0.5, 0.0));
+        out.push(pitched(
+            36 + degrees[second],
+            second_at,
+            1.5,
+            0.5,
+            0.0,
+            wave,
+        ));
 
         let melody = (rng.next() as usize) % span;
-        out.push(pitched(72 + degrees[melody], base + 3.5, 0.5, 0.7, 0.3));
+        out.push(pitched(
+            72 + degrees[melody],
+            base + 3.5,
+            0.5,
+            0.7,
+            0.3,
+            wave,
+        ));
     }
     out
 }
@@ -229,9 +267,9 @@ pub fn generate(seed: u64, options: GenOptions) -> Score {
     let degrees = options.scale.degrees();
     let mut rng = Lcg(seed);
     let notes = match options.style {
-        Style::Flow => flow(&mut rng, degrees, options.bars),
-        Style::Arp => arp(&mut rng, degrees, options.bars),
-        Style::Chords => chords(&mut rng, degrees, options.bars),
+        Style::Flow => flow(&mut rng, degrees, options.bars, options.wave),
+        Style::Arp => arp(&mut rng, degrees, options.bars, options.wave),
+        Style::Chords => chords(&mut rng, degrees, options.bars, options.wave),
     };
     Score {
         tempo: options.tempo,

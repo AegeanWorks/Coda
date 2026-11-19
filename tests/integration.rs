@@ -138,6 +138,40 @@ fn vibrato_changes_the_waveform_deterministically() {
 }
 
 #[test]
+fn per_note_wave_changes_only_the_marked_note() {
+    let plain = score::parse("wave sine\nnote A4 1\nat 2 C5 1\n").unwrap();
+    let marked = score::parse("wave sine\nnote A4 1\ninst organ\nat 2 C5 1\n").unwrap();
+    assert_ne!(
+        wav_bytes(&render(&plain, 8_000), 8_000),
+        wav_bytes(&render(&marked, 8_000), 8_000)
+    );
+
+    let via_default =
+        score::parse("wave sine\ninst organ\nnote A4 1\ninst default\nat 2 C5 1\n").unwrap();
+    let explicit =
+        score::parse("wave sine\ninst organ\nnote A4 1\nwave sine\nat 2 C5 1\n").unwrap();
+    assert_eq!(via_default.notes[1].wave, Wave::Sine);
+    assert_eq!(
+        wav_bytes(&render(&via_default, 8_000), 8_000),
+        wav_bytes(&render(&explicit, 8_000), 8_000)
+    );
+}
+
+#[test]
+fn generated_notes_inherit_the_chosen_wave() {
+    let opts = GenOptions {
+        bars: 1,
+        wave: coda::wave::Wave::Pluck,
+        ..GenOptions::default()
+    };
+    let score = gen::generate(7, opts);
+    assert!(score
+        .notes
+        .iter()
+        .all(|n| n.wave == coda::wave::Wave::Pluck));
+}
+
+#[test]
 fn per_note_vibrato_changes_only_the_marked_note() {
     let plain = score::parse("wave sine\nnote A4 1\nat 2 C5 1\n").unwrap();
     let marked = score::parse("wave sine\nnote A4 1\nvib 7 40\nat 2 C5 1\n").unwrap();

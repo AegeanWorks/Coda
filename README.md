@@ -34,7 +34,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 
 ## What it does
 
-- **Score compiler** — tempo, waveform, gain, ADSR, vibrato, per-note velocity, per-note ADSR and vibrato overrides, equal-power stereo pan, `repeat` expansion, explicit beat placement (polyphony via stacked `at`).
+- **Score compiler** — tempo, waveform, gain, ADSR, vibrato, per-note velocity, per-note ADSR/vibrato/oscillator overrides, equal-power stereo pan, `repeat` expansion, explicit beat placement (polyphony via stacked `at`).
 - **Generative composition** — `seed` plus scale (major/minor/pentatonic/chromatic), tempo, bar count, waveform and arrangement style (`flow`, `arp`, `chords`). A seed always yields the same piece.
 - **Album mode** — deterministic multi-track output plus a `manifest.json` recording the seed, settings, album fingerprint and per-track fingerprints.
 - **MIDI export** — any score or seed can be written as a type-0 Standard MIDI File by choosing a `.mid`/`.midi` output extension; tempo, note on/off, velocity and end-of-track are all deterministic.
@@ -69,6 +69,7 @@ One directive per line; `#` starts a comment. Durations are in beats, envelopes 
 | `env <a> <d> <s> <r>` | Per-note ADSR override; `env default` restores the score envelope. |
 | `vibrato <rate_hz> <cents>` | Score-wide pitch oscillation; `0 0` disables it. |
 | `vib <rate_hz> <cents>` | Per-note vibrato override; `vib default` restores the score setting. |
+| `inst <wave>` | Per-note oscillator override; `inst default` restores the score wave. |
 | `pan <-1..1>` | Running stereo position: -1 left, 0 centre, 1 right. |
 | `repeat <n>` | Repeat the following `note`/`rest` events `n` times. |
 | `note <pitch> <beats> [velocity] [pan]` | Note at the running cursor; advances it. |

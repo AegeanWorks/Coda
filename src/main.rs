@@ -35,6 +35,7 @@ SCORE DIRECTIVES
   note <pitch> <beats> [velocity] [pan]
   at <beat> <pitch> <beats> [velocity] [pan]
   rest <beats>          pan <-1..1>   repeat <n>
+  inst <wave>           per-note oscillator; inst default resets
   vibrato <rate_hz> <cents>  vib <rate_hz> <cents>
   env <a> <d> <s> <r>   per-note ADSR; env default resets
 
