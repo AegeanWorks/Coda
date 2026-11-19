@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-compare",
+    "task_id": "coda-midi-import",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795068644.0722742,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795068937.6653254,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795068662.230735,
-    "completed_head": "c435d33b5d5b9caedfdb3620b0f36dac754c634c",
-    "completed_tree": "6143282aa11efe225201107d5fe4fa6c57f46079"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-lint",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 65 tests green; lint output pinned byte-for-byte in a CLI test; WAV/MIDI output unchanged",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795067274.8362987,
-      "timestamp_str": "2026-11-19 08:47:54",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-lint",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-lint' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795067287.720675,
-      "timestamp_str": "2026-11-19 08:48:07",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "f79394cbfe46c2b205e07d560766ae9cd1f8e750",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-env-presets",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-midi-import",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add MIDI import for the type-0 subset Coda exports",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068750.2518616,
+      "timestamp_str": "2026-11-19 09:12:30",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Coda could write MIDI but not read it back, so an exported piece could not be edited or compared as a score again.",
+        "benefits": "import-midi reconstructs tempo, pitches, timing and velocities from a single-track MIDI file, closing the symbolic round-trip.",
+        "risks": "contract: unsupported formats or running-status violations must fail with a clear message and never panic; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Write a bounds-checked parser with error tests, add byte-vector round-trip tests through export then import, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "81df0b964698fbed8996f1d59407f73adb6b65e33e0a2bad13e3344803b74e0f",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-midi-import",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 96 tests green; supported-subset MIDI round-trip preserves byte-identical audio and richer scores report their non-MIDI losses via compare",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068937.6653254,
+      "timestamp_str": "2026-11-19 09:15:37",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

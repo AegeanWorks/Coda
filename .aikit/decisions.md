@@ -116,3 +116,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Variation and transposition produce many similar scores; a reviewable, testable diff is needed.
 - **Decision**: Add a pure compare module that emits ordered structural differences and renders both scores to compare WAV bytes, exposed as a read-only compare command that exits 0 even when scores differ.
 - **Consequences**: Exact-output tests pin the report; no score or output file is modified; equivalent scores are reported as audio-identical.
+
+### ADR-016: MIDI import reconstructs the supported subset only
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: MIDI has no waveform, pan or envelope fields, so a full Score cannot be recovered from a .mid file.
+- **Decision**: Parse format-0 single-track MIDI into a Score with recovered tempo, pitches, durations and velocities, using score defaults for waveform, gain, pan and envelope; running status and meta events are supported.
+- **Consequences**: A score built from defaults round-trips to byte-identical audio; richer scores lose non-MIDI fields on import, which compare reports explicitly.

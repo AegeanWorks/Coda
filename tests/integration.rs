@@ -547,6 +547,70 @@ fn cli_vary_is_seeded_and_writes_parseable_source() {
 }
 
 #[test]
+fn cli_midi_export_then_import_preserves_audio() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-midi-roundtrip-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let midi = root.join("scale.mid");
+    let imported = root.join("imported.coda");
+    // MIDI cannot carry waveform, gain or envelope: use score defaults so the
+    // supported subset round-trips to byte-identical audio.
+    std::fs::write(&source, "tempo 120\nnote C4 1\nat 2 G4 0.5\n").unwrap();
+
+    let out = Command::new(exe)
+        .arg("render")
+        .arg(&source)
+        .arg("-o")
+        .arg(&midi)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let out = Command::new(exe)
+        .arg("import-midi")
+        .arg(&midi)
+        .arg("-o")
+        .arg(&imported)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let original = Command::new(exe)
+        .arg("digest")
+        .arg(&source)
+        .args(["--sample-rate", "8000"])
+        .output()
+        .unwrap();
+    let restored = Command::new(exe)
+        .arg("digest")
+        .arg(&imported)
+        .args(["--sample-rate", "8000"])
+        .output()
+        .unwrap();
+    assert!(original.status.success());
+    assert!(
+        restored.status.success(),
+        "{}",
+        String::from_utf8_lossy(&restored.stderr)
+    );
+    assert_eq!(
+        original.stdout, restored.stdout,
+        "MIDI round-trip must preserve audio"
+    );
+
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_compare_has_exact_deterministic_output() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-compare-{}", std::process::id()));

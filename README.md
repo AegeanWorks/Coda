@@ -37,7 +37,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Score compiler** — tempo, waveform, gain, ADSR, vibrato, per-note velocity, per-note ADSR/vibrato/oscillator overrides, five named ADSR presets, equal-power stereo pan, `repeat` expansion, explicit beat placement (polyphony via stacked `at`).
 - **Generative composition** — `seed` plus scale (major/minor/pentatonic/chromatic), tempo, bar count, waveform and arrangement style (`flow`, `arp`, `chords`). A seed always yields the same piece.
 - **Album mode** — deterministic multi-track output plus a `manifest.json` recording the seed, settings, album fingerprint and per-track fingerprints.
-- **MIDI export** — any score or seed can be written as a type-0 Standard MIDI File by choosing a `.mid`/`.midi` output extension; tempo, note on/off, velocity and end-of-track are all deterministic.
+- **MIDI export/import** — any score or seed can be written as a type-0 Standard MIDI File by choosing a `.mid`/`.midi` output extension; `import-midi` reads that subset back into an editable score with tempo, pitch, timing and velocity recovered.
 - **Audio fingerprint** — `digest` prints a stable FNV-1a 64-bit ID for any rendered piece; golden vectors pin the renderer at two sample rates.
 - **Score inspector** — `info` reports waveform, timing, note/rest counts and duration without writing audio.
 - **Score linter** — `lint` reports deterministic warnings for extreme pitch, silent notes, clipping risk, duplicate notes and long values without changing the score.
@@ -60,6 +60,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `export-score <score.coda>` | Write canonical, re-parseable source. |
 | `vary <score.coda> --seed N` | Write a seeded variation as canonical source. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
+| `import-midi <file.mid>` | Reconstruct a score from a format-0 single-track MIDI file. |
 | `digest <score.coda>` | Print the audio fingerprint, byte count and frame count. |
 | `help` | Show built-in help. |
 

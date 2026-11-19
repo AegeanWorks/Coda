@@ -4,6 +4,7 @@ use coda::compare;
 use coda::digest;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::lint;
+use coda::midi_import;
 use coda::render::{render, wav_bytes};
 use coda::score;
 use coda::transpose;
@@ -23,6 +24,7 @@ USAGE
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda compare <a.coda> <b.coda>
+  coda import-midi <file.mid> [-o out.coda]
   coda digest <score.coda> [options]
   coda album <number> [options]
   coda help
@@ -229,6 +231,49 @@ fn main() -> ExitCode {
                 i += 1;
             }
         }
+    }
+
+    if command == "import-midi" {
+        if positional.is_empty() {
+            return fail(
+                "import-midi needs a MIDI file",
+                "coda import-midi song.mid [-o song.coda]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the MIDI file exists and is readable",
+                )
+            }
+        };
+        let imported = match midi_import::import_midi(&bytes) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "only single-track format-0 MIDI files are supported"),
+        };
+        let path = if output == "out.wav" {
+            "imported.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&imported);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, tempo {})",
+                    text.len(),
+                    imported.notes.len(),
+                    imported.tempo
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "compare" {
