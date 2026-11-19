@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-polarity",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795089125.996713,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795096325.996713,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795089135.1339881,
+    "completed_head": "fd6f88d353ecff53cce953285e1dbc7c3b0ac6fa",
+    "completed_tree": "256daffa6494478e0b89dc8839c454e8142d3d47"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-register",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add register fitting by octave displacement",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795087177.4786744,
-      "timestamp_str": "2026-11-19 14:19:37",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Transpose shifts all pitches by a fixed interval and invert mirrors them, but there is no way to fold stray notes into a target pitch range.",
-        "benefits": "register octave-displaces each sounding pitch into [low,high], preserving rhythm, velocity, pan and timbre as editable canonical source.",
-        "risks": "contract: bounds must be valid notes with low below high, rests untouched, out-of-range results skipped, and output must round-trip; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for octave folding, preservation and round-trip, a CLI command with --low/--high, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "59faecaacd90f5e056206161d6819a10e6e5b40ec43fdb0f452eea87d8cacd81",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-register",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-polarity",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-polarity' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795089135.2402465,
+      "timestamp_str": "2026-11-19 14:52:15",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "fd6f88d353ecff53cce953285e1dbc7c3b0ac6fa",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
