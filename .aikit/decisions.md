@@ -655,3 +655,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: echo was a fixed feedback delay with no modulated short delay mixed into the dry signal.
 - **Decision**: Mix the dry signal with a copy delayed by base_delay plus a sine swing, using deterministic interpolation and a wet coefficient; zero mix is a no-op.
 - **Consequences**: Zero-mix identity, determinism, length preservation, bounded output and validation are pinned by byte tests.
+
+### ADR-093: Compress reduces loud passages above a threshold
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: limit capped peaks and normalize scaled a whole file, but neither reduced only the audio above a threshold.
+- **Decision**: Map samples above the threshold to threshold + (magnitude - threshold)/ratio with sign preserved; threshold 1 or ratio 1 is byte-identical.
+- **Consequences**: Identity, quiet preservation, loud attenuation, sign preservation, determinism and validation are pinned by byte tests.

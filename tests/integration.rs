@@ -2087,6 +2087,46 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_compress_reduces_only_loud_samples() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-compress-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.2, -0.2), (1.0, -1.0)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("compress")
+        .arg(&input)
+        .args(["--comp-threshold", "0.5", "--comp-ratio", "4", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    let second = i16::from_le_bytes([after[48], after[49]]);
+    assert!((first as f64 / 32767.0 - 0.2).abs() < 0.01, "quiet kept");
+    assert!(
+        (second as f64 / 32767.0 - 0.625).abs() < 0.01,
+        "loud reduced"
+    );
+
+    let noop = Command::new(exe)
+        .arg("compress")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(noop.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_chorus_blends_a_modulated_delay() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-chorus-{}", std::process::id()));

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-chorus",
+    "task_id": "coda-compress",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795097421.738086,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795097784.6306381,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795104621.738086,
+    "lease_until": 1795104984.6306381,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795097427.9499812,
-    "completed_head": "fe2324135e4ad49cdd0fff38c95cfda9fc5b7a38",
-    "completed_tree": "55352463c7405bb9e4d8e4bf959fa5a2fefbfdad"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midside",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 419 tests green; mono-to-side, mid-only and bounded round-trip pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795095793.6225855,
-      "timestamp_str": "2026-11-19 16:43:13",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-midside",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-midside' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795095799.9102657,
-      "timestamp_str": "2026-11-19 16:43:19",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "2d8d453a4c85be7e8ba406664620294b8fa46947",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-noise",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-compress",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a dynamics compressor for WAVs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795097521.9627228,
+      "timestamp_str": "2026-11-19 17:12:01",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "limit caps samples and normalize scales a whole file, but there is no tool that reduces the gain of loud passages above a threshold while leaving quiet audio untouched.",
+        "benefits": "compress applies a threshold and ratio per sample with a deterministic soft knee; threshold 1 or ratio 1 is byte-identical.",
+        "risks": "contract: threshold 0..1, ratio >=1, quiet audio unchanged, loud audio attenuated, sign preserved, bounded, determinism, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for identity, attenuation, sign preservation and determinism, a CLI command with --comp-threshold/--comp-ratio, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "f1b6f3ee37dafe3659dca452326ae245388df9bcd8ce58202cb228c836e57316",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-compress",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 450 tests green; identity, quiet preservation, loud attenuation and sign preservation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795097784.6306381,
+      "timestamp_str": "2026-11-19 17:16:24",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

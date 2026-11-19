@@ -16,6 +16,7 @@ pub mod channels;
 pub mod chord;
 pub mod chorus;
 pub mod compare;
+pub mod compress;
 pub mod concat;
 pub mod crossfade;
 pub mod crush;
