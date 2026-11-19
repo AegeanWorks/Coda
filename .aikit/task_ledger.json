@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-reforge-run1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795108709.2934887,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795115909.2934887,
@@ -15,7 +15,10 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795113876.4390209,
+    "completed_head": "4137e4bbcfa0bd44c8d72808a966b80c9c65519c",
+    "completed_tree": "a0ce20a0eef763c7199759bcd43bf58ee3165505"
   },
   "checkpoints": [
     {
@@ -59,18 +62,6 @@
           "path": "projects/coda"
         }
       ]
-    },
-    {
-      "task_id": "reforge:run-1",
-      "phase": "reforge stage 98",
-      "phase_num": 3,
-      "description": "Reforge stage 98: window 294, 3 commit(s), 7 file(s) reviewed (unreviewed), 0 finding(s), 0 repaired, empty \u2014 nothing to commit",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795113228.6901271,
-      "timestamp_str": "2026-11-19 21:33:48",
-      "agent": "opencode",
-      "operator_task": "coda-reforge-run1"
     },
     {
       "task_id": "reforge:run-1",
@@ -275,6 +266,23 @@
       "timestamp_str": "2026-11-19 21:43:15",
       "agent": "opencode",
       "operator_task": "coda-reforge-run1"
+    },
+    {
+      "task_id": "coda-reforge-run1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-reforge-run1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795113876.5058439,
+      "timestamp_str": "2026-11-19 21:44:36",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "4137e4bbcfa0bd44c8d72808a966b80c9c65519c",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
