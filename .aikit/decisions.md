@@ -263,3 +263,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Rendered audio often has empty edges or needs an excerpt, with no Coda tool to cut it.
 - **Decision**: Add trim that selects a frame range from seconds or auto-detects content above a dBFS threshold, keeping a single silent frame for fully silent input and preserving the sample rate.
 - **Consequences**: No-op ranges are byte-identical, invalid ranges fail clearly, and edge-frame assertions tolerate 16-bit quantization.
+
+### ADR-037: Fade presets reuse the deterministic fade engine on existing WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Render-time fades are insufficient for already-rendered or joined audio that needs finishing.
+- **Decision**: Expose short/gentle/long/tail/attack presets that decode a Coda WAV, apply the shared fade function and re-encode at the original sample rate.
+- **Consequences**: Preset names and edge attenuation are pinned by byte tests, unknown presets fail clearly, and output length never changes.

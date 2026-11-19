@@ -822,6 +822,44 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_fade_presets_change_edges_without_resizing() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-fade-pre-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, 0.5); 1_000], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("fade")
+        .arg(&input)
+        .args(["--preset", "short", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let before = std::fs::read(&input).unwrap();
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(before.len(), after.len());
+    assert_ne!(before, after);
+    let first = i16::from_le_bytes([after[44], after[45]]).abs();
+    assert!(first < 5, "head should be quiet: {first}");
+
+    let bad = Command::new(exe)
+        .arg("fade")
+        .arg(&input)
+        .args(["--preset", "nope"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_trim_removes_silence_and_shortens_audio() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-trim-{}", std::process::id()));

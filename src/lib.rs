@@ -13,6 +13,7 @@ pub mod digest;
 pub mod echo;
 pub mod envelope;
 pub mod fade;
+pub mod fade_presets;
 pub mod gen;
 pub mod humanize;
 pub mod join;

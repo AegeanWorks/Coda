@@ -7,6 +7,7 @@ use coda::diatonic;
 use coda::digest;
 use coda::echo;
 use coda::fade;
+use coda::fade_presets;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::humanize;
 use coda::join;
@@ -51,6 +52,7 @@ USAGE
   coda stretch <score.coda> --factor F [-o out.coda]
   coda analyze <in.wav>
   coda trim <in.wav> [--start S] [--end S] [--trim-silence] [-o out.wav]
+  coda fade <in.wav> --preset NAME [-o out.wav]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
@@ -79,6 +81,7 @@ OPTIONS
       --start S / --end S  Time range for trim
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim (default: -60 dBFS)
+      --preset NAME    Fade preset: short|gentle|long|tail|attack
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -179,6 +182,7 @@ fn main() -> ExitCode {
     let mut trim_end: Option<f64> = None;
     let mut trim_silence = false;
     let mut trim_threshold = -60.0_f64;
+    let mut fade_preset: Option<String> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -401,6 +405,13 @@ fn main() -> ExitCode {
                     )
                 }
             },
+            "--preset" => match need(i) {
+                Some(name) => {
+                    fade_preset = Some(name.to_string());
+                    i += 2;
+                }
+                None => return fail("--preset needs a name", "coda fade in.wav --preset short"),
+            },
             "--bars" => match need(i).and_then(|v| v.parse::<u32>().ok()) {
                 Some(v) => {
                     options.bars = v;
@@ -593,6 +604,44 @@ fn main() -> ExitCode {
                     composed.notes.len(),
                     positional[0]
                 );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "fade" {
+        if positional.is_empty() {
+            return fail("fade needs an input WAV", "coda fade in.wav --preset short");
+        }
+        let preset = match &fade_preset {
+            Some(name) => name.clone(),
+            None => return fail("fade needs --preset", "coda fade in.wav --preset short"),
+        };
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let faded = match fade_presets::apply(&bytes, &preset) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "faded.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &faded) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, preset {preset})", faded.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

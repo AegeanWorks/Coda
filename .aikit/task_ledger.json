@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-trim",
+    "task_id": "coda-fade-presets",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795073980.6234572,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795074219.7936893,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795073986.6947834,
-    "completed_head": "6e6096e348314037e918f1521ba980b7c24796cb",
-    "completed_tree": "671b33b6b0cb8fc00d12223333de5fec3b120559"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-diatonic",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 163 tests green; diatonic identity, octave walk, key membership and scale flag pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795072437.708626,
-      "timestamp_str": "2026-11-19 10:13:57",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-diatonic",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-diatonic' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795072445.0125084,
-      "timestamp_str": "2026-11-19 10:14:05",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "58f40b1f8778a20f4c9a145947bf062e6555f39f",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-swing",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-fade-presets",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add named fade presets for WAV files",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074046.8801565,
+      "timestamp_str": "2026-11-19 10:40:46",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Fades currently require knowing exact seconds at render time; applying named fades to an existing WAV is a common finishing step.",
+        "benefits": "fade --preset applies short/gentle/long/tail/attack envelopes to any Coda WAV using the existing deterministic fade code.",
+        "risks": "contract: presets must be bounded by half the buffer, unknown names must fail clearly, and output must stay a valid WAV; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a preset lookup with exact edge-frame tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "a6970d91d16ff8da6b21a075f297850e599b6fd6709a35cac394d1b99076ffa0",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-fade-presets",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 193 tests green; fade preset names, edge attenuation and unchanged length pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074219.7936893,
+      "timestamp_str": "2026-11-19 10:43:39",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
