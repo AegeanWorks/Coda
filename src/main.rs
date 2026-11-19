@@ -46,6 +46,7 @@ use coda::notes;
 use coda::overlay;
 use coda::pad;
 use coda::pan;
+use coda::pan_sweep;
 use coda::pedal;
 use coda::polarity;
 use coda::quantize;
@@ -144,6 +145,7 @@ USAGE
   coda midside <in.wav> --mode encode|decode [-o out.wav]
   coda noise <in.wav> [--seed N] [--amount 0..1] [-o out.wav]
   coda midi-render <file.mid> [--sample-rate N] [-o out.wav]
+  coda pan-sweep <in.wav> [--autopan-rate HZ] [--autopan-depth 0..1] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1307,6 +1309,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "pan-sweep" {
+        if positional.is_empty() {
+            return fail(
+                "pan-sweep needs an input WAV",
+                "coda pan-sweep in.wav --autopan-rate 0.2 --autopan-depth 0.6",
+            );
+        }
+        if pan_rate <= 0.0 {
+            return fail(
+                "pan-sweep needs a positive --autopan-rate",
+                "coda pan-sweep in.wav --autopan-rate 0.2 --autopan-depth 0.6",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let swept = match pan_sweep::pan_sweep(&bytes, pan_rate, pan_depth) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "swept.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &swept) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {pan_rate} Hz, depth {pan_depth})",
+                    swept.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

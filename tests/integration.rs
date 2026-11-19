@@ -2087,6 +2087,44 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_pan_sweep_moves_the_stereo_image() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-psweep-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, 0.5); 64], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("pan-sweep")
+        .arg(&input)
+        .args(["--autopan-rate", "100", "--autopan-depth", "1", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(after.len(), std::fs::read(&input).unwrap().len());
+    let left = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    let right = |i: usize| i16::from_le_bytes([after[46 + i * 4], after[47 + i * 4]]);
+    assert!(left(0) > 0 && right(0) > 0, "centre at start");
+    assert!((0..64).any(|i| left(i) > right(i)), "sweeps left");
+    assert!((0..64).any(|i| right(i) > left(i)), "sweeps right");
+
+    let missing = Command::new(exe)
+        .arg("pan-sweep")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_midi_render_matches_direct_render() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-mr-{}-{}", std::process::id(), 17));

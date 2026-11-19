@@ -627,3 +627,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: import-midi and render were separate steps, so playing a MIDI file required writing and re-reading an intermediate score.
 - **Decision**: Import the MIDI file to a Score and feed it through the shared render pipeline at the chosen sample rate, producing a deterministic WAV with a digest.
 - **Consequences**: Byte-equality with direct rendering of the source score, sample-rate control and invalid-file rejection are pinned by byte tests.
+
+### ADR-089: Pan-sweep applies auto-pan to existing WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: autopan was render-time only, so processed WAVs could not receive a moving stereo image.
+- **Decision**: Reuse the shared equal-power sine LFO on decoded frames with --autopan-rate and --autopan-depth, requiring a positive rate; depth 0 is byte-identical.
+- **Consequences**: Zero-depth identity, sweep, determinism, bounded gains and validation are pinned by byte tests.
