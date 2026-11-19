@@ -1849,6 +1849,40 @@ fn cli_dc_removes_a_constant_offset() {
 }
 
 #[test]
+fn cli_health_reports_exact_diagnostics() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-health-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    std::fs::write(
+        &input,
+        wav_bytes(&[(0.5, 0.5), (-0.5, -0.5), (0.5, 0.5), (0.0, 0.0)], 8_000),
+    )
+    .unwrap();
+
+    let result = Command::new(exe)
+        .arg("health")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = String::from_utf8_lossy(&result.stdout);
+    assert!(text.contains("frames          4"), "{text}");
+    assert!(text.contains("silent frames   1"), "{text}");
+    assert!(text.contains("clipped samples 0"), "{text}");
+    assert!(text.contains("zero crossings  2/2"), "{text}");
+    assert!(text.contains("crest factor    1.25 dB"), "{text}");
+
+    let missing = Command::new(exe).arg("health").output().unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_overlay_superimposes_scores_at_absolute_beats() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-overlay-{}", std::process::id()));

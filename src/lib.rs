@@ -28,6 +28,7 @@ pub mod gain;
 pub mod gate;
 pub mod gen;
 pub mod harmonize;
+pub mod health;
 pub mod humanize;
 pub mod invert;
 pub mod join;

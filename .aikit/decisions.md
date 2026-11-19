@@ -473,3 +473,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: concat joined scores sequentially and mix overlaid rendered audio, but neither left a superimposition of two editable scores.
 - **Decision**: Union the note lists without shifting starts, sort the result by start then pitch for deterministic canonical output, and keep the first score's global settings.
 - **Consequences**: Start preservation, stable ordering, round-trip and empty-input rejection are pinned by byte tests.
+
+### ADR-067: Health reports WAV silence, clipping, DC and crest
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: analyze covered peak and RMS only, leaving clipping, silence, DC offset, zero crossings and crest factor unmeasured.
+- **Decision**: Print a fixed-format health report with exact silent-frame and clipped-sample counts, per-channel zero crossings and DC offset, and a finite-or--inf crest factor.
+- **Consequences**: Exact counts, stable formatting, silence handling and invalid-WAV rejection are pinned by byte tests.

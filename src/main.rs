@@ -22,6 +22,7 @@ use coda::gain;
 use coda::gate;
 use coda::gen::{self, GenOptions, Scale, Style};
 use coda::harmonize;
+use coda::health;
 use coda::humanize;
 use coda::invert;
 use coda::join;
@@ -101,6 +102,7 @@ USAGE
   coda augment <score.coda> --factor F [-o out.coda]
   coda polarity <in.wav> [-o out.wav]
   coda overlay <a.coda> <b.coda> [...] [-o out.coda]
+  coda health <in.wav>
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1070,6 +1072,28 @@ fn main() -> ExitCode {
                 &format!("cannot write '{path}': {e}"),
                 "check that the output directory exists and is writable",
             ),
+        };
+    }
+
+    if command == "health" {
+        if positional.is_empty() {
+            return fail("health needs an input WAV", "coda health in.wav");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        return match health::health(&bytes) {
+            Ok(report) => {
+                print!("{report}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
         };
     }
 
