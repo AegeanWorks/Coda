@@ -31,6 +31,7 @@ use coda::lint;
 use coda::loop_score;
 use coda::lowpass;
 use coda::midi_import;
+use coda::midi_info;
 use coda::mix;
 use coda::normalize;
 use coda::notes;
@@ -119,6 +120,7 @@ USAGE
   coda highpass <in.wav> --alpha 0..1 [-o out.wav]
   coda speed <in.wav> --factor F [-o out.wav]
   coda velocity <score.coda> --peak 0..1 [-o out.coda]
+  coda midi-info <file.mid>
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1160,6 +1162,28 @@ fn main() -> ExitCode {
                 &format!("cannot write '{path}': {e}"),
                 "check that the output directory exists and is writable",
             ),
+        };
+    }
+
+    if command == "midi-info" {
+        if positional.is_empty() {
+            return fail("midi-info needs a MIDI file", "coda midi-info file.mid");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the MIDI file exists and is readable",
+                )
+            }
+        };
+        return match midi_info::midi_info(&bytes) {
+            Ok(report) => {
+                print!("{report}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(&e, "use a Standard MIDI File written by Coda"),
         };
     }
 

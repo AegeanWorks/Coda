@@ -536,3 +536,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: accent cycled fixed velocities and humanize jittered them, but no tool rescaled a score's dynamics while keeping their ratios.
 - **Decision**: Multiply every sounding note velocity by peak divided by the current maximum, leaving rests and all other fields unchanged; a silent score is untouched.
 - **Consequences**: Peak targeting, ratio preservation, rest handling, round-trip and validation are pinned by byte tests.
+
+### ADR-076: MIDI inspection reports header and recovered content
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: MIDI files could be exported and imported but not inspected read-only without writing a score.
+- **Decision**: Parse the MThd header for format, track count and division, then summarize the score recovered by the existing import path with tempo, note/rest counts, duration and numeric pitch range.
+- **Consequences**: Exact header fields, recovered metrics and invalid-file rejection are pinned by byte tests.

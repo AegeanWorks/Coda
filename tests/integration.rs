@@ -2087,6 +2087,45 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_midi_info_describes_a_generated_file() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-mi-{}-{}", std::process::id(), 3));
+    let _ = std::fs::create_dir_all(&root);
+    let score = root.join("source.coda");
+    let midi = root.join("out.mid");
+    std::fs::write(&score, "tempo 120\nnote C4 1\nnote E4 1\nnote G4 2\n").unwrap();
+
+    let rendered = Command::new(exe)
+        .arg("render")
+        .arg(&score)
+        .args(["-o"])
+        .arg(&midi)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+
+    let result = Command::new(exe)
+        .arg("midi-info")
+        .arg(&midi)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = String::from_utf8_lossy(&result.stdout);
+    assert!(text.contains("format      0"), "{text}");
+    assert!(text.contains("tracks      1"), "{text}");
+    assert!(text.contains("notes       3"), "{text}");
+    assert!(text.contains("pitch range C4..G4"), "{text}");
+
+    let missing = Command::new(exe).arg("midi-info").output().unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_velocity_scales_to_a_peak() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-velocity-{}", std::process::id()));
