@@ -54,6 +54,7 @@ pub mod polarity;
 pub mod quantize;
 pub mod register;
 pub mod render;
+pub mod repeat_wav;
 pub mod report;
 pub mod resample;
 pub mod reverse;

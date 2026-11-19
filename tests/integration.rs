@@ -2087,6 +2087,46 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_repeat_wav_tiles_exactly() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-repwav-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    let unity = root.join("unity.wav");
+    std::fs::write(&input, wav_bytes(&[(0.2, -0.2), (0.5, 0.5)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("repeat-wav")
+        .arg(&input)
+        .args(["--times", "3", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    let before = std::fs::read(&input).unwrap();
+    assert_eq!(after.len(), 44 + 3 * (before.len() - 44));
+    assert_eq!(&after[44..before.len()], &before[44..]);
+    assert_eq!(&after[before.len()..2 * before.len() - 44], &before[44..]);
+
+    let result = Command::new(exe)
+        .arg("repeat-wav")
+        .arg(&input)
+        .args(["--times", "1", "-o"])
+        .arg(&unity)
+        .output()
+        .unwrap();
+    assert!(result.status.success());
+    assert_eq!(std::fs::read(&unity).unwrap(), before);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_reverse_region_flips_only_the_window() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-revreg-{}", std::process::id()));

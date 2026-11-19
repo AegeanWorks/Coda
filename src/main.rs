@@ -47,6 +47,7 @@ use coda::polarity;
 use coda::quantize;
 use coda::register;
 use coda::render::{render, wav_bytes, Frame};
+use coda::repeat_wav;
 use coda::report;
 use coda::resample;
 use coda::reverse;
@@ -131,6 +132,7 @@ USAGE
   coda bandpass <in.wav> --high-alpha 0..1 --low-alpha 0..1 [-o out.wav]
   coda intervals <score.coda>
   coda reverse-region <in.wav> --start S --end S [-o out.wav]
+  coda repeat-wav <in.wav> --times N [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -299,6 +301,7 @@ fn main() -> ExitCode {
     let mut trim_threshold = -60.0_f64;
     let mut fade_preset: Option<String> = None;
     let mut times = 1_usize;
+    let mut times_seen = false;
     let mut target_rate: Option<u32> = None;
     let mut channel_mode: Option<String> = None;
     let mut bits: u16 = 8;
@@ -587,6 +590,7 @@ fn main() -> ExitCode {
             "--times" => match need(i).and_then(|v| v.parse::<usize>().ok()) {
                 Some(n) if n > 0 => {
                     times = n;
+                    times_seen = true;
                     i += 2;
                 }
                 _ => {
@@ -1250,6 +1254,53 @@ fn main() -> ExitCode {
         return match fs::write(&path, &cleaned) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "repeat-wav" {
+        if positional.is_empty() {
+            return fail(
+                "repeat-wav needs an input WAV",
+                "coda repeat-wav in.wav --times 3",
+            );
+        }
+        if !times_seen {
+            return fail(
+                "repeat-wav needs --times",
+                "coda repeat-wav in.wav --times 3",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let repeated = match repeat_wav::repeat_wav(&bytes, times) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a value between 1 and 1000"),
+        };
+        let path = if output == "out.wav" {
+            "repeated.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &repeated) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, {times} times)",
+                    repeated.len(),
+                    (repeated.len() - 44) / 4
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

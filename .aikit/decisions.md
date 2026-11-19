@@ -578,3 +578,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: reverse-wav flipped whole files, with no way to reverse just one phrase inside a WAV.
 - **Decision**: Round the window to frames at the source rate and reverse only that slice, leaving head and tail unchanged and out-of-range windows as no-ops.
 - **Consequences**: Window reversal, head/tail preservation, full-file equivalence and range validation are pinned by byte tests.
+
+### ADR-082: Repeat-wav tiles a finished WAV into a loop
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: loop repeated scores but there was no way to repeat an already-processed WAV without external editing.
+- **Decision**: Append the source frame buffer N times with a bounded count, preserving the sample rate and all audio bytes; N=1 is byte-identical.
+- **Consequences**: Exact tiling, frame scaling, rate preservation and count validation are pinned by byte tests.
