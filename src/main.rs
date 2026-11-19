@@ -48,6 +48,7 @@ use coda::noise;
 use coda::normalize;
 use coda::notes;
 use coda::overlay;
+use coda::overwrite;
 use coda::pad;
 use coda::pan;
 use coda::pan_sweep;
@@ -160,6 +161,7 @@ USAGE
   coda sustain <score.coda> [-o out.coda]
   coda ramp <score.coda> --from 0..1 --to 0..1 [-o out.coda]
   coda concat-wav <a.wav> <b.wav> [...] [-o out.wav]
+  coda overwrite <base.wav> <insert.wav> --at S [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -216,7 +218,7 @@ OPTIONS
       --width 0..2     Stereo width for width (0 mono, 1 identity)
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
-      --at S           Time position for splice (seconds) or chord (beats)
+      --at S           Time position for splice/overwrite (seconds) or chord (beats)
       --pitch NOTE     Root pitch for chord
       --quality NAME   major | minor | dim | aug for chord
       --beats B        Duration of the chord triad
@@ -2836,6 +2838,59 @@ fn main() -> ExitCode {
         return match fs::write(&path, &filtered) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, alpha {alpha})", filtered.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "overwrite" {
+        if positional.len() < 2 {
+            return fail(
+                "overwrite needs two WAV files",
+                "coda overwrite base.wav insert.wav --at 0.5",
+            );
+        }
+        let at = match splice_at {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "overwrite needs --at",
+                    "coda overwrite base.wav insert.wav --at 0.5",
+                )
+            }
+        };
+        let mut inputs = Vec::new();
+        for path in positional.iter().take(2) {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that both WAV files exist and are readable",
+                    )
+                }
+            }
+        }
+        let result = match overwrite::overwrite(&inputs[0], &inputs[1], at) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "both inputs must be Coda WAVs at the same sample rate"),
+        };
+        let path = if output == "out.wav" {
+            "overwritten.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &result) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, at {at}s)",
+                    result.len(),
+                    (result.len() - 44) / 4
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

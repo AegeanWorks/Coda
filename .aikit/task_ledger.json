@@ -1,13 +1,13 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-concat-wav",
+    "task_id": "coda-overwrite",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795099436.1629736,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795099922.6299212,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-    "lease_until": 1795106636.1629736,
+    "lease_until": 1795107122.6299212,
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
     "workspaces": [
@@ -15,47 +15,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795099442.5896597,
-    "completed_head": "38ffb8d1f8b5c30337affbbfdcf26816a32be681",
-    "completed_tree": "61815295f66ea6f66e231f583e0326299a0c2841"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-mswidth",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 435 tests green; mono collapse, identity, widening and bounds pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795096792.0667818,
-      "timestamp_str": "2026-11-19 16:59:52",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-mswidth",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-mswidth' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795096799.2703407,
-      "timestamp_str": "2026-11-19 16:59:59",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "4a64e96f6496649a171a7e4ad7995241575ae922",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-vibrato",
       "phase": "phase 2",
@@ -409,6 +371,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-overwrite",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add WAV region overwrite",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795099582.674116,
+      "timestamp_str": "2026-11-19 17:46:22",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "splice inserts and shifts the tail, but there is no way to replace a region of a WAV in place while keeping its exact length.",
+        "benefits": "overwrite replaces frames from a chosen time with another WAV's audio, clamping to the base length and leaving the head and tail untouched.",
+        "risks": "contract: rates must match, at non-negative and rounded to frames, base length preserved, regions beyond the end are no-ops, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for in-place replacement, head/tail preservation, length and rate validation, a two-WAV CLI command reusing --at, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "de47a3d923647c44655934cee7e86b6bc9f7de91d52ba88374c55c0ed0fc98ad",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-overwrite",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 470 tests green; in-place replacement, length preservation and truncation pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795099922.6299212,
+      "timestamp_str": "2026-11-19 17:52:02",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

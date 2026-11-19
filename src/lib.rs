@@ -55,6 +55,7 @@ pub mod noise;
 pub mod normalize;
 pub mod notes;
 pub mod overlay;
+pub mod overwrite;
 pub mod pad;
 pub mod pan;
 pub mod pan_sweep;

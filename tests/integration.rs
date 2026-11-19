@@ -2194,6 +2194,62 @@ fn cli_compress_reduces_only_loud_samples() {
 }
 
 #[test]
+fn cli_overwrite_replaces_a_region_in_place() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-overwrite-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let base = root.join("base.wav");
+    let insert = root.join("insert.wav");
+    let out = root.join("out.wav");
+    std::fs::write(
+        &base,
+        wav_bytes(&[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4)], 8_000),
+    )
+    .unwrap();
+    std::fs::write(&insert, wav_bytes(&[(0.9, 0.9), (0.8, 0.8)], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("overwrite")
+        .arg(&base)
+        .arg(&insert)
+        .args(["--at", "0.000125", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&out).unwrap();
+    assert_eq!(
+        after.len(),
+        std::fs::read(&base).unwrap().len(),
+        "length kept"
+    );
+    let frame = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert!((frame(0) as f64 / 32767.0 - 0.1).abs() < 0.01, "head kept");
+    assert!(
+        (frame(1) as f64 / 32767.0 - 0.9).abs() < 0.01,
+        "region replaced"
+    );
+    assert!(
+        (frame(2) as f64 / 32767.0 - 0.8).abs() < 0.01,
+        "region replaced"
+    );
+    assert!((frame(3) as f64 / 32767.0 - 0.4).abs() < 0.01, "tail kept");
+
+    let missing = Command::new(exe)
+        .arg("overwrite")
+        .arg(&base)
+        .arg(&insert)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_concat_wav_appends_several_files() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-catwav-{}", std::process::id()));

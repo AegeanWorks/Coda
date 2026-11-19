@@ -683,3 +683,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: crossfade overlapped files and repeat-wav tiled one file, with no way to append several distinct WAVs without overlap.
 - **Decision**: Append the frames of two or more matching-rate WAVs in order with no gain change or resampling; a single input is byte-identical.
 - **Consequences**: Ordered appending, exact frames, rate validation and single-input identity are pinned by byte tests.
+
+### ADR-097: Overwrite replaces a WAV region in place
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: splice inserted a WAV and shifted the tail, with no way to replace a region while keeping the base length.
+- **Decision**: Copy the insert's frames over the base from a rounded frame offset, truncating past the base end and leaving head and tail untouched; require matching rates.
+- **Consequences**: In-place replacement, length preservation, head/tail integrity, truncation and validation are pinned by byte tests.
