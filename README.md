@@ -48,6 +48,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Joining** — `join` renders several scores at one sample rate and concatenates them, with an optional `--crossfade` overlap for seamless transitions.
 - **Trimming** — `trim` cuts an exact time range or auto-removes leading/trailing silence with a threshold.
 - **Fade presets** — `fade --preset` applies named envelopes to any Coda WAV using the deterministic fade code.
+- **Looping** — `loop` repeats a score's phrase N times into editable canonical source.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -86,6 +87,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `analyze <in.wav>` | Report duration, peak and RMS levels. |
 | `trim <in.wav> [--start S] [--end S] [--trim-silence]` | Cut a range or remove edge silence. |
 | `fade <in.wav> --preset NAME` | Apply short/gentle/long/tail/attack. |
+| `loop <score.coda> --times N` | Repeat a phrase into canonical source. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

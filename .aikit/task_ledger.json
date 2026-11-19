@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-fade-presets",
+    "task_id": "coda-loop",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795074219.7936893,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795074544.5302193,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795074226.1567624,
-    "completed_head": "5d41e92b9daa28a98d52ed6fa1b6d409a7fb0fc0",
-    "completed_tree": "9343cd86a6c765852e01bda334c1f9ffa94b6664"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-swing",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 169 tests green; swing off-beat delay, identity and exact serialization pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795072701.3154643,
-      "timestamp_str": "2026-11-19 10:18:21",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-swing",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-swing' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795072709.499774,
-      "timestamp_str": "2026-11-19 10:18:29",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "543e0ee8a0b80b70326092851379e758d12716df",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-analyze",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-loop",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add score looping to canonical source",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074293.56399,
+      "timestamp_str": "2026-11-19 10:44:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Repeating a phrase is a basic arrangement operation; producing it as editable source is better than only concatenating rendered audio.",
+        "benefits": "loop repeats all notes N times with correct time offsets, writing canonical source that round-trips and composes with the other transforms.",
+        "risks": "contract: times 1 must be byte-identical, offsets must use the score's full duration, and invalid counts must fail clearly; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure loop module with identity, offset and preservation byte tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "9ac056df49fb1505acc1e02e5e5def60bedd9226ba4110c13ef64f83d03b82b0",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-loop",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 198 tests green; loop identity, offsets and doubled duration pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795074544.5302193,
+      "timestamp_str": "2026-11-19 10:49:04",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

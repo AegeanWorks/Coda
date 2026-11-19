@@ -18,6 +18,7 @@ pub mod gen;
 pub mod humanize;
 pub mod join;
 pub mod lint;
+pub mod loop_score;
 pub mod midi;
 pub mod midi_import;
 pub mod mix;

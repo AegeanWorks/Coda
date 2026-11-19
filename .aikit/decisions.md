@@ -270,3 +270,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Render-time fades are insufficient for already-rendered or joined audio that needs finishing.
 - **Decision**: Expose short/gentle/long/tail/attack presets that decode a Coda WAV, apply the shared fade function and re-encode at the original sample rate.
 - **Consequences**: Preset names and edge attenuation are pinned by byte tests, unknown presets fail clearly, and output length never changes.
+
+### ADR-038: Loop repeats a phrase into editable source
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Repeating a phrase as rendered audio loses editability; a source-level loop keeps the arrangement inspectable.
+- **Decision**: Repeat every note with offsets of the phrase length into a new Score, with one repetition as an identity and zero rejected.
+- **Consequences**: Looped scores re-serialize exactly, compose with other transforms, and their note counts and duration are pinned by byte tests.

@@ -12,6 +12,7 @@ use coda::gen::{self, GenOptions, Scale, Style};
 use coda::humanize;
 use coda::join;
 use coda::lint;
+use coda::loop_score;
 use coda::midi_import;
 use coda::mix;
 use coda::normalize;
@@ -53,6 +54,7 @@ USAGE
   coda analyze <in.wav>
   coda trim <in.wav> [--start S] [--end S] [--trim-silence] [-o out.wav]
   coda fade <in.wav> --preset NAME [-o out.wav]
+  coda loop <score.coda> --times N [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
@@ -82,6 +84,7 @@ OPTIONS
       --trim-silence   Auto-trim silence below --threshold
       --threshold DB   Silence threshold for trim (default: -60 dBFS)
       --preset NAME    Fade preset: short|gentle|long|tail|attack
+      --times N        Repetitions for loop (default: 1)
       --bars N         Bars to generate for `seed` (default: 4)
       --tracks N       Tracks to write for `album` (default: 3)
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
@@ -183,6 +186,7 @@ fn main() -> ExitCode {
     let mut trim_silence = false;
     let mut trim_threshold = -60.0_f64;
     let mut fade_preset: Option<String> = None;
+    let mut times = 1_usize;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -411,6 +415,18 @@ fn main() -> ExitCode {
                     i += 2;
                 }
                 None => return fail("--preset needs a name", "coda fade in.wav --preset short"),
+            },
+            "--times" => match need(i).and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n > 0 => {
+                    times = n;
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--times must be a positive integer",
+                        "coda loop score.coda --times 3",
+                    )
+                }
             },
             "--bars" => match need(i).and_then(|v| v.parse::<u32>().ok()) {
                 Some(v) => {
@@ -1051,7 +1067,7 @@ fn main() -> ExitCode {
 
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
-        | "diatonic" | "swing" | "stretch" | "reverse" | "quantize" | "digest" => {
+        | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1102,6 +1118,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "loop" {
+        let looped = match loop_score::repeat_score(&composed, times) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use a positive repetition count"),
+        };
+        let path = if output == "out.wav" {
+            "looped.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&looped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {times} repetitions)",
+                    text.len(),
+                    looped.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "stretch" {
         let scaled = match stretch::stretch(&composed, factor) {

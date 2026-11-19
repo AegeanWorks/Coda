@@ -822,6 +822,45 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_loop_repeats_the_phrase() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-loop-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let once = root.join("once.coda");
+    let twice = root.join("twice.coda");
+
+    for (path, value) in [(&once, "1"), (&twice, "2")] {
+        let out = Command::new(exe)
+            .args(["loop", "examples/scale.coda", "--times", value, "-o"])
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    let stats = Command::new(exe).arg("stats").arg(&twice).output().unwrap();
+    let text = String::from_utf8_lossy(&stats.stdout);
+    assert!(text.contains("notes       10 sounding"), "{text}");
+    assert!(text.contains("8 beats / 4.800s"), "{text}");
+
+    let baseline = root.join("baseline.coda");
+    let out = Command::new(exe)
+        .args(["export-score", "examples/scale.coda", "-o"])
+        .arg(&baseline)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(
+        std::fs::read(&once).unwrap(),
+        std::fs::read(&baseline).unwrap()
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_fade_presets_change_edges_without_resizing() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-fade-pre-{}", std::process::id()));
