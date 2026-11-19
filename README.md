@@ -51,6 +51,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
 - **Fades** — `--fade-in` and `--fade-out` apply deterministic linear envelopes to rendered audio, clamped to half the piece.
 - **Echo** — `--echo-delay` and `--echo-feedback` add a bounded, reproducible feedback delay to any render.
+- **Reversal** — `reverse` mirrors a score in time; applying it twice restores byte-identical audio.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -66,6 +67,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `lint <score.coda>` | Print deterministic warnings; never changes the score. |
 | `export-score <score.coda>` | Write canonical, re-parseable source. |
 | `vary <score.coda> --seed N` | Write a seeded variation as canonical source. |
+| `reverse <score.coda>` | Mirror a score in time. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
 | `import-midi <file.mid>` | Reconstruct a score from a format-0 or format-1 MIDI file. |
 | `join <a.coda> <b.coda> [...]` | Render sections and concatenate them into one WAV. |

@@ -18,6 +18,7 @@ pub mod midi_import;
 pub mod normalize;
 pub mod notes;
 pub mod render;
+pub mod reverse;
 pub mod score;
 pub mod stats;
 pub mod templates;

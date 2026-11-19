@@ -753,6 +753,50 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_reverse_changes_audio_and_double_reverse_restores_it() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-reverse-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let once = root.join("once.coda");
+    let twice = root.join("twice.coda");
+
+    let original = Command::new(exe)
+        .args(["digest", "examples/scale.coda"])
+        .output()
+        .unwrap();
+    let first = Command::new(exe)
+        .arg("reverse")
+        .arg("examples/scale.coda")
+        .arg("-o")
+        .arg(&once)
+        .output()
+        .unwrap();
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    let reversed = Command::new(exe).arg("digest").arg(&once).output().unwrap();
+    assert_ne!(original.stdout, reversed.stdout);
+
+    let second = Command::new(exe)
+        .arg("reverse")
+        .arg(&once)
+        .arg("-o")
+        .arg(&twice)
+        .output()
+        .unwrap();
+    assert!(second.status.success());
+    let restored = Command::new(exe)
+        .arg("digest")
+        .arg(&twice)
+        .output()
+        .unwrap();
+    assert_eq!(original.stdout, restored.stdout);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_echo_changes_audio_but_identity_is_exact() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-echo-{}", std::process::id()));

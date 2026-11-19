@@ -172,3 +172,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Dry renders need a simple spatial effect without external processors.
 - **Decision**: Add a feedback delay applied before fades in the shared render helper, with feedback clamped below 1 and no effect when delay is zero or longer than the buffer.
 - **Consequences**: Zero-delay renders stay byte-identical; the impulse response is pinned by tests; MIDI and score export are unaffected.
+
+### ADR-024: Reversal mirrors starts only and preserves event order
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: A time-reversal transform should be a pure, invertible operation on an existing phrase.
+- **Decision**: Set each note's start to total duration minus its original end, leaving order and all other fields untouched; expose it as a CLI command writing canonical source.
+- **Consequences**: Applying reverse twice is byte-identical including chords; a test arithmetic slip in the expected mirrored starts was caught and corrected.

@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-echo",
+    "task_id": "coda-reverse",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795070607.2188256,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795070792.1847486,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795070613.5572667,
-    "completed_head": "7bf87fb9b3f855e4c5ea83a50d530a85f83cd344",
-    "completed_tree": "5ee70ec5980bca2ed80c227d1fa883deb9b09905"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-multitrack-midi",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 99 tests green; format-1 conductor and note tracks merge into one score with tempo and deterministic note order",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795069166.2584999,
-      "timestamp_str": "2026-11-19 09:19:26",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-multitrack-midi",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-multitrack-midi' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795069175.081632,
-      "timestamp_str": "2026-11-19 09:19:35",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "c0c0717051fdaa82f4852184d83f189fb16d6c63",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-join",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-reverse",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a time-reversal score transform",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070672.0529306,
+      "timestamp_str": "2026-11-19 09:44:32",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Reversal is a basic compositional device that turns an existing phrase into a new one without writing notes by hand.",
+        "benefits": "reverse mirrors every note's start around the score's end while preserving duration, pitch, velocity, pan and envelopes; applying it twice is an exact identity.",
+        "risks": "contract: note order and all non-start fields must be untouched so double reversal is byte-identical; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure reverse module with field-preservation and double-identity tests, a CLI command writing canonical source, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "032aae54286c3f22875f0269ec4c27f2c739b2307dfb6feef0d0162b565c1a1b",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-reverse",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 132 tests green; double reversal is byte-identical in source and audio",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795070792.1847486,
+      "timestamp_str": "2026-11-19 09:46:32",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

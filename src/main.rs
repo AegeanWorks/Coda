@@ -10,6 +10,7 @@ use coda::lint;
 use coda::midi_import;
 use coda::normalize;
 use coda::render::{render, wav_bytes, Frame};
+use coda::reverse;
 use coda::score;
 use coda::stats;
 use coda::templates;
@@ -32,6 +33,7 @@ USAGE
   coda lint <score.coda>
   coda export-score <score.coda> [options]
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
+  coda reverse <score.coda> [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -648,7 +650,7 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "digest" => {
+        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "reverse" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -699,6 +701,30 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "reverse" {
+        let reversed = reverse::reverse(&composed);
+        let path = if output == "out.wav" {
+            "reversed.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&reversed);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, reversed)",
+                    text.len(),
+                    reversed.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "vary" {
         let varied = vary::vary(&composed, variation_seed, variation_amount);
