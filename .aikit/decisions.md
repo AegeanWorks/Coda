@@ -368,3 +368,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Assembling sections needs precise silence gaps without external tools.
 - **Decision**: Round before/after seconds to whole frames at the source rate and emit zero frames around unchanged audio; zero padding is byte-identical.
 - **Consequences**: Frame counts, byte shifting and zero-padding identity are pinned by byte tests; invalid WAVs fail clearly.
+
+### ADR-052: Fade-to applies exact durations to existing WAVs
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Presets cover common fades but cannot express an exact transition length.
+- **Decision**: Expose --fade-in/--fade-out seconds on WAVs through the shared fade engine, requiring at least one non-zero duration.
+- **Consequences**: Edge attenuation, unchanged length and zero-duration identity are pinned by byte tests; presets remain untouched.

@@ -1510,6 +1510,41 @@ fn cli_join_crossfade_shortens_the_result() {
 }
 
 #[test]
+fn cli_fade_to_uses_explicit_durations() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-fadeto-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.5, 0.5); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("fade-to")
+        .arg(&input)
+        .args(["--fade-in", "0.001", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(std::fs::read(&input).unwrap().len(), after.len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    assert!(first < 1000, "head should be quiet: {first}");
+
+    let no_args = Command::new(exe)
+        .arg("fade-to")
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(no_args.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_pad_adds_exact_silence() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-pad-{}", std::process::id()));

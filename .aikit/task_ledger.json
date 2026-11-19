@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-pad",
+    "task_id": "coda-fade-seconds",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795078078.7248087,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795078285.4930506,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795078084.747516,
-    "completed_head": "e3aea9f04a5d20c0a174f8ad0dce6d563050bfd0",
-    "completed_tree": "b8a22809934ee4129c5a6694a508ef497ca4da8e"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-stamp",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 229 tests green; CODA chunk round-trip, RIFF size and unchanged audio bytes pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795076492.3228922,
-      "timestamp_str": "2026-11-19 11:21:32",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-stamp",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-stamp' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795076499.6600838,
-      "timestamp_str": "2026-11-19 11:21:39",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "bd8ab518513eeb3b76b5786c973f54c00485357b",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-midi-timesig",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-fade-seconds",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add explicit fade durations for WAV files",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795078148.9545116,
+      "timestamp_str": "2026-11-19 11:49:08",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Named presets cover common cases, but exact fade lengths are needed to fit a specific transition.",
+        "benefits": "fade-to applies --fade-in/--fade-out seconds to any Coda WAV using the shared fade engine, with zero durations as an identity.",
+        "risks": "contract: durations must be non-negative, zero/zero must be byte-identical, and invalid WAVs must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for exact edge attenuation, a CLI command reusing the shared fade function, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "ff98294f58213ba31b948e82a82e811477c8c57f60e81ed784f68f79c93ea528",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-fade-seconds",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 256 tests green; exact fade durations, head attenuation and zero identity pinned",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795078285.4930506,
+      "timestamp_str": "2026-11-19 11:51:25",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

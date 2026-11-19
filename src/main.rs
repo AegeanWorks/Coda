@@ -66,6 +66,7 @@ USAGE
   coda analyze <in.wav>
   coda trim <in.wav> [--start S] [--end S] [--trim-silence] [-o out.wav]
   coda fade <in.wav> --preset NAME [-o out.wav]
+  coda fade-to <in.wav> [--fade-in S] [--fade-out S] [-o out.wav]
   coda loop <score.coda> --times N [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda concat <a.coda> <b.coda> [...] [-o out.coda]
@@ -1046,6 +1047,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &converted) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, {rate} Hz)", converted.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "fade-to" {
+        if positional.is_empty() {
+            return fail(
+                "fade-to needs an input WAV",
+                "coda fade-to in.wav --fade-in 0.1 [--fade-out 0.2]",
+            );
+        }
+        if fade_in == 0.0 && fade_out == 0.0 {
+            return fail(
+                "fade-to needs a non-zero duration",
+                "coda fade-to in.wav --fade-in 0.1 [--fade-out 0.2]",
+            );
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let faded = match fade_presets::apply_seconds(&bytes, fade_in, fade_out) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "faded.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &faded) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, in {fade_in}s, out {fade_out}s)",
+                    faded.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

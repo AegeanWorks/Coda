@@ -62,6 +62,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Gain** — `gain --db N` trims level in decibels with 0 dB byte-identical.
 - **DC removal** — `dc` subtracts the per-channel mean, leaving zero-mean audio untouched.
 - **Padding** — `pad` prepends and appends exact durations of silence.
+- **Exact fades** — `fade-to` applies `--fade-in`/`--fade-out` seconds to any Coda WAV.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -112,6 +113,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `gain <in.wav> --db N` | Trim level in decibels. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
+| `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |
 | `stretch <score.coda> --factor F` | Scale all note timing by a factor. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |

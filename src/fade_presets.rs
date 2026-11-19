@@ -49,6 +49,15 @@ fn decode(wav: &[u8]) -> Result<(u32, Vec<Frame>), String> {
     Ok((rate, frames))
 }
 
+pub fn apply_seconds(wav: &[u8], fade_in: f64, fade_out: f64) -> Result<Vec<u8>, String> {
+    if !fade_in.is_finite() || !fade_out.is_finite() || fade_in < 0.0 || fade_out < 0.0 {
+        return Err("fade durations must be non-negative numbers".into());
+    }
+    let (rate, mut frames) = decode(wav)?;
+    fade::apply_fades(&mut frames, rate, fade_in, fade_out);
+    Ok(wav_bytes(&frames, rate))
+}
+
 pub fn apply(wav: &[u8], preset: &str) -> Result<Vec<u8>, String> {
     let (attack, release) =
         lookup(preset).ok_or_else(|| format!("unknown fade preset '{preset}'"))?;
@@ -64,6 +73,17 @@ mod tests {
 
     fn sample() -> Vec<u8> {
         encode(&[(0.5, 0.5); 100], 8_000)
+    }
+
+    #[test]
+    fn explicit_durations_are_exact() {
+        let faded = apply_seconds(&sample(), 0.005, 0.0).unwrap();
+        let (_, frames) = decode(&faded).unwrap();
+        assert_eq!(frames.len(), 100);
+        assert!(frames[0].0 < 0.1, "head: {}", frames[0].0);
+        assert!((frames[90].0 - 0.5).abs() < 1e-4);
+        assert_eq!(apply_seconds(&sample(), 0.0, 0.0).unwrap(), sample());
+        assert!(apply_seconds(&sample(), -1.0, 0.0).is_err());
     }
 
     #[test]
