@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-concat-wav",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795099436.1629736,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "lease_until": 1795106636.1629736,
@@ -15,33 +15,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795099442.5896597,
+    "completed_head": "38ffb8d1f8b5c30337affbbfdcf26816a32be681",
+    "completed_tree": "61815295f66ea6f66e231f583e0326299a0c2841"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-mswidth",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add mid/side width adjustment",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795096563.5016372,
-      "timestamp_str": "2026-11-19 16:56:03",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "width folds or widens with L/R mixing, but there is no control that adjusts the side component of a mid/side image directly.",
-        "benefits": "mswidth scales the side component by a factor, with 0 giving mono, 1 byte-identical, and above 1 a wider image.",
-        "risks": "contract: side 0..2, side 1 identity, side 0 dual mono, wider above 1, bounded output, invalid WAVs fail; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Add byte-vector tests for identity, mono, widening and bounds, a CLI command with --side, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "a9f4fdfba2b67776b32b182040693dcafb3a2e11a5002438f4800bb5dd20813e",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-mswidth",
       "phase": "phase 4",
@@ -413,6 +392,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-concat-wav",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-concat-wav' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795099443.024118,
+      "timestamp_str": "2026-11-19 17:44:03",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "38ffb8d1f8b5c30337affbbfdcf26816a32be681",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
