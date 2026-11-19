@@ -354,3 +354,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Peak and RMS normalization target a level; a simple relative dB trim was missing.
 - **Decision**: Apply a 10^(dB/20) factor to decoded frames with clamping, limiting the range to -100..+6 dB; 0 dB returns byte-identical audio.
 - **Consequences**: Halving at -6.0206 dB and unity identity are pinned by byte tests; invalid WAVs and out-of-range dB fail clearly.
+
+### ADR-050: DC removal subtracts the measured per-channel mean
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Constant offsets waste headroom and are inaudible; no Coda tool removed them.
+- **Decision**: Compute the mean of each channel across all frames and subtract it, clamping to range; zero-mean input returns byte-identical audio.
+- **Consequences**: Known-offset removal and zero-mean identity are pinned by byte tests; invalid WAVs fail clearly.

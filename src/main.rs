@@ -6,6 +6,7 @@ use coda::bitdepth;
 use coda::channels;
 use coda::compare;
 use coda::concat;
+use coda::dc;
 use coda::diatonic;
 use coda::digest;
 use coda::echo;
@@ -76,6 +77,7 @@ USAGE
   coda report <score.coda> [--audio in.wav] [-o report.md]
   coda width <in.wav> --width 0..2 [-o out.wav]
   coda gain <in.wav> --db N [-o out.wav]
+  coda dc <in.wav> [-o out.wav]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -784,6 +786,40 @@ fn main() -> ExitCode {
         return match fs::write(&path, &converted) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, {bits}-bit)", converted.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "dc" {
+        if positional.is_empty() {
+            return fail("dc needs an input WAV", "coda dc in.wav [-o out.wav]");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let cleaned = match dc::remove_dc(&bytes) {
+            Ok(b) => b,
+            Err(e) => return fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
+        };
+        let path = if output == "out.wav" {
+            "dc.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &cleaned) {
+            Ok(()) => {
+                println!("wrote {path} ({} bytes, DC removed)", cleaned.len());
                 ExitCode::SUCCESS
             }
             Err(e) => fail(

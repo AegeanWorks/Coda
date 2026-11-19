@@ -1510,6 +1510,37 @@ fn cli_join_crossfade_shortens_the_result() {
 }
 
 #[test]
+fn cli_dc_removes_a_constant_offset() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-dc-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.25, 0.25); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("dc")
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&output).unwrap();
+    assert_eq!(std::fs::read(&input).unwrap().len(), after.len());
+    let first = i16::from_le_bytes([after[44], after[45]]);
+    assert!(
+        first.abs() <= 1,
+        "first sample should be near zero: {first}"
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_gain_trims_level_in_db() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-gain-{}", std::process::id()));
