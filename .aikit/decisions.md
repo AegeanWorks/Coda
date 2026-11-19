@@ -207,3 +207,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Join handles sequential sections but layering generated tracks needs a parallel composition operation.
 - **Decision**: Decode two Coda WAVs, sum their frames with a gain on the second input, clamp to range and emit the longer length; reject sample-rate mismatches.
 - **Consequences**: Zero gain is an identity on the first input; invalid inputs fail clearly; mix and join remain distinct composition tools.
+
+### ADR-029: Humanize jitters sounding notes and explicit rests serialize via at -
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Jittering a rest's start broke the round-trip because rest was always written at the running cursor; jittering only pitched notes was not enough once t events leave the cursor behind.
+- **Decision**: Leave rests untouched by humanize, and let the serializer emit t <beat> - <beats> when a rest's start differs from its cursor.
+- **Consequences**: Every Score still round-trips exactly; the score language gains an explicit-rest form without a new directive; humanized output remains editable canonical source.

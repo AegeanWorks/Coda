@@ -56,6 +56,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Quantization** — `quantize` snaps note starts to a chosen rhythmic grid, leaving durations and timbres intact.
 - **WAV reversal** — `reverse-wav` flips audio frames end-to-end; applying it twice restores the original bytes.
 - **Mixing** — `mix` overlays two Coda WAVs with a gain on the second input, with safe clamping at the longer length.
+- **Humanize** — `humanize` adds seeded, bounded timing and velocity jitter; amount 0 is an exact identity.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -73,6 +74,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `vary <score.coda> --seed N` | Write a seeded variation as canonical source. |
 | `reverse <score.coda>` | Mirror a score in time. |
 | `quantize <score.coda> [--grid B]` | Snap note starts to the nearest grid point. |
+| `humanize <score.coda> --seed N [--amount 0..1]` | Add seeded timing and velocity jitter. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |
@@ -105,6 +107,7 @@ One directive per line; `#` starts a comment. Durations are in beats, envelopes 
 | `note <pitch> <beats> [velocity] [pan]` | Note at the running cursor; advances it. |
 | `at <beat> <pitch> <beats> [velocity] [pan]` | Note at an explicit beat; stack for chords. |
 | `rest <beats>` | Silence that advances the cursor. |
+| `at <beat> - <beats>` | Silence at an explicit beat, without moving the cursor. |
 
 Pitches are `C4`, `A#4`, `Bb3`, etc. (A4 = 440 Hz, equal temperament). Examples: `examples/scale.coda`, `arp.coda`, `chords.coda`, `pulse.coda`, `stereo.coda`.
 

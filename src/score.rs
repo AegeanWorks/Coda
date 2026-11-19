@@ -344,8 +344,13 @@ pub fn serialize(score: &Score) -> String {
         out.push_str(&format!("pan {}\n", note.pan));
 
         if note.pitch == "-" {
-            out.push_str(&format!("rest {}\n", note.beats));
-            cursor += note.beats;
+            if (note.start - cursor).abs() < 1e-9 {
+                out.push_str(&format!("rest {}\n", note.beats));
+                cursor += note.beats;
+            } else {
+                // `at` with the rest marker pins a rest to an explicit beat.
+                out.push_str(&format!("at {} - {}\n", note.start, note.beats));
+            }
         } else if (note.start - cursor).abs() < 1e-9 {
             out.push_str(&format!(
                 "note {} {} {}\n",

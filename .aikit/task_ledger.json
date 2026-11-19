@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-mix",
+    "task_id": "coda-humanize",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795071834.1537397,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795072190.66362,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795071841.8080595,
-    "completed_head": "543d3a84f0070dd9d209a7632d883f0f5ecaa44c",
-    "completed_tree": "b0a97865396fd035cea8cfda34d3badff53237c9"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-fades",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 122 tests green; fades change audio edges with zero-fade digest equality to golden vectors",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795070334.8026412,
-      "timestamp_str": "2026-11-19 09:38:54",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-fades",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-fades' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795070342.9136436,
-      "timestamp_str": "2026-11-19 09:39:02",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "277c9ed1af456f440ceb500f25f2959398aebc0d",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-echo",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-humanize",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add seeded humanize timing/velocity jitter",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795071900.5448582,
+      "timestamp_str": "2026-11-19 10:05:00",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Perfectly quantized scores sound mechanical; a bounded seeded jitter gives a more natural performance without randomizing everything.",
+        "benefits": "humanize applies small reproducible timing and velocity variations with amount 0 as an exact identity, writing ordinary editable source.",
+        "risks": "contract: velocity must stay in range and starts non-negative; amount 0 must be byte-identical; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure humanize module with identity, determinism and bounds tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "1fcffcc7ebddc193caf79becce42ade0b301e5475643dd324186d6344ac7c59c",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-humanize",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 157 tests green; humanize seeded identity and explicit-rest serialization verified",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072190.66362,
+      "timestamp_str": "2026-11-19 10:09:50",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -12,6 +12,7 @@ pub mod echo;
 pub mod envelope;
 pub mod fade;
 pub mod gen;
+pub mod humanize;
 pub mod join;
 pub mod lint;
 pub mod midi;

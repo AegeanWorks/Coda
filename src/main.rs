@@ -6,6 +6,7 @@ use coda::digest;
 use coda::echo;
 use coda::fade;
 use coda::gen::{self, GenOptions, Scale, Style};
+use coda::humanize;
 use coda::join;
 use coda::lint;
 use coda::midi_import;
@@ -39,6 +40,7 @@ USAGE
   coda vary <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda reverse <score.coda> [-o out.coda]
   coda quantize <score.coda> [--grid 0..1 beats] [-o out.coda]
+  coda humanize <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -75,7 +77,7 @@ SCORE DIRECTIVES
   tempo <bpm>          wave <name>          gain <0..1>
   attack/decay/sustain/release <seconds>
   note <pitch> <beats> [velocity] [pan]
-  at <beat> <pitch> <beats> [velocity] [pan]
+  at <beat> <pitch> <beats> [velocity] [pan]  (`-` places a rest)
   rest <beats>          pan <-1..1>   repeat <n>
   inst <wave>           per-note oscillator; inst default resets
   vibrato <rate_hz> <cents>  vib <rate_hz> <cents>
@@ -795,8 +797,8 @@ fn main() -> ExitCode {
     }
 
     let composed = match command.as_str() {
-        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "reverse" | "quantize"
-        | "digest" => {
+        "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize" | "reverse"
+        | "quantize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -847,6 +849,33 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "humanize" {
+        let adjusted = match humanize::humanize(&composed, variation_seed, variation_amount) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use an amount between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "humanized.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&adjusted);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, seed {variation_seed}, amount {variation_amount})",
+                    text.len(),
+                    adjusted.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "quantize" {
         let snapped = match quantize::quantize(&composed, grid) {

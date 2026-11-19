@@ -753,6 +753,53 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_humanize_is_seeded_with_exact_identity() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-humanize-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let mut outputs = Vec::new();
+    for (name, seed, amount) in [
+        ("a.coda", "42", "0.7"),
+        ("b.coda", "42", "0.7"),
+        ("c.coda", "43", "0.7"),
+        ("zero.coda", "42", "0"),
+    ] {
+        let path = root.join(name);
+        let out = Command::new(exe)
+            .args([
+                "humanize",
+                "examples/scale.coda",
+                "--seed",
+                seed,
+                "--amount",
+                amount,
+                "-o",
+            ])
+            .arg(&path)
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        outputs.push(std::fs::read(&path).unwrap());
+    }
+    assert_eq!(outputs[0], outputs[1]);
+    assert_ne!(outputs[0], outputs[2]);
+
+    let baseline = root.join("baseline.coda");
+    let out = Command::new(exe)
+        .args(["export-score", "examples/scale.coda", "-o"])
+        .arg(&baseline)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    assert_eq!(outputs[3], std::fs::read(&baseline).unwrap());
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_mix_layers_wavs_with_gain_control() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-mix-{}", std::process::id()));
