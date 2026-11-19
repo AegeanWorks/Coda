@@ -60,6 +60,7 @@ pub mod pan_sweep;
 pub mod pedal;
 pub mod polarity;
 pub mod quantize;
+pub mod ramp;
 pub mod register;
 pub mod render;
 pub mod repeat_wav;

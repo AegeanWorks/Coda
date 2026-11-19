@@ -53,6 +53,7 @@ use coda::pan_sweep;
 use coda::pedal;
 use coda::polarity;
 use coda::quantize;
+use coda::ramp;
 use coda::register;
 use coda::render::{render, wav_bytes, Frame};
 use coda::repeat_wav;
@@ -156,6 +157,7 @@ USAGE
   coda chorus <in.wav> [--chorus-rate HZ] [--chorus-depth N] [--chorus-delay N] [--mix 0..1] [-o out.wav]
   coda compress <in.wav> [--comp-threshold 0..1] [--comp-ratio 1..20] [-o out.wav]
   coda sustain <score.coda> [-o out.coda]
+  coda ramp <score.coda> --from 0..1 --to 0..1 [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -230,6 +232,8 @@ OPTIONS
       --mix 0..1       Wet mix for chorus (default: 0)
       --comp-threshold N  Compressor threshold 0..1 (default: 1)
       --comp-ratio N   Compressor ratio 1..20 (default: 1)
+      --from 0..1      Ramp starting velocity
+      --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
       --center NOTE    Center pitch for invert (default: C4)
       --note NOTE      Pedal pitch for pedal
@@ -365,6 +369,8 @@ fn main() -> ExitCode {
     let mut chorus_mix = 0.0_f64;
     let mut comp_threshold = 1.0_f64;
     let mut comp_ratio = 1.0_f64;
+    let mut ramp_from: Option<f64> = None;
+    let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
     let mut lfo_rate = 5.0_f64;
     let mut lfo_depth = 0.5_f64;
@@ -812,6 +818,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--from" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    ramp_from = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--from must be between 0 and 1",
+                        "coda ramp score.coda --from 0.2 --to 1",
+                    )
+                }
+            },
+            "--to" => match need(i).and_then(|v| v.parse::<f64>().ok()) {
+                Some(v) if (0.0..=1.0).contains(&v) => {
+                    ramp_to = Some(v);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--to must be between 0 and 1",
+                        "coda ramp score.coda --from 0.2 --to 1",
                     )
                 }
             },
@@ -3398,7 +3428,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "digest" => {
+        | "sustain" | "ramp" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4130,6 +4160,46 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "ramp" {
+        let from = match ramp_from {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "ramp needs --from",
+                    "coda ramp score.coda --from 0.2 --to 1",
+                )
+            }
+        };
+        let to = match ramp_to {
+            Some(value) => value,
+            None => return fail("ramp needs --to", "coda ramp score.coda --from 0.2 --to 1"),
+        };
+        let sloped = match ramp::ramp(&composed, from, to) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use velocities between 0 and 1"),
+        };
+        let path = if output == "out.wav" {
+            "ramped.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&sloped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {from}..{to})",
+                    text.len(),
+                    sloped.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "sustain" {

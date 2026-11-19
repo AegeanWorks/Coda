@@ -669,3 +669,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: augment scaled durations and stretch shifted timing, but no tool made a line legato by joining each note to the next onset.
 - **Decision**: Set each note's duration to the distance to the next distinct onset, leaving the final note and all other fields untouched.
 - **Consequences**: Legato extension, chord handling, final-note preservation and round-trip are pinned by byte tests.
+
+### ADR-095: Ramp draws a linear velocity curve
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: accent cycled a pattern and velocity normalized to a peak, with no way to draw a continuous crescendo across a phrase.
+- **Decision**: Linearly interpolate velocity from --from to --to across sounding notes, skipping rests; a single note takes the end value, preserving all other fields.
+- **Consequences**: Endpoint accuracy, even interpolation, rest skipping, single-note handling and round-trip are pinned by byte tests.

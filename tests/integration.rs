@@ -2087,6 +2087,42 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_ramp_draws_a_crescendo() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-ramp-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1\nnote E4 1\nnote G4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("ramp")
+        .arg(&source)
+        .args(["--from", "0.2", "--to", "1", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 0.2"), "{text}");
+    assert!(text.contains("note E4 1 0.6"), "{text}");
+    assert!(text.contains("note G4 1 1"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("ramp")
+        .arg(&source)
+        .args(["--from", "0.2", "--to", "1.5"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_sustain_extends_notes_to_the_next_onset() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-sustain-{}", std::process::id()));
