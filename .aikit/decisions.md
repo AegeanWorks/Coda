@@ -676,3 +676,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: accent cycled a pattern and velocity normalized to a peak, with no way to draw a continuous crescendo across a phrase.
 - **Decision**: Linearly interpolate velocity from --from to --to across sounding notes, skipping rests; a single note takes the end value, preserving all other fields.
 - **Consequences**: Endpoint accuracy, even interpolation, rest skipping, single-note handling and round-trip are pinned by byte tests.
+
+### ADR-096: Concat-wav appends matching-rate WAVs losslessly
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: crossfade overlapped files and repeat-wav tiled one file, with no way to append several distinct WAVs without overlap.
+- **Decision**: Append the frames of two or more matching-rate WAVs in order with no gain change or resampling; a single input is byte-identical.
+- **Consequences**: Ordered appending, exact frames, rate validation and single-input identity are pinned by byte tests.

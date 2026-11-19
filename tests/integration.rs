@@ -2194,6 +2194,49 @@ fn cli_compress_reduces_only_loud_samples() {
 }
 
 #[test]
+fn cli_concat_wav_appends_several_files() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-catwav-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let a = root.join("a.wav");
+    let b = root.join("b.wav");
+    let c = root.join("c.wav");
+    let out = root.join("out.wav");
+    std::fs::write(&a, wav_bytes(&[(0.1, 0.1); 2], 8_000)).unwrap();
+    std::fs::write(&b, wav_bytes(&[(0.5, 0.5); 3], 8_000)).unwrap();
+    std::fs::write(&c, wav_bytes(&[(0.9, 0.9); 1], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("concat-wav")
+        .arg(&a)
+        .arg(&b)
+        .arg(&c)
+        .args(["-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let after = std::fs::read(&out).unwrap();
+    assert_eq!(after.len(), 44 + 6 * 4, "2 + 3 + 1 frames");
+    let frame = |i: usize| i16::from_le_bytes([after[44 + i * 4], after[45 + i * 4]]);
+    assert!((frame(0) as f64 / 32767.0 - 0.1).abs() < 0.01);
+    assert!((frame(2) as f64 / 32767.0 - 0.5).abs() < 0.01);
+    assert!((frame(5) as f64 / 32767.0 - 0.9).abs() < 0.01);
+
+    let missing = Command::new(exe)
+        .arg("concat-wav")
+        .arg(&a)
+        .output()
+        .unwrap();
+    assert_eq!(missing.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_chorus_blends_a_modulated_delay() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-chorus-{}", std::process::id()));

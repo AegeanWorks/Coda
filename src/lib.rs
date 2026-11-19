@@ -18,6 +18,7 @@ pub mod chorus;
 pub mod compare;
 pub mod compress;
 pub mod concat;
+pub mod concat_wav;
 pub mod crossfade;
 pub mod crush;
 pub mod dc;

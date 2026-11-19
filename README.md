@@ -105,6 +105,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Compression** — `compress --comp-threshold T --comp-ratio R` reduces loud passages above a threshold.
 - **Sustain** — `sustain` extends each note to the next onset for a legato line.
 - **Velocity ramp** — `ramp --from 0.2 --to 1` draws a crescendo or diminuendo across notes.
+- **WAV concatenation** — `concat-wav a.wav b.wav [...]` appends several WAVs losslessly.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -192,6 +193,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `compress <in.wav> [--comp-threshold 0..1] [--comp-ratio 1..20]` | Compress loud passages. |
 | `sustain <score.coda>` | Extend notes to the next onset. |
 | `ramp <score.coda> --from 0..1 --to 0..1` | Draw a velocity ramp. |
+| `concat-wav <a.wav> <b.wav> [...]` | Append WAVs losslessly. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

@@ -13,6 +13,7 @@ use coda::chorus;
 use coda::compare;
 use coda::compress;
 use coda::concat;
+use coda::concat_wav;
 use coda::crossfade;
 use coda::crush;
 use coda::dc;
@@ -158,6 +159,7 @@ USAGE
   coda compress <in.wav> [--comp-threshold 0..1] [--comp-ratio 1..20] [-o out.wav]
   coda sustain <score.coda> [-o out.coda]
   coda ramp <score.coda> --from 0..1 --to 0..1 [-o out.coda]
+  coda concat-wav <a.wav> <b.wav> [...] [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -1830,6 +1832,52 @@ fn main() -> ExitCode {
         return match fs::write(&path, &limited) {
             Ok(()) => {
                 println!("wrote {path} ({} bytes, limit {ceiling})", limited.len());
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
+
+    if command == "concat-wav" {
+        if positional.len() < 2 {
+            return fail(
+                "concat-wav needs at least two WAV files",
+                "coda concat-wav a.wav b.wav [more...] [-o out.wav]",
+            );
+        }
+        let mut inputs = Vec::new();
+        for path in &positional {
+            match fs::read(path) {
+                Ok(bytes) => inputs.push(bytes),
+                Err(e) => {
+                    return fail(
+                        &format!("cannot read '{path}': {e}"),
+                        "check that every WAV file exists and is readable",
+                    )
+                }
+            }
+        }
+        let refs: Vec<&[u8]> = inputs.iter().map(|b| b.as_slice()).collect();
+        let joined = match concat_wav::concat_wavs(&refs) {
+            Ok(bytes) => bytes,
+            Err(e) => return fail(&e, "all inputs must be Coda WAVs at the same sample rate"),
+        };
+        let path = if output == "out.wav" {
+            "concatenated.wav".to_string()
+        } else {
+            output.clone()
+        };
+        return match fs::write(&path, &joined) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} frames, {} inputs)",
+                    joined.len(),
+                    (joined.len() - 44) / 4,
+                    refs.len()
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => fail(
