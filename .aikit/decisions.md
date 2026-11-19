@@ -95,3 +95,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Changing key required editing every pitch by hand, and a per-render option must work for files and generated pieces alike.
 - **Decision**: Apply a pure transpose(score, semitones) once after composition via --semitones; only pitch strings change, and rests are skipped.
 - **Consequences**: An inverse shift restores byte-identical audio; no WAV/MIDI format changes; the option applies uniformly to render, seed, digest, info, lint and source export.
+
+### ADR-013: CLI overrides must reach per-note fields
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Moving oscillator choice onto Note silently broke --wave for file-based commands; a CLI check caught it.
+- **Decision**: Propagate a --wave override to every note of a parsed score as well as the score default; seed already did this through its generator.
+- **Consequences**: A byte-level regression test pins the behavior; golden vectors for unmodified scores are unchanged.

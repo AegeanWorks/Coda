@@ -419,6 +419,32 @@ fn cli_semitones_changes_output_and_source() {
 }
 
 #[test]
+fn cli_wave_override_reaches_parsed_notes() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let base = Command::new(exe)
+        .args(["digest", "examples/scale.coda", "--sample-rate", "8000"])
+        .output()
+        .unwrap();
+    let overridden = Command::new(exe)
+        .args([
+            "digest",
+            "examples/scale.coda",
+            "--sample-rate",
+            "8000",
+            "--wave",
+            "sine",
+        ])
+        .output()
+        .unwrap();
+    assert!(base.status.success());
+    assert!(overridden.status.success());
+    assert_ne!(
+        base.stdout, overridden.stdout,
+        "--wave must change rendered notes"
+    );
+}
+
+#[test]
 fn cli_score_export_is_parseable_source() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-roundtrip-{}", std::process::id()));

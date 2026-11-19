@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-transpose",
+    "task_id": "coda-wave-override-fix",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795068104.6619344,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795068228.2233655,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795068116.394707,
-    "completed_head": "e17b2deba953a811260c7bb305f2a422f45c375e",
-    "completed_tree": "72fd48f8287fbf5804400d7cf6b920ed69e9e284"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-ignore",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Generated MIDI artifacts are gitignored; gates rerun",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795066417.0734017,
-      "timestamp_str": "2026-11-19 08:33:37",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-midi-ignore",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-midi-ignore' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795066430.8254862,
-      "timestamp_str": "2026-11-19 08:33:50",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "c3765b6e36d56aa641ad2ce40824e2c81e9ef959",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-note-vibrato",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-wave-override-fix",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Restore --wave override for parsed scores",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068173.560398,
+      "timestamp_str": "2026-11-19 09:02:53",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "After notes gained their own wave field, --wave only changed the score default, so render from a file ignored it.",
+        "benefits": "The documented --wave override works again for render, digest and export-score, not just seed.",
+        "risks": "contract: seed behavior already correct and must stay; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Propagate the override to every note as well as the score default, add a byte-level regression test, and rerun all gates."
+      },
+      "plan_digest": "6d3d757146653a2cc53b3887c78a9b55e2a45011fed28b93582364c81015abf3",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-wave-override-fix",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 79 tests green; --wave override now reaches parsed notes and is pinned by a byte-level CLI test",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795068228.2233655,
+      "timestamp_str": "2026-11-19 09:03:48",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

@@ -297,6 +297,11 @@ fn main() -> ExitCode {
             };
             if let Some(w) = wave_override {
                 score.wave = w;
+                // Notes carry their own oscillator, so the override must reach
+                // them as well as the score default.
+                for note in &mut score.notes {
+                    note.wave = w;
+                }
             }
             if let Some(t) = tempo_override {
                 score.tempo = t;
