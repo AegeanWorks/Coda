@@ -138,6 +138,25 @@ fn vibrato_changes_the_waveform_deterministically() {
 }
 
 #[test]
+fn per_note_vibrato_changes_only_the_marked_note() {
+    let plain = score::parse("wave sine\nnote A4 1\nat 2 C5 1\n").unwrap();
+    let marked = score::parse("wave sine\nnote A4 1\nvib 7 40\nat 2 C5 1\n").unwrap();
+    assert_ne!(
+        wav_bytes(&render(&plain, 8_000), 8_000),
+        wav_bytes(&render(&marked, 8_000), 8_000)
+    );
+
+    let via_default =
+        score::parse("wave sine\nvib 7 40\nnote A4 1\nvib default\nat 2 C5 1\n").unwrap();
+    let via_score =
+        score::parse("wave sine\nvibrato 7 40\nnote A4 1\nvibrato 0 0\nat 2 C5 1\n").unwrap();
+    assert_eq!(
+        wav_bytes(&render(&via_default, 8_000), 8_000),
+        wav_bytes(&render(&via_score, 8_000), 8_000)
+    );
+}
+
+#[test]
 fn repeat_matches_written_out_notes() {
     let compact = score::parse("repeat 3\nnote C4 0.5\n").unwrap();
     let written = score::parse("note C4 0.5\nnote C4 0.5\nnote C4 0.5\n").unwrap();

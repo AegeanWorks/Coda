@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-midi-ignore",
+    "task_id": "coda-note-vibrato",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795066417.0734017,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795066679.078969,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,10 +14,7 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795066430.4965935,
-    "completed_head": "c3765b6e36d56aa641ad2ce40824e2c81e9ef959",
-    "completed_tree": "2920397dc38075b78e29a64d710bc825cf3bd0a8"
+    ]
   },
   "checkpoints": [
     {
@@ -339,6 +336,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-note-vibrato",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add per-note vibrato overrides",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795066490.10704,
+      "timestamp_str": "2026-11-19 08:34:50",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Vibrato is currently score-wide, so a single note cannot be ornamented independently of the phrase.",
+        "benefits": "A running vib directive and an optional per-note override let a melody mix straight and vibrato notes without splitting into multiple scores.",
+        "risks": "contract: WAV and MIDI golden vectors must not change when no override is used; dependency: std only; concurrency: none; state: the running override must reset predictably with vib default.",
+        "mitigation": "Give Note a concrete Vibrato field, keep the score-wide directive updating both, add byte-vector and parse tests, rerun cargo gates and aikit check --strict."
+      },
+      "plan_digest": "28463c7de1fd1a5b6157dd706e1593a2fe3192c1694091e8a8b78645455c4f45",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-note-vibrato",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 58 tests green; per-note vibrato overrides verified with byte comparisons and reset semantics; old scores unchanged",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795066679.078969,
+      "timestamp_str": "2026-11-19 08:37:59",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

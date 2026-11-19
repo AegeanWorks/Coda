@@ -35,7 +35,7 @@ SCORE DIRECTIVES
   note <pitch> <beats> [velocity] [pan]
   at <beat> <pitch> <beats> [velocity] [pan]
   rest <beats>          pan <-1..1>   repeat <n>
-  vibrato <rate_hz> <cents>
+  vibrato <rate_hz> <cents>  vib <rate_hz> <cents>
   env <a> <d> <s> <r>   per-note ADSR; env default resets
 
 EXIT CODES

@@ -9,7 +9,8 @@
 //! decay 0.08
 //! sustain 0.65
 //! release 0.15
-//! vibrato 5 20       # rate in Hz, depth in cents
+//! vibrato 5 20       # score-wide rate in Hz, depth in cents
+//! vib 8 45           # per-note override; `vib default` restores
 //! pan -0.6           # running stereo position: -1 left, 0 centre, 1 right
 //! env 0 0 1 0        # per-note ADSR override; `env default` resets
 //! repeat 4           # repeat the next note/rest events
@@ -33,6 +34,8 @@ pub struct Note {
     pub pan: f64,
     /// The ADSR envelope used for this note (overridable with `env`).
     pub envelope: Envelope,
+    /// The vibrato used for this note (overridable with `vib`).
+    pub vibrato: Vibrato,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -124,6 +127,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
     let mut repeat = 1_usize;
     let mut pan = 0.0_f64;
     let mut note_envelope = score.envelope;
+    let mut note_vibrato = score.vibrato;
 
     for (idx, raw) in text.lines().enumerate() {
         let line = raw.trim();
@@ -186,6 +190,24 @@ pub fn parse(text: &str) -> Result<Score, String> {
                 let rate = number(a, "vibrato rate").map_err(|m| line_error(idx, m))?;
                 let cents = number(b, "vibrato cents").map_err(|m| line_error(idx, m))?;
                 score.vibrato = Vibrato { rate, cents };
+                note_vibrato = score.vibrato;
+            }
+            "vib" => {
+                note_vibrato = match a.map(str::to_ascii_lowercase).as_deref() {
+                    Some("default") => score.vibrato,
+                    _ => {
+                        let vib = Vibrato {
+                            rate: number(a, "vib rate").map_err(|m| line_error(idx, m))?,
+                            cents: number(b, "vib cents").map_err(|m| line_error(idx, m))?,
+                        };
+                        if !(0.0..=100.0).contains(&vib.rate)
+                            || !(0.0..=1200.0).contains(&vib.cents)
+                        {
+                            return Err(line_error(idx, "invalid vibrato values".into()));
+                        }
+                        vib
+                    }
+                };
             }
             "repeat" => {
                 repeat = positive_int(a, "repeat").map_err(|m| line_error(idx, m))?;
@@ -208,6 +230,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                         velocity,
                         pan: note_pan,
                         envelope: note_envelope,
+                        vibrato: note_vibrato,
                     });
                 }
                 cursor += beats * repeat as f64;
@@ -227,6 +250,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                     velocity,
                     pan: note_pan,
                     envelope: note_envelope,
+                    vibrato: note_vibrato,
                 });
             }
             "rest" => {
@@ -241,6 +265,7 @@ pub fn parse(text: &str) -> Result<Score, String> {
                         velocity: 1.0,
                         pan: 0.0,
                         envelope: note_envelope,
+                        vibrato: note_vibrato,
                     });
                 }
                 cursor += beats * repeat as f64;
@@ -309,6 +334,18 @@ mod tests {
                 cents: 20.0
             }
         );
+    }
+
+    #[test]
+    fn per_note_vibrato_override() {
+        let score = parse("vibrato 5 20\nnote C4 1\nvib 8 50\nnote E4 1\nvib default\nnote G4 1\n")
+            .unwrap();
+        assert_eq!(score.notes[0].vibrato.rate, 5.0);
+        assert_eq!(score.notes[1].vibrato.rate, 8.0);
+        assert_eq!(score.notes[1].vibrato.cents, 50.0);
+        assert_eq!(score.notes[2].vibrato, score.vibrato);
+        assert!(parse("vib 5 2000\nnote C4 1\n").is_err());
+        assert!(parse("vib 200 20\nnote C4 1\n").is_err());
     }
 
     #[test]

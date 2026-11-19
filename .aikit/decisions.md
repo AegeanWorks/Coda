@@ -53,3 +53,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A sound compiler that only writes audio cannot hand the score to a DAW or synthesizer.
 - **Decision**: Encode the same Score as a single-track Standard MIDI File (480 ticks/quarter, tempo meta, note on/off, velocity, end of track), selected by a .mid/.midi output extension.
 - **Consequences**: No new dependency; WAV bytes and golden vectors unchanged; VLQ and header byte tests pin the format; a chosen extension is the only routing rule.
+
+### ADR-007: Vibrato is a per-note value with a running override
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Score-wide vibrato cannot ornament a single note inside an otherwise straight phrase.
+- **Decision**: Give Note a concrete Vibrato field; the score-wide directive updates both the score and the running note value, while vib rate cents overrides only following notes and vib default restores the score setting.
+- **Consequences**: The renderer reads note.vibrato with no branching; unornamented scores render byte-identically; rate and cents are bounded at parse time.

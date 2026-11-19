@@ -117,6 +117,10 @@ fn pitched(midi: i32, start: f64, beats: f64, velocity: f64, pan: f64) -> Note {
         velocity,
         pan,
         envelope: Envelope::default(),
+        vibrato: crate::score::Vibrato {
+            rate: 0.0,
+            cents: 0.0,
+        },
     }
 }
 
@@ -128,6 +132,10 @@ fn rest(start: f64, beats: f64) -> Note {
         velocity: 1.0,
         pan: 0.0,
         envelope: Envelope::default(),
+        vibrato: crate::score::Vibrato {
+            rate: 0.0,
+            cents: 0.0,
+        },
     }
 }
 
