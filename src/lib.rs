@@ -39,5 +39,6 @@ pub mod templates;
 pub mod transpose;
 pub mod trim;
 pub mod vary;
+pub mod verify;
 pub mod wav_reverse;
 pub mod wave;

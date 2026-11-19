@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-seed-root",
+    "task_id": "coda-verify",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795075730.6127162,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795075959.9892123,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795075737.927009,
-    "completed_head": "728d0e9e3a9ddfe515fb4ffd475fedae76a458e1",
-    "completed_tree": "9d0e699582f690e74f46e6f8efb58e5fad0a1195"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-fade-presets",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 193 tests green; fade preset names, edge attenuation and unchanged length pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795074219.7936893,
-      "timestamp_str": "2026-11-19 10:43:39",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-fade-presets",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-fade-presets' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795074226.224856,
-      "timestamp_str": "2026-11-19 10:43:46",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "5d41e92b9daa28a98d52ed6fa1b6d409a7fb0fc0",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-loop",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-verify",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a score-to-audio verification command",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075800.4650333,
+      "timestamp_str": "2026-11-19 11:10:00",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "There is no direct way to confirm that a WAV still matches its source score after a chain of edits or effects.",
+        "benefits": "verify re-renders a score with the current settings and compares bytes to a WAV, reporting the first differing byte for deterministic diagnosis.",
+        "risks": "contract: a matching file must pass, a single-byte change must be located exactly, and usage/IO errors must use distinct exit codes; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure comparison helper with exact byte-offset tests, a CLI command reusing the render path, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "4a9a3c77bb961c30907438a1584af507d7a555255f1e6126eda59db3ad815725",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-verify",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 224 tests green; verify match, byte-offset mismatch and exit codes pinned by tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075959.9892123,
+      "timestamp_str": "2026-11-19 11:12:39",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

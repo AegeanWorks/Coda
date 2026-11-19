@@ -32,6 +32,7 @@ use coda::templates;
 use coda::transpose;
 use coda::trim;
 use coda::vary;
+use coda::verify;
 use coda::wav_reverse;
 use coda::wave::Wave;
 use std::path::Path;
@@ -65,6 +66,7 @@ USAGE
   coda resample <in.wav> --rate HZ [-o out.wav]
   coda channels <in.wav> --mode mono|swap|left|right [-o out.wav]
   coda bitdepth <in.wav> --bits 8|16 [-o out.wav]
+  coda verify <score.coda> <in.wav> [--sample-rate N]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -1277,7 +1279,8 @@ fn main() -> ExitCode {
 
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
-        | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "digest" => {
+        | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
+        | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1342,6 +1345,40 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "verify" {
+        if positional.len() < 2 {
+            return fail(
+                "verify needs a score and a WAV",
+                "coda verify score.coda audio.wav",
+            );
+        }
+        let actual = match fs::read(&positional[1]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[1]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        let (_, expected) = rendered_wav(&composed, &audio);
+        let fingerprint = digest::fingerprint(&expected);
+        return match verify::first_difference(&expected, &actual) {
+            None => {
+                println!("OK {fingerprint} ({} bytes)", expected.len());
+                ExitCode::SUCCESS
+            }
+            Some(offset) => {
+                println!(
+                    "MISMATCH at byte {offset} (expected {}, actual {})",
+                    expected.get(offset).copied().unwrap_or_default(),
+                    actual.get(offset).copied().unwrap_or_default()
+                );
+                ExitCode::from(1)
+            }
+        };
+    }
 
     if command == "loop" {
         let looped = match loop_score::repeat_score(&composed, times) {

@@ -312,3 +312,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Generated arrangements were fixed to C; a root option lets the same seed be heard in another key without changing the generator.
 - **Decision**: Parse --root as a note name and transpose the generated score by its semitone offset from C4, reusing the existing transpose function.
 - **Consequences**: C4 is an identity, other roots shift uniformly, invalid names fail clearly, and no-root output stays byte-identical.
+
+### ADR-044: Verify checks rendered bytes against the source score
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: After chains of effects and edits there was no direct check that a WAV still matches its score.
+- **Decision**: Re-render a score with the current settings, compare against a WAV byte-for-byte, report the first difference offset, and use exit 0 for match, 1 for mismatch, 2 for usage errors.
+- **Consequences**: Match and single-byte mismatch cases are pinned by byte tests; verify reuses the shared render path so effect options are honored.

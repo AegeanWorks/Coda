@@ -822,6 +822,42 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_verify_matches_and_locates_a_byte_change() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-verify-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let wav_path = root.join("audio.wav");
+    let source = "examples/scale.coda";
+
+    let rendered = Command::new(exe)
+        .args(["render", source, "-o"])
+        .arg(&wav_path)
+        .output()
+        .unwrap();
+    assert!(rendered.status.success());
+
+    let ok = Command::new(exe)
+        .args(["verify", source])
+        .arg(&wav_path)
+        .output()
+        .unwrap();
+    assert_eq!(ok.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&ok.stdout).starts_with("OK "));
+
+    let mut bytes = std::fs::read(&wav_path).unwrap();
+    bytes[100] ^= 0xff;
+    std::fs::write(&wav_path, &bytes).unwrap();
+    let bad = Command::new(exe)
+        .args(["verify", source])
+        .arg(&wav_path)
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&bad.stdout).starts_with("MISMATCH at byte 100"));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_seed_root_transposes_the_generated_piece() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-root-{}", std::process::id()));
