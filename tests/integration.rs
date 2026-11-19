@@ -753,6 +753,33 @@ fn cli_imports_multi_track_midi() {
 }
 
 #[test]
+fn cli_analyze_reports_exact_measurements() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-analyze-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let wav = root.join("constant.wav");
+    std::fs::write(&wav, wav_bytes(&[(0.5, 0.5); 8], 8_000)).unwrap();
+
+    let out = Command::new(exe).arg("analyze").arg(&wav).output().unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&out.stdout),
+        concat!(
+            "frames      8\n",
+            "duration    0.001s\n",
+            "sample rate 8000\n",
+            "peak        0.500015 (-6.02 dBFS)\n",
+            "rms         0.500015 (-6.02 dBFS)\n",
+        )
+    );
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_swing_delays_offbeats_with_exact_identity() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-swing-{}", std::process::id()));

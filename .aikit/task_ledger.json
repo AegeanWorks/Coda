@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-swing",
+    "task_id": "coda-analyze",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795072701.3154643,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795072920.0172002,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795072709.423866,
-    "completed_head": "543e0ee8a0b80b70326092851379e758d12716df",
-    "completed_tree": "103ec7d392632f2ad30dfeedc30313c6b9960312"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-autopan",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 137 tests green; autopan LFO balance and zero-depth identity pinned, audio options grouped to satisfy clippy",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795071191.9806237,
-      "timestamp_str": "2026-11-19 09:53:11",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-autopan",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-autopan' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795071202.143487,
-      "timestamp_str": "2026-11-19 09:53:22",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "8986af3ad161fdffd617fbc8b3dd94c241e575ab",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-quantize",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-analyze",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add a read-only WAV analysis command",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072775.183467,
+      "timestamp_str": "2026-11-19 10:19:35",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Score stats describe notation, but rendered audio has no inspectable level/duration report; mixing decisions currently need guesswork.",
+        "benefits": "analyze reports frames, duration, sample rate, peak and RMS with dBFS in a stable format suitable for scripts and tests.",
+        "risks": "contract: silence must produce finite output (-inf dBFS), invalid WAVs must fail clearly, and numbers must be deterministic; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure analyze module with exact known-vector and silence tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "4a4f05c860401df91d3140954527fe023771456605ac1d1f4813a8119337fe64",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-analyze",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 173 tests green; analyze report pinned byte-for-byte including silence dBFS",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795072920.0172002,
+      "timestamp_str": "2026-11-19 10:22:00",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

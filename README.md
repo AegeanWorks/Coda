@@ -59,6 +59,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **Humanize** — `humanize` adds seeded, bounded timing and velocity jitter; amount 0 is an exact identity.
 - **Diatonic transposition** — `diatonic` moves notes by scale degrees in the chosen key, unlike the chromatic `--semitones` option.
 - **Swing** — `swing` delays off-beat eighths by a controlled ratio for a deterministic long-short feel.
+- **Audio analysis** — `analyze` reports frames, duration, sample rate, peak and RMS (with dBFS) for any Coda WAV.
 
 Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Rendered WAV is 16-bit interleaved stereo, 44.1 kHz by default.
 
@@ -79,6 +80,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `humanize <score.coda> --seed N [--amount 0..1]` | Add seeded timing and velocity jitter. |
 | `diatonic <score.coda> --steps N [--scale name]` | Transpose by scale degrees. |
 | `swing <score.coda> [--ratio 0..1]` | Apply a long-short eighth-note feel. |
+| `analyze <in.wav>` | Report duration, peak and RMS levels. |
 | `reverse-wav <in.wav>` | Reverse audio frames end-to-end. |
 | `mix <a.wav> <b.wav> [--gain-b 0..1]` | Overlay two WAVs. |
 | `compare <a.coda> <b.coda>` | Report structural and audio differences. |

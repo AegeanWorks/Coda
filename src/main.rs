@@ -1,5 +1,6 @@
 //! Command-line front end for Coda.
 
+use coda::analyze;
 use coda::autopan;
 use coda::compare;
 use coda::diatonic;
@@ -45,6 +46,7 @@ USAGE
   coda humanize <score.coda> --seed N [--amount 0..1] [-o out.coda]
   coda diatonic <score.coda> --steps N [--scale name] [-o out.coda]
   coda swing <score.coda> [--ratio 0..1] [-o out.coda]
+  coda analyze <in.wav>
   coda compare <a.coda> <b.coda>
   coda join <a.coda> <b.coda> [more...] [-o out.wav]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1]
@@ -504,6 +506,28 @@ fn main() -> ExitCode {
                 &format!("cannot write '{path}': {e}"),
                 "check that the output directory exists and is writable",
             ),
+        };
+    }
+
+    if command == "analyze" {
+        if positional.is_empty() {
+            return fail("analyze needs an input WAV", "coda analyze in.wav");
+        }
+        let bytes = match fs::read(&positional[0]) {
+            Ok(b) => b,
+            Err(e) => {
+                return fail(
+                    &format!("cannot read '{}': {e}", positional[0]),
+                    "check that the WAV file exists and is readable",
+                )
+            }
+        };
+        return match analyze::analyze(&bytes) {
+            Ok(report) => {
+                print!("{report}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(&e, "use a 16-bit stereo WAV rendered by Coda"),
         };
     }
 

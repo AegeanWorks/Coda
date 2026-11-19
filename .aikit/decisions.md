@@ -228,3 +228,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: A deterministic long-short feel sits between rigid quantization and random humanize.
 - **Decision**: Shift notes whose start sits on an odd eighth-note grid point by ratio times a quarter beat, leaving downbeats and all non-timing fields untouched; ratio 0 is an identity.
 - **Consequences**: Swing output remains exactly serializable, off-beat positions are pinned by byte tests, and it composes with quantize and humanize.
+
+### ADR-032: Audio analysis is read-only with a fixed report format
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Mixing decisions need inspectable level and duration data without leaving Coda.
+- **Decision**: Add a pure analyzer that computes frames, duration, sample rate, peak and RMS with dBFS from 16-bit stereo frames, and a read-only analyze command with an exact pinned report.
+- **Consequences**: Silence reports finite -inf dBFS values; invalid WAVs fail clearly; no score, WAV or gate behavior changes.
