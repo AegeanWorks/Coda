@@ -298,3 +298,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Stereo WAVs could only be panned at render time; post-render channel folding or isolation was unavailable.
 - **Decision**: Add mono/swap/left/right modes that transform decoded frames and re-encode at the original rate with unchanged length.
 - **Consequences**: Each mode's frame math is pinned by byte tests, unknown modes fail clearly, and no existing vectors change.
+
+### ADR-042: Eight-bit export uses unsigned PCM with exact sample mapping
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Retro and embedded targets need 8-bit audio; Coda only wrote 16-bit.
+- **Decision**: Convert decoded frames to unsigned 8-bit PCM with a rebuilt header and exact -1/0/1 mapping, while --bits 16 returns the original bytes unchanged.
+- **Consequences**: Header fields, sample bytes and length are pinned by byte tests; analyze remains 16-bit-only by design.

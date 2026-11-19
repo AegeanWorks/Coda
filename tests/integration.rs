@@ -822,6 +822,34 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_bitdepth_writes_8bit_pcm() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-bitdepth-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let input = root.join("input.wav");
+    let output = root.join("output.wav");
+    std::fs::write(&input, wav_bytes(&[(0.0, 0.0); 100], 8_000)).unwrap();
+
+    let result = Command::new(exe)
+        .arg("bitdepth")
+        .arg(&input)
+        .args(["--bits", "8", "-o"])
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let out = std::fs::read(&output).unwrap();
+    assert_eq!(u16::from_le_bytes([out[34], out[35]]), 8);
+    assert_eq!(out.len(), 44 + 100 * 2);
+    assert_eq!(out[44], 128);
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_channels_transforms_stereo_frames() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-channels-{}", std::process::id()));

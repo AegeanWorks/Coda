@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-channels",
+    "task_id": "coda-bitdepth",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795075222.5002532,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795075480.59643,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795075229.3695145,
-    "completed_head": "b30f341ac62d2f18c510561599a255dc7844fe10",
-    "completed_tree": "ff192dc84b103e26df837e9780ff5c5ed7eb9152"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-crossfade",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 182 tests green; crossfade blend, clamping, shorter length and zero-overlap identity pinned by byte tests",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795073704.91341,
-      "timestamp_str": "2026-11-19 10:35:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-crossfade",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-crossfade' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795073711.2279544,
-      "timestamp_str": "2026-11-19 10:35:11",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "0b1ffcae13d2d326216045c79c59d0be73321c4d",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-trim",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-bitdepth",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add 8-bit WAV export",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075300.2479112,
+      "timestamp_str": "2026-11-19 11:01:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Some retro tooling and embedded targets require 8-bit PCM; Coda currently only writes 16-bit.",
+        "benefits": "bitdepth converts Coda WAVs to 8-bit unsigned PCM with a correct header, while --bits 16 remains an exact identity.",
+        "risks": "contract: sample mapping must be exact (0 -> 128, 1 -> 255, -1 -> 0), header fields must match 8-bit PCM, and invalid inputs must fail clearly; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add a pure bit-depth module with header and sample byte-vector tests, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "b517aeb00832a833b3371990cba6935f2701a46fd1a86652ef4ca9f283f825a6",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-bitdepth",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 219 tests green; 8-bit header, sample mapping and 16-bit identity pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795075480.59643,
+      "timestamp_str": "2026-11-19 11:04:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }
