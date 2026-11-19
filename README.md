@@ -108,6 +108,7 @@ Coda is a deterministic, dependency-free Rust sound compiler that turns a small 
 - **WAV concatenation** — `concat-wav a.wav b.wav [...]` appends several WAVs losslessly.
 - **Overwrite** — `overwrite base.wav insert.wav --at S` replaces a region in place, keeping the base length.
 - **Tuplets** — `tuplets --start B --end B --tuplet-ratio R` compresses or expands a beat window.
+- **Velocity grid** — `velgrid --levels N` snaps velocities to N evenly spaced dynamic levels.
 - **Statistics** — `stats` prints a deterministic summary: note/rest counts, duration, pitch range, distinct pitches, density, waveforms and pan span.
 - **Normalization** — `normalize` scales a Coda WAV to a chosen peak or RMS target (dBFS) with deterministic clamping; it is idempotent and leaves silence untouched.
 - **Templates** — five built-in sketches (`waltz`, `march`, `arp`, `lullaby`, `drone`) materialize as ordinary editable canonical scores.
@@ -198,6 +199,7 @@ Fingerprints use FNV-1a 64-bit: they detect accidental drift, not tampering. Ren
 | `concat-wav <a.wav> <b.wav> [...]` | Append WAVs losslessly. |
 | `overwrite <base.wav> <insert.wav> --at S` | Replace a region in place. |
 | `tuplets <score.coda> --start B --end B --tuplet-ratio R` | Remap a beat window in time. |
+| `velgrid <score.coda> --levels N` | Snap velocities to a level grid. |
 | `dc <in.wav>` | Remove per-channel DC offset. |
 | `pad <in.wav> [--before S] [--after S]` | Add leading/trailing silence. |
 | `fade-to <in.wav> [--fade-in S] [--fade-out S]` | Apply exact fade durations. |

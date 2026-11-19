@@ -697,3 +697,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: stretch scaled a whole score and augment scaled all durations, with no way to compress or expand only a selected beat window.
 - **Decision**: Remap note times inside [start,end) by a ratio, shifting later notes by the window's length delta and preserving durations, pitch, velocity and timbre.
 - **Consequences**: Window compression, outside-note shifting, duration preservation and round-trip are pinned by byte tests.
+
+### ADR-099: Velgrid snaps velocities to a level grid
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: velocity tools scaled or ramped values but could not reduce a score to a small set of discrete dynamic levels.
+- **Decision**: Snap each sounding velocity to the nearest of N evenly spaced levels, choosing the lower on ties and leaving rests and all other fields untouched.
+- **Consequences**: Nearest-level snapping, tie-breaking, rest handling and round-trip are pinned by byte tests.

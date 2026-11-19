@@ -87,6 +87,7 @@ pub mod tremolo;
 pub mod trim;
 pub mod tuplets;
 pub mod vary;
+pub mod velgrid;
 pub mod velocity;
 pub mod verify;
 pub mod vibrato;

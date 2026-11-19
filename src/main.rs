@@ -80,6 +80,7 @@ use coda::tremolo;
 use coda::trim;
 use coda::tuplets;
 use coda::vary;
+use coda::velgrid;
 use coda::velocity;
 use coda::verify;
 use coda::vibrato;
@@ -164,6 +165,7 @@ USAGE
   coda concat-wav <a.wav> <b.wav> [...] [-o out.wav]
   coda overwrite <base.wav> <insert.wav> --at S [-o out.wav]
   coda tuplets <score.coda> --start B --end B --tuplet-ratio R [-o out.coda]
+  coda velgrid <score.coda> --levels N [-o out.coda]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
   coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
@@ -239,6 +241,7 @@ OPTIONS
       --comp-threshold N  Compressor threshold 0..1 (default: 1)
       --comp-ratio N   Compressor ratio 1..20 (default: 1)
       --tuplet-ratio R Tuplet time ratio for a beat window
+      --levels N       Velocity grid level count for velgrid
       --from 0..1      Ramp starting velocity
       --to 0..1        Ramp ending velocity
       --intervals LIST Comma-separated semitones for harmonize
@@ -377,6 +380,7 @@ fn main() -> ExitCode {
     let mut comp_threshold = 1.0_f64;
     let mut comp_ratio = 1.0_f64;
     let mut tuplet_ratio: Option<f64> = None;
+    let mut grid_levels: Option<usize> = None;
     let mut ramp_from: Option<f64> = None;
     let mut ramp_to: Option<f64> = None;
     let mut accent_pattern: Vec<f64> = Vec::new();
@@ -826,6 +830,18 @@ fn main() -> ExitCode {
                     return fail(
                         "--intervals needs a list",
                         "coda harmonize score.coda --intervals 4,7",
+                    )
+                }
+            },
+            "--levels" => match need(i).and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n >= 2 => {
+                    grid_levels = Some(n);
+                    i += 2;
+                }
+                _ => {
+                    return fail(
+                        "--levels must be at least 2",
+                        "coda velgrid score.coda --levels 4",
                     )
                 }
             },
@@ -3547,7 +3563,7 @@ fn main() -> ExitCode {
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
         | "report" | "harmonize" | "arpeggiate" | "invert" | "extract" | "accent" | "register"
         | "augment" | "pedal" | "snap-scale" | "velocity" | "chord" | "intervals" | "sequence"
-        | "sustain" | "ramp" | "tuplets" | "digest" => {
+        | "sustain" | "ramp" | "tuplets" | "velgrid" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -4279,6 +4295,42 @@ fn main() -> ExitCode {
             println!("OK: no warnings");
         }
         return ExitCode::SUCCESS;
+    }
+
+    if command == "velgrid" {
+        let levels = match grid_levels {
+            Some(value) => value,
+            None => {
+                return fail(
+                    "velgrid needs --levels",
+                    "coda velgrid score.coda --levels 4",
+                )
+            }
+        };
+        let snapped = match velgrid::velgrid(&composed, levels) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use at least 2 levels"),
+        };
+        let path = if output == "out.wav" {
+            "velgrid.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&snapped);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {levels} levels)",
+                    text.len(),
+                    snapped.notes.len()
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
     }
 
     if command == "tuplets" {

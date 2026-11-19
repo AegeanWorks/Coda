@@ -2087,6 +2087,42 @@ fn cli_echo_to_adds_a_delayed_tail() {
 }
 
 #[test]
+fn cli_velgrid_snaps_velocities() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-velgrid-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("source.coda");
+    let out = root.join("out.coda");
+    std::fs::write(&source, "note C4 1 0.1\nnote E4 1 0.55\nnote G4 1 0.9\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("velgrid")
+        .arg(&source)
+        .args(["--levels", "3", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let text = std::fs::read_to_string(&out).unwrap();
+    assert!(text.contains("note C4 1 0"), "{text}");
+    assert!(text.contains("note E4 1 0.5"), "{text}");
+    assert!(text.contains("note G4 1 1"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("velgrid")
+        .arg(&source)
+        .args(["--levels", "1"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_tuplets_compresses_a_beat_window() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-tuplets-{}", std::process::id()));
