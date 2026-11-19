@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "coda-fades",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1795070334.8026412,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
@@ -14,33 +14,12 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ]
+    ],
+    "completed_at": 1795070342.8315158,
+    "completed_head": "277c9ed1af456f440ceb500f25f2959398aebc0d",
+    "completed_tree": "7b8ad45d294c004994a70506256fdb795ec5f407"
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-import",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan and add MIDI import for the type-0 subset Coda exports",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795068750.2518616,
-      "timestamp_str": "2026-11-19 09:12:30",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "impact_assessment": {
-        "why": "Coda could write MIDI but not read it back, so an exported piece could not be edited or compared as a score again.",
-        "benefits": "import-midi reconstructs tempo, pitches, timing and velocities from a single-track MIDI file, closing the symbolic round-trip.",
-        "risks": "contract: unsupported formats or running-status violations must fail with a clear message and never panic; dependency: std only; concurrency: none; state: none.",
-        "mitigation": "Write a bounds-checked parser with error tests, add byte-vector round-trip tests through export then import, then run cargo gates and aikit check --strict."
-      },
-      "plan_digest": "81df0b964698fbed8996f1d59407f73adb6b65e33e0a2bad13e3344803b74e0f",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
     {
       "task_id": "coda-midi-import",
       "phase": "phase 4",
@@ -412,6 +391,23 @@
           "path": "projects/coda"
         }
       ]
+    },
+    {
+      "task_id": "coda-fades",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'coda-fades' completed successfully.",
+      "status": "completed",
+      "timestamp": 1795070342.9136436,
+      "timestamp_str": "2026-11-19 09:39:02",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "head": "277c9ed1af456f440ceb500f25f2959398aebc0d",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
