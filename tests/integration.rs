@@ -822,6 +822,43 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_harmonize_adds_voices() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-harm-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let source = root.join("one.coda");
+    let out = root.join("harm.coda");
+    std::fs::write(&source, "note C4 1\n").unwrap();
+
+    let result = Command::new(exe)
+        .arg("harmonize")
+        .arg(&source)
+        .args(["--intervals", "4,7", "-o"])
+        .arg(&out)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+
+    let stats = Command::new(exe).arg("stats").arg(&out).output().unwrap();
+    let text = String::from_utf8_lossy(&stats.stdout);
+    assert!(text.contains("notes       3 sounding"), "{text}");
+    assert!(text.contains("pitch range C4..G4"), "{text}");
+
+    let bad = Command::new(exe)
+        .arg("harmonize")
+        .arg(&source)
+        .args(["--intervals", "99"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_report_writes_a_deterministic_document() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-report-{}", std::process::id()));

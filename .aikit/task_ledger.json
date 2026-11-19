@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "coda-fade-seconds",
+    "task_id": "coda-harmonize",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1795078285.4930506,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1795078575.0806713,
     "owner": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "started_by": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "coda",
         "path": "projects/coda"
       }
-    ],
-    "completed_at": 1795078292.1807866,
-    "completed_head": "11e7a5313042c160c61183c649423031cac0af74",
-    "completed_tree": "82690f57f62dbac58796b59db0894f0689893530"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "coda-midi-timesig",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "5/5 AIKit gates passed; 231 tests green; FF 58 meta bytes exact, default unchanged, invalid meters rejected",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1795076764.4040315,
-      "timestamp_str": "2026-11-19 11:26:04",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "coda",
-          "path": "projects/coda"
-        }
-      ]
-    },
-    {
-      "task_id": "coda-midi-timesig",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'coda-midi-timesig' completed successfully.",
-      "status": "completed",
-      "timestamp": 1795076771.3907037,
-      "timestamp_str": "2026-11-19 11:26:11",
-      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
-      "head": "8dc74d6f94c54f9f1007c6d8cb953120053cfb8c",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "coda-report",
       "phase": "phase 2",
@@ -408,6 +370,48 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "coda-harmonize",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan and add interval-based harmonization",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795078360.2000897,
+      "timestamp_str": "2026-11-19 11:52:40",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "impact_assessment": {
+        "why": "Scores can be transposed and varied but cannot spawn harmony voices from an existing melody.",
+        "benefits": "harmonize adds notes at chosen semitone intervals with reduced velocity, producing editable canonical source.",
+        "risks": "contract: original notes must be unchanged, added pitches must stay in valid MIDI range, and invalid intervals must fail; dependency: std only; concurrency: none; state: none.",
+        "mitigation": "Add byte-vector tests for pitches, velocity scaling and round-trip, a CLI command, then run cargo gates and aikit check --strict."
+      },
+      "plan_digest": "9d5a326a5cd237e54bea3565d389d0243b58c8e683233d18cb7fcd24c3110a66",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
+    },
+    {
+      "task_id": "coda-harmonize",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "5/5 AIKit gates passed; 261 tests green; interval voices, velocity scaling and round-trip pinned by byte tests",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1795078575.0806713,
+      "timestamp_str": "2026-11-19 11:56:15",
+      "agent": "opencode:ses_e0f6573e5ffeDJneQHQmSXuftI",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "coda",
+          "path": "projects/coda"
+        }
+      ]
     }
   ]
 }

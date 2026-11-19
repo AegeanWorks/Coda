@@ -375,3 +375,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Presets cover common fades but cannot express an exact transition length.
 - **Decision**: Expose --fade-in/--fade-out seconds on WAVs through the shared fade engine, requiring at least one non-zero duration.
 - **Consequences**: Edge attenuation, unchanged length and zero-duration identity are pinned by byte tests; presets remain untouched.
+
+### ADR-053: Harmonization adds interval voices at reduced velocity
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: Melodies could be moved and varied but could not grow harmony voices from their existing notes.
+- **Decision**: Append one voice per requested semitone interval after each pitched note at 70% velocity, skipping rests and out-of-range pitches.
+- **Consequences**: Original notes are untouched, intervals are bounded, and the result re-serializes exactly.

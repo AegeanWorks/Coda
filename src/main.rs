@@ -14,6 +14,7 @@ use coda::fade;
 use coda::fade_presets;
 use coda::gain;
 use coda::gen::{self, GenOptions, Scale, Style};
+use coda::harmonize;
 use coda::humanize;
 use coda::join;
 use coda::lint;
@@ -81,6 +82,7 @@ USAGE
   coda gain <in.wav> --db N [-o out.wav]
   coda dc <in.wav> [-o out.wav]
   coda pad <in.wav> [--before S] [--after S] [-o out.wav]
+  coda harmonize <score.coda> --intervals 4,7 [-o out.coda]
   coda join <a.coda> <b.coda> [more...] [-o out.wav] [--crossfade S]
   coda normalize <in.wav> [-o out.wav] [--peak 0..1 | --rms-target dBFS]
   coda reverse-wav <in.wav> [-o out.wav]
@@ -123,6 +125,7 @@ OPTIONS
       --width 0..2     Stereo width for width (0 mono, 1 identity)
       --db N           Gain in dB for gain (-100..6)
       --before S / --after S  Silence seconds for pad
+      --intervals LIST Comma-separated semitones for harmonize
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -231,6 +234,7 @@ fn main() -> ExitCode {
     let mut db_gain: Option<f64> = None;
     let mut pad_before = 0.0_f64;
     let mut pad_after = 0.0_f64;
+    let mut intervals: Vec<i32> = Vec::new();
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -577,6 +581,30 @@ fn main() -> ExitCode {
                     return fail(
                         "--after must be a non-negative number",
                         "coda pad in.wav --after 0.5",
+                    )
+                }
+            },
+            "--intervals" => match need(i) {
+                Some(list) => match list
+                    .split(',')
+                    .map(|part| part.trim().parse::<i32>())
+                    .collect::<Result<Vec<i32>, _>>()
+                {
+                    Ok(values) => {
+                        intervals = values;
+                        i += 2;
+                    }
+                    Err(_) => {
+                        return fail(
+                            "--intervals must be comma-separated integers",
+                            "coda harmonize score.coda --intervals 4,7",
+                        )
+                    }
+                },
+                None => {
+                    return fail(
+                        "--intervals needs a list",
+                        "coda harmonize score.coda --intervals 4,7",
                     )
                 }
             },
@@ -1656,7 +1684,7 @@ fn main() -> ExitCode {
     let composed = match command.as_str() {
         "render" | "info" | "stats" | "lint" | "export-score" | "vary" | "humanize"
         | "diatonic" | "swing" | "stretch" | "loop" | "reverse" | "quantize" | "verify"
-        | "report" | "digest" => {
+        | "report" | "harmonize" | "digest" => {
             if positional.is_empty() {
                 return fail(
                     &format!("{command} needs a score file"),
@@ -1721,6 +1749,34 @@ fn main() -> ExitCode {
     } else {
         transpose::transpose(&composed, semitones)
     };
+
+    if command == "harmonize" {
+        let harmonized = match harmonize::harmonize(&composed, &intervals) {
+            Ok(s) => s,
+            Err(e) => return fail(&e, "use semitone intervals between -24 and 24"),
+        };
+        let path = if output == "out.wav" {
+            "harmonized.coda".to_string()
+        } else {
+            output.clone()
+        };
+        let text = score::serialize(&harmonized);
+        return match fs::write(&path, text.as_bytes()) {
+            Ok(()) => {
+                println!(
+                    "wrote {path} ({} bytes, {} notes, {} voices added)",
+                    text.len(),
+                    harmonized.notes.len(),
+                    harmonized.notes.len().saturating_sub(composed.notes.len())
+                );
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(
+                &format!("cannot write '{path}': {e}"),
+                "check that the output directory exists and is writable",
+            ),
+        };
+    }
 
     if command == "report" {
         let audio = match &audio_path {
