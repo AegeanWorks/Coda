@@ -32,6 +32,11 @@ struct Event {
 
 /// Encode a score as a type-0 MIDI file.
 pub fn midi_bytes(score: &Score) -> Vec<u8> {
+    midi_bytes_ex(score, None)
+}
+
+/// Encode a score, optionally including a time-signature meta event.
+pub fn midi_bytes_ex(score: &Score, time_signature: Option<(u8, u8)>) -> Vec<u8> {
     let ticks = TICKS_PER_QUARTER as f64;
     let mut events: Vec<Event> = Vec::new();
 
@@ -70,6 +75,12 @@ pub fn midi_bytes(score: &Score) -> Vec<u8> {
     track.extend_from_slice(&[0xff, 0x51, 0x03]);
     track.extend_from_slice(&micros.to_be_bytes()[1..]);
 
+    if let Some((numerator, denominator)) = time_signature {
+        let exponent = denominator.trailing_zeros() as u8;
+        push_vlq(&mut track, 0);
+        track.extend_from_slice(&[0xff, 0x58, 0x04, numerator, exponent, 24, 8]);
+    }
+
     let mut previous = 0_u32;
     for event in &events {
         push_vlq(&mut track, event.tick - previous);
@@ -95,6 +106,21 @@ pub fn midi_bytes(score: &Score) -> Vec<u8> {
 mod tests {
     use super::*;
     use crate::score;
+
+    #[test]
+    fn time_signature_meta_event_is_exact() {
+        let score = score::parse("tempo 120\nnote C4 1\n").unwrap();
+        let plain = midi_bytes(&score);
+        assert!(!plain
+            .windows(5)
+            .any(|w| w == [0x00, 0xff, 0x58, 0x04, 0x03]));
+
+        let waltz = midi_bytes_ex(&score, Some((3, 4)));
+        assert!(waltz
+            .windows(8)
+            .any(|w| w == [0x00, 0xff, 0x58, 0x04, 0x03, 0x02, 24, 8]));
+        assert!(waltz.len() > plain.len());
+    }
 
     #[test]
     fn variable_length_quantities() {

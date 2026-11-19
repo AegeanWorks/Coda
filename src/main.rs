@@ -107,6 +107,7 @@ OPTIONS
       --wave <name>    sine | square | triangle | saw | noise | pulse | organ | pluck
       --scale <name>   major | minor | pentatonic | chromatic (seed only)
       --root <note>    Root note for seed (default: C4)
+      --time-signature N/D  Meter for MIDI export (e.g. 3/4)
       --style <name>   flow | arp | chords (seed and album)
       --tempo <bpm>    Override tempo (render and seed)
       --semitones N    Transpose every pitched note by N semitones
@@ -209,6 +210,7 @@ fn main() -> ExitCode {
     let mut channel_mode: Option<String> = None;
     let mut bits: u16 = 8;
     let mut root_note: Option<String> = None;
+    let mut time_signature: Option<(u8, u8)> = None;
     let mut tracks = 3_u32;
     let mut options = GenOptions::default();
     let mut wave_override: Option<Wave> = None;
@@ -476,6 +478,28 @@ fn main() -> ExitCode {
                 }
                 None => return fail("--root needs a note name", "coda seed 42 --root D4"),
             },
+            "--time-signature" => {
+                let raw = need(i).unwrap_or("");
+                let parts: Vec<&str> = raw.split('/').collect();
+                let parsed = match parts.as_slice() {
+                    [n, d] => n.parse::<u8>().ok().zip(d.parse::<u8>().ok()),
+                    _ => None,
+                };
+                match parsed {
+                    Some(pair @ (numerator, denominator))
+                        if numerator > 0 && [1, 2, 4, 8, 16, 32].contains(&denominator) =>
+                    {
+                        time_signature = Some(pair);
+                        i += 2;
+                    }
+                    _ => {
+                        return fail(
+                            "--time-signature must be N/D with D a power of two up to 32",
+                            "coda render score.coda --time-signature 3/4 -o out.mid",
+                        )
+                    }
+                }
+            }
             "--bits" => match need(i).and_then(|v| v.parse::<u16>().ok()) {
                 Some(n @ (8 | 16)) => {
                     bits = n;
@@ -1755,7 +1779,7 @@ fn main() -> ExitCode {
         );
         (text.into_bytes(), summary)
     } else if is_midi {
-        let bytes = coda::midi::midi_bytes(&composed);
+        let bytes = coda::midi::midi_bytes_ex(&composed, time_signature);
         let summary = format!(
             "{} bytes, {} notes, MIDI",
             bytes.len(),

@@ -822,6 +822,54 @@ fn cli_stretch_scales_time_with_exact_identity() {
 }
 
 #[test]
+fn cli_midi_time_signature_writes_meta_event() {
+    let exe = env!("CARGO_BIN_EXE_coda");
+    let root = std::env::temp_dir().join(format!("coda-timesig-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&root);
+    let plain = root.join("plain.mid");
+    let waltz = root.join("waltz.mid");
+
+    let base = Command::new(exe)
+        .args(["render", "examples/scale.coda", "-o"])
+        .arg(&plain)
+        .output()
+        .unwrap();
+    assert!(base.status.success());
+    let meter = Command::new(exe)
+        .args([
+            "render",
+            "examples/scale.coda",
+            "--time-signature",
+            "3/4",
+            "-o",
+        ])
+        .arg(&waltz)
+        .output()
+        .unwrap();
+    assert!(
+        meter.status.success(),
+        "{}",
+        String::from_utf8_lossy(&meter.stderr)
+    );
+
+    let plain_bytes = std::fs::read(&plain).unwrap();
+    let waltz_bytes = std::fs::read(&waltz).unwrap();
+    assert!(!plain_bytes
+        .windows(7)
+        .any(|w| w == [0xff, 0x58, 0x04, 0x03, 0x02, 24, 8]));
+    assert!(waltz_bytes
+        .windows(7)
+        .any(|w| w == [0xff, 0x58, 0x04, 0x03, 0x02, 24, 8]));
+
+    let bad = Command::new(exe)
+        .args(["render", "examples/scale.coda", "--time-signature", "3/3"])
+        .output()
+        .unwrap();
+    assert_eq!(bad.status.code(), Some(2));
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+#[test]
 fn cli_stamp_writes_and_reads_provenance() {
     let exe = env!("CARGO_BIN_EXE_coda");
     let root = std::env::temp_dir().join(format!("coda-stamp-{}", std::process::id()));

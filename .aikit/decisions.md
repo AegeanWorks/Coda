@@ -326,3 +326,10 @@ contract, a dependency, a data format or the architecture; IDs are consecutive a
 - **Context**: Rendered audio did not record which score produced it, breaking the studio's 'explains itself' guarantee.
 - **Decision**: Append an even-padded CODA chunk with source digest, note count and tempo, updating the RIFF size while leaving audio bytes untouched; stamp-info reads it back.
 - **Consequences**: Audio payloads are unchanged, missing stamps report cleanly, and the chunk round-trip is pinned by byte tests.
+
+### ADR-046: MIDI export can write an explicit time signature
+- **Date**: 2026-11-19
+- **Status**: Accepted
+- **Context**: MIDI files carried tempo but no meter, so DAWs assumed 4/4.
+- **Decision**: Add an optional N/D time signature that writes FF 58 04 with a power-of-two denominator exponent at tick 0; omitting it preserves previous MIDI bytes.
+- **Consequences**: The meta event bytes and invalid-meter rejection are pinned by byte tests; existing golden MIDI vectors are unchanged.
